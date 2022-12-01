@@ -1,0 +1,41 @@
+.App {
+  text-align: center;
+}
+
+.appLogo {
+  height: 20px;
+  pointer-events: none;
+  margin: 20px
+}
+
+.appHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.searchContainer {
+  padding: 20px;
+  background-color: #181c56;
+}
+
+.searchHeading {
+  color: white;
+}
+
+.search {
+  width: 50%;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
