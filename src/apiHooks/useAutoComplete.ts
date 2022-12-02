@@ -37,7 +37,7 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [searchTerm, version]);
 
   return { searchResults, v1Error };
 };
