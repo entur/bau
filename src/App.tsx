@@ -4,7 +4,7 @@ import { Heading3, Heading5 } from '@entur/typography';
 import styles from './App.module.scss';
 import { GridContainer, GridItem } from '@entur/grid';
 import { TextField } from '@entur/form';
-import { SearchResults } from "./searchResults";
+import { SearchResults } from "./searchResults/searchResults";
 import { GeocoderVersion } from "./apiHooks/useAutoComplete";
 
 function App() {
