@@ -1,7 +1,13 @@
 import { BannerAlertBox } from "@entur/alert";
-import { Heading3, ListItem, UnorderedList } from "@entur/typography"
+import {
+  SubParagraph,
+  Heading3,
+  PreformattedText,
+} from "@entur/typography"
 import { GeocoderVersion, useAutoComplete } from "../apiHooks/useAutoComplete";
 import styles from "./searchResults.module.scss";
+import { ExpandableText } from "@entur/expand";
+import { HomeIcon } from '@entur/icons'
 
 interface Props {
   searchTerm: string,
@@ -18,12 +24,25 @@ export const SearchResults = ({ searchTerm, geocoderVersion }: Props) => {
       {v1Error ? (
         <BannerAlertBox title="Failed to fetch results" variant="error">Try Again</BannerAlertBox>
       ) : (
-        <UnorderedList> {
-          searchResults?.names.map(name => (
-            <ListItem>{name}</ListItem>
+        <div> {
+          searchResults?.results.map(result => (
+            <div className={styles.searchResultContainer}>
+              <HomeIcon className={styles.searchResultIcon} />
+              <div className={styles.searchResult}>
+                <ExpandableText title={result.name}>
+                  <div className={styles.searchResultDetail}>
+                    <SubParagraph margin='none'>Layer: {result.layer}</SubParagraph>
+                    {
+                      result.categories && <SubParagraph margin='none'>Categories: {result.categories}</SubParagraph>
+                    }
+                  </div>
+                  <PreformattedText>{JSON.stringify(result.properties, null, 4)}</PreformattedText>
+                </ExpandableText>
+              </div>
+            </div>
           ))
         }
-        </UnorderedList>
+        </div>
       )}
     </div>
   );

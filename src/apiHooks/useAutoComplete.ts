@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FetchError, SearchResults } from "./response.types";
+import { FetchError, SearchResults, Properties, Result } from "./response.types";
 
 export enum GeocoderVersion {
   V1 = 'v1',
@@ -8,7 +8,7 @@ export enum GeocoderVersion {
 
 export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) => {
 
-  const [searchResults, setSearchResults] = useState<SearchResults>({ names: [] });
+  const [searchResults, setSearchResults] = useState<SearchResults>({ results: [] });
   const [v1Error, setV1Error] = useState<FetchError | undefined>();
 
   useEffect(() => {
@@ -20,10 +20,16 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
           );
           if (response.ok) {
             const result = await response.json();
-            const names = result.features
-                                .map((feature: { properties: { name: string } }) => feature.properties)
-                                .map((properties: { name: string }) => properties.name)
-            setSearchResults({ names: names });
+            const results: Result[] = result.features
+                                            .map((feature: { properties: { name: string } }) => feature.properties)
+                                            .map((properties: Properties) => ({
+                                              name: properties.name,
+                                              layer: properties.layer,
+                                              categories: properties.category,
+                                              properties: properties
+                                            }));
+
+            setSearchResults({ results: results });
           } else {
             setV1Error({
               status: response.status,
@@ -33,7 +39,7 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
         };
         fetchResults();
       } else {
-        setSearchResults({ names: [] })
+        setSearchResults({ results: [] })
       }
     }, 200);
     return () => clearTimeout(timer);

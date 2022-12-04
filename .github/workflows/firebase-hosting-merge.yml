@@ -7,11 +7,9 @@ name: Deploy to Firebase Hosting on merge
     branches:
       - master
 jobs:
-  build_and_deploy_dev:
+  build_and_deploy:
     runs-on: ubuntu-latest
     environment: 'dev'
-    env:
-      REACT_APP_GEOCODER_URL: https://api.dev.entur.io/geocoder
     steps:
       - uses: actions/checkout@v2
       - run: npm ci && npm run build
