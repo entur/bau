@@ -12,6 +12,7 @@ export interface Result {
   layer: string;
   categories: string[];
   properties: Properties;
+  notExistsInOtherVersion: boolean;
 }
 
 export interface Properties {

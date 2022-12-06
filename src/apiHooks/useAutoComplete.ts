@@ -9,9 +9,10 @@ export enum GeocoderVersion {
 export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) => {
 
   const [searchResults, setSearchResults] = useState<SearchResults>({ results: [] });
-  const [v1Error, setV1Error] = useState<FetchError | undefined>();
+  const [error, setError] = useState<FetchError | undefined>();
 
   useEffect(() => {
+    console.log("useAutoComplete");
     const timer = setTimeout(() => {
       if (searchTerm) {
         const fetchResults = async function () {
@@ -31,7 +32,7 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
 
             setSearchResults({ results: results });
           } else {
-            setV1Error({
+            setError({
               status: response.status,
               statusText: response.statusText,
             });
@@ -45,5 +46,5 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
     return () => clearTimeout(timer);
   }, [searchTerm, version]);
 
-  return { searchResults, v1Error };
+  return { searchResults, error };
 };

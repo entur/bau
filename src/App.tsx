@@ -4,8 +4,7 @@ import { Heading3, Heading5 } from '@entur/typography';
 import styles from './App.module.scss';
 import { GridContainer, GridItem } from '@entur/grid';
 import { TextField } from '@entur/form';
-import { SearchResults } from "./searchResults/searchResults";
-import { GeocoderVersion } from "./apiHooks/useAutoComplete";
+import { AutoCompleteResults } from "./results/autoCompleteResults";
 
 function App() {
 
@@ -19,13 +18,11 @@ function App() {
       </GridItem>
       <GridItem small={12} className={styles.searchContainer}>
         <Heading3 margin='none' className={styles.searchHeading}>Hvor vil du reise?</Heading3>
-        <TextField size="medium" label="Søk" className={styles.search} onChange={(evt) => setSearchTerm(evt.target.value)}/>
+        <TextField size="medium" label="Søk" className={styles.search}
+                   onChange={(evt) => setSearchTerm(evt.target.value)} />
       </GridItem>
-      <GridItem small={3} className="grid-demo-item">
-        <SearchResults searchTerm={searchTerm} geocoderVersion={GeocoderVersion.V1}/>
-      </GridItem>
-      <GridItem small={3} className="grid-demo-item">
-        <SearchResults searchTerm={searchTerm} geocoderVersion={GeocoderVersion.V2}/>
+      <GridItem small={12}>
+        <AutoCompleteResults searchTerm={searchTerm} />
       </GridItem>
     </GridContainer>
   );

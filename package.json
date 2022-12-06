@@ -7,6 +7,7 @@
     "@entur/expand": "^3.3.27",
     "@entur/form": "^5.4.11",
     "@entur/grid": "^0.3.16",
+    "@entur/tooltip": "^2.5.23",
     "@entur/typography": "^1.7.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",

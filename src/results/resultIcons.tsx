@@ -1,5 +1,5 @@
 import { HomeIcon, MapPinIcon } from '@entur/icons'
-import styles from "./searchResults.module.scss";
+import styles from "./results.module.scss";
 import { Category, getNSRIconForCategory } from "../nsrIcons/nsrIcons";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 const homeIconCategoriesCategories = ['vegadresse', 'street', 'bydel'];
 const mapPinIconCategories = ['poi', 'GtfsStop', 'GroupOfStopPlaces'];
 
-export const SearchResultIcons = ({ categories }: Props) => {
+export const ResultIcons = ({ categories }: Props) => {
 
   return (
     <div className={styles.iconsContainer}>
@@ -17,17 +17,17 @@ export const SearchResultIcons = ({ categories }: Props) => {
        <div className={styles.icons}>
          {
            (categories.some(r => mapPinIconCategories.includes(r))) ?
-             <MapPinIcon className={styles.searchResultIcon} />
+             <MapPinIcon className={styles.resultIcon} />
              : categories
                .filter((element, index) => categories.indexOf(element) === index)
-               .map(category => (
-                 <>
+               .map((category, index) => (
+                 <div key={index}>
                    {homeIconCategoriesCategories.includes(category) ?
-                     <HomeIcon className={styles.searchResultIcon} />
+                     <HomeIcon className={styles.resultIcon} />
                      :
-                     <img alt="" className={styles.searchResultIcon} src={getNSRIconForCategory(category as Category)} />
+                     <img alt="" className={styles.resultIcon} src={getNSRIconForCategory(category as Category)} />
                    }
-                 </>
+                 </div>
                ))
          }
        </div>
