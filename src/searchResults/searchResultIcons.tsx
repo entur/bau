@@ -6,7 +6,8 @@ interface Props {
   categories: string[]
 }
 
-const addressCategories = ['vegadresse', 'street', 'bydel'];
+const homeIconCategoriesCategories = ['vegadresse', 'street', 'bydel'];
+const mapPinIconCategories = ['poi', 'GtfsStop', 'GroupOfStopPlaces'];
 
 export const SearchResultIcons = ({ categories }: Props) => {
 
@@ -15,13 +16,13 @@ export const SearchResultIcons = ({ categories }: Props) => {
       {categories &&
        <div className={styles.icons}>
          {
-           (categories.includes('poi') || categories.includes('GtfsStop')) ?
+           (categories.some(r => mapPinIconCategories.includes(r))) ?
              <MapPinIcon className={styles.searchResultIcon} />
              : categories
                .filter((element, index) => categories.indexOf(element) === index)
                .map(category => (
                  <>
-                   {addressCategories.includes(category) ?
+                   {homeIconCategoriesCategories.includes(category) ?
                      <HomeIcon className={styles.searchResultIcon} />
                      :
                      <img alt="" className={styles.searchResultIcon} src={getNSRIconForCategory(category as Category)} />

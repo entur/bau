@@ -36,7 +36,13 @@ export const SearchResults = ({ searchTerm, geocoderVersion }: Props) => {
                   <div className={styles.searchResultDetail}>
                     <SubParagraph margin='none'>Layer: {result.layer}</SubParagraph>
                     {result.categories &&
-                     <SubParagraph margin='none'>Categories: {JSON.stringify(result.categories)}</SubParagraph>
+                     <SubParagraph
+                       margin='none'
+                     >
+                       Categories: {result.categories
+                                          .filter((element, index) => result.categories.indexOf(element) === index)
+                                          .join(', ')}
+                     </SubParagraph>
                     }
                   </div>
                   <PreformattedText>{JSON.stringify(result.properties, null, 4)}</PreformattedText>

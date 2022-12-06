@@ -22,7 +22,6 @@ export type Category =
   | "other";
 
 export const getNSRIconForCategory = (category: Category) => {
-  console.log('getNSRIconForCategory - category', category);
   const categoryIcon = {
     onstreetBus: onstreetBusSvg,
     onstreetTram: onstreetTramSvg,
