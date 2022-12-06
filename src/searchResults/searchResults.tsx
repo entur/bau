@@ -1,7 +1,6 @@
 import { BannerAlertBox } from "@entur/alert";
 import styles from "./searchResults.module.scss";
 import { ExpandableText } from "@entur/expand";
-import { HomeIcon, MapPinIcon } from '@entur/icons'
 import {
   Heading3,
   SubParagraph,
