@@ -21,10 +21,10 @@ function App() {
         <Heading3 margin='none' className={styles.searchHeading}>Hvor vil du reise?</Heading3>
         <TextField size="medium" label="Søk" className={styles.search} onChange={(evt) => setSearchTerm(evt.target.value)}/>
       </GridItem>
-      <GridItem small={6} className="grid-demo-item">
+      <GridItem small={3} className="grid-demo-item">
         <SearchResults searchTerm={searchTerm} geocoderVersion={GeocoderVersion.V1}/>
       </GridItem>
-      <GridItem small={6} className="grid-demo-item">
+      <GridItem small={3} className="grid-demo-item">
         <SearchResults searchTerm={searchTerm} geocoderVersion={GeocoderVersion.V2}/>
       </GridItem>
     </GridContainer>

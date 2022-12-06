@@ -1,13 +1,17 @@
 import { BannerAlertBox } from "@entur/alert";
-import {
-  SubParagraph,
-  Heading3,
-  PreformattedText,
-} from "@entur/typography"
-import { GeocoderVersion, useAutoComplete } from "../apiHooks/useAutoComplete";
 import styles from "./searchResults.module.scss";
 import { ExpandableText } from "@entur/expand";
-import { HomeIcon } from '@entur/icons'
+import { HomeIcon, MapPinIcon } from '@entur/icons'
+import {
+  Heading3,
+  SubParagraph,
+  PreformattedText,
+} from "@entur/typography"
+import {
+  GeocoderVersion,
+  useAutoComplete
+} from "../apiHooks/useAutoComplete";
+import { SearchResultIcons } from "./searchResultIcons";
 
 interface Props {
   searchTerm: string,
@@ -27,13 +31,13 @@ export const SearchResults = ({ searchTerm, geocoderVersion }: Props) => {
         <div> {
           searchResults?.results.map(result => (
             <div className={styles.searchResultContainer}>
-              <HomeIcon className={styles.searchResultIcon} />
+              <SearchResultIcons categories={result.categories} />
               <div className={styles.searchResult}>
                 <ExpandableText title={result.name}>
                   <div className={styles.searchResultDetail}>
                     <SubParagraph margin='none'>Layer: {result.layer}</SubParagraph>
-                    {
-                      result.categories && <SubParagraph margin='none'>Categories: {result.categories}</SubParagraph>
+                    {result.categories &&
+                     <SubParagraph margin='none'>Categories: {JSON.stringify(result.categories)}</SubParagraph>
                     }
                   </div>
                   <PreformattedText>{JSON.stringify(result.properties, null, 4)}</PreformattedText>

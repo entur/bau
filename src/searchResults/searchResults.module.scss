@@ -1,6 +1,5 @@
 .searchResultsContainer {
   padding: 20px;
-  width: 80%;
 }
 
 .searchResultsHeading {
@@ -11,6 +10,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
+//  justify-content: space-between;
 }
 
 .searchResult {
@@ -18,7 +18,7 @@
 }
 
 .searchResultIcon {
-  margin-top: 10px;
+//  margin-top: 10px;
   color: #181c56;
   width: 16px;
   height: 16px;
@@ -28,4 +28,22 @@
 .searchResultDetail {
   display: flex;
   flex-direction: column;
+  max-width: 500px;
+  overflow-wrap: break-word;
+}
+
+.iconsContainer {
+//  margin-top: 5px;
+  display: flex;
+//  flex-flow: row wrap;
+//  gap: 10px;
+  width: 34px;
+  height: 40px
+}
+
+.icons {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 2px;
 }
