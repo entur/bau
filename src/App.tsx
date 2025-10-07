@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import logo from './logo.png';
 import { Heading3, Heading5 } from '@entur/typography';
 import styles from './App.module.scss';

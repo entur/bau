@@ -1,5 +1,5 @@
 import { GeocoderVersion, useAutoComplete } from "../apiHooks/useAutoComplete";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { GridContainer, GridItem } from "@entur/grid";
 import { Results } from "./results";
 import { Heading3 } from "@entur/typography";
