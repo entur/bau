@@ -28,12 +28,14 @@ function App() {
             onClick={() => setSearchMode('autocomplete')}
             style={{
               padding: '0.5rem 1rem',
-              background: searchMode === 'autocomplete' ? '#181C56' : '#fff',
-              color: searchMode === 'autocomplete' ? '#fff' : '#181C56',
-              border: '2px solid #181C56',
+              background: searchMode === 'autocomplete' ? '#e8eaf6' : '#fff',
+              color: '#181C56',
+              border: searchMode === 'autocomplete' ? '2px solid #181C56' : '2px solid #ccc',
               borderRadius: '4px',
               cursor: 'pointer',
-              fontWeight: 'bold'
+              fontWeight: searchMode === 'autocomplete' ? 'bold' : 'normal',
+              boxShadow: searchMode === 'autocomplete' ? 'inset 0 2px 4px rgba(24, 28, 86, 0.15)' : 'none',
+              transition: 'all 0.2s ease'
             }}
           >
             Autocomplete
@@ -42,12 +44,14 @@ function App() {
             onClick={() => setSearchMode('reverse')}
             style={{
               padding: '0.5rem 1rem',
-              background: searchMode === 'reverse' ? '#181C56' : '#fff',
-              color: searchMode === 'reverse' ? '#fff' : '#181C56',
-              border: '2px solid #181C56',
+              background: searchMode === 'reverse' ? '#e8eaf6' : '#fff',
+              color: '#181C56',
+              border: searchMode === 'reverse' ? '2px solid #181C56' : '2px solid #ccc',
               borderRadius: '4px',
               cursor: 'pointer',
-              fontWeight: 'bold'
+              fontWeight: searchMode === 'reverse' ? 'bold' : 'normal',
+              boxShadow: searchMode === 'reverse' ? 'inset 0 2px 4px rgba(24, 28, 86, 0.15)' : 'none',
+              transition: 'all 0.2s ease'
             }}
           >
             Reverse
@@ -63,7 +67,7 @@ function App() {
         ) : (
           <>
             <Heading3 margin='none' className={styles.searchHeading}>Reverse Geocoding</Heading3>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem' }}>
               <TextField
                 size="medium"
                 label="Latitude"
