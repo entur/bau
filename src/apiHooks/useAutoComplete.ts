@@ -16,8 +16,11 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
     const timer = setTimeout(() => {
       if (searchTerm) {
         const fetchResults = async function () {
+          const baseUrl = version === GeocoderVersion.V2 && import.meta.env.VITE_GEOCODER_V2_URL
+            ? import.meta.env.VITE_GEOCODER_V2_URL
+            : `https://api.dev.entur.io/geocoder/${version}`;
           const response = await fetch(
-            `https://api.dev.entur.io/geocoder/${version}/autocomplete?lang=no&size=30&text=${searchTerm}`
+            `${baseUrl}/autocomplete?lang=no&size=30&text=${searchTerm}`
           );
           if (response.ok) {
             const result = await response.json();
