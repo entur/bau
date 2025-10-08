@@ -1,6 +1,13 @@
 # Geocoder-v2 Test
 
-A React application for testing and comparing the results from Entur's Geocoder-v1 and Geocoder-v2 APIs. The app provides an autocomplete search interface for finding places and transport locations in Norway.
+A React application for testing and comparing the results from Entur's Geocoder-v1 and Geocoder-v2 APIs. The app provides both autocomplete search and reverse geocoding interfaces for finding places and transport locations in Norway.
+
+## Features
+
+- **Autocomplete**: Search for places by text input
+- **Reverse Geocoding**: Find places by latitude/longitude coordinates
+- Side-by-side comparison of v1 and v2 results
+- Highlights differences between API versions
 
 ## Tech Stack
 
