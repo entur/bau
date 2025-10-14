@@ -33,35 +33,59 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion, en
     const timer = setTimeout(() => {
       if (searchTerm) {
         const fetchResults = async function () {
-          const apiUrl = getApiUrl(environment);
-          const baseUrl = version === GeocoderVersion.V2 && import.meta.env.VITE_GEOCODER_V2_URL
-            ? import.meta.env.VITE_GEOCODER_V2_URL
-            : `https://${apiUrl}/geocoder/${version}`;
-          const response = await fetch(
-            `${baseUrl}/autocomplete?lang=no&size=30&text=${searchTerm}`
-          );
-          if (response.ok) {
-            const result = await response.json();
-            const results: Result[] = result.features
-                                            .map((feature: { properties: { name: string } }) => feature.properties)
-                                            .map((properties: Properties) => ({
-                                              name: properties.name,
-                                              layer: properties.layer,
-                                              categories: properties.category,
-                                              properties: properties
-                                            }));
+          try {
+            const apiUrl = getApiUrl(environment);
+            const baseUrl = version === GeocoderVersion.V2 && import.meta.env.VITE_GEOCODER_V2_URL
+              ? import.meta.env.VITE_GEOCODER_V2_URL
+              : `https://${apiUrl}/geocoder/${version}`;
 
-            setSearchResults({ results: results });
-          } else {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+            const response = await fetch(
+              `${baseUrl}/autocomplete?lang=no&size=30&text=${searchTerm}`,
+              { signal: controller.signal }
+            );
+
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+              const result = await response.json();
+              const results: Result[] = result.features
+                                              .map((feature: { properties: { name: string } }) => feature.properties)
+                                              .map((properties: Properties) => ({
+                                                name: properties.name,
+                                                layer: properties.layer,
+                                                categories: properties.category,
+                                                properties: properties
+                                              }));
+
+              setSearchResults({ results: results });
+              setError(undefined);
+            } else {
+              setError({
+                status: response.status,
+                statusText: response.statusText,
+              });
+              setSearchResults({ results: [] });
+            }
+          } catch (err) {
+            const errorMessage = err instanceof Error && err.name === 'AbortError'
+              ? 'Request timeout'
+              : err instanceof Error
+                ? err.message
+                : 'Network error';
             setError({
-              status: response.status,
-              statusText: response.statusText,
+              status: 0,
+              statusText: errorMessage,
             });
+            setSearchResults({ results: [] });
           }
         };
         fetchResults();
       } else {
-        setSearchResults({ results: [] })
+        setSearchResults({ results: [] });
+        setError(undefined);
       }
     }, 200);
     return () => clearTimeout(timer);
