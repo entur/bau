@@ -6,7 +6,24 @@ export enum GeocoderVersion {
   V2 = 'v2'
 }
 
-export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) => {
+export enum ApiEnvironment {
+  DEV = 'dev',
+  STAGING = 'staging',
+  PROD = 'prod'
+}
+
+const getApiUrl = (environment: ApiEnvironment): string => {
+  switch (environment) {
+    case ApiEnvironment.DEV:
+      return 'api.dev.entur.io';
+    case ApiEnvironment.STAGING:
+      return 'api.staging.entur.io';
+    case ApiEnvironment.PROD:
+      return 'api.entur.io';
+  }
+};
+
+export const useAutoComplete = (searchTerm: string, version: GeocoderVersion, environment: ApiEnvironment = ApiEnvironment.DEV) => {
 
   const [searchResults, setSearchResults] = useState<SearchResults>({ results: [] });
   const [error, setError] = useState<FetchError | undefined>();
@@ -16,9 +33,10 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
     const timer = setTimeout(() => {
       if (searchTerm) {
         const fetchResults = async function () {
+          const apiUrl = getApiUrl(environment);
           const baseUrl = version === GeocoderVersion.V2 && import.meta.env.VITE_GEOCODER_V2_URL
             ? import.meta.env.VITE_GEOCODER_V2_URL
-            : `https://api.dev.entur.io/geocoder/${version}`;
+            : `https://${apiUrl}/geocoder/${version}`;
           const response = await fetch(
             `${baseUrl}/autocomplete?lang=no&size=30&text=${searchTerm}`
           );
@@ -47,7 +65,7 @@ export const useAutoComplete = (searchTerm: string, version: GeocoderVersion) =>
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm, version]);
+  }, [searchTerm, version, environment]);
 
   return { searchResults, error };
 };

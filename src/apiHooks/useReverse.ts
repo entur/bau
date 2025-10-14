@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react';
 import { FetchError, SearchResults, Properties, Result } from "./response.types";
-import { GeocoderVersion } from "./useAutoComplete";
+import { GeocoderVersion, ApiEnvironment } from "./useAutoComplete";
 
-export const useReverse = (lat: string, lon: string, version: GeocoderVersion) => {
+const getApiUrl = (environment: ApiEnvironment): string => {
+  switch (environment) {
+    case ApiEnvironment.DEV:
+      return 'api.dev.entur.io';
+    case ApiEnvironment.STAGING:
+      return 'api.staging.entur.io';
+    case ApiEnvironment.PROD:
+      return 'api.entur.io';
+  }
+};
+
+export const useReverse = (lat: string, lon: string, version: GeocoderVersion, environment: ApiEnvironment = ApiEnvironment.DEV) => {
 
   const [searchResults, setSearchResults] = useState<SearchResults>({ results: [] });
   const [error, setError] = useState<FetchError | undefined>();
@@ -12,9 +23,10 @@ export const useReverse = (lat: string, lon: string, version: GeocoderVersion) =
     const timer = setTimeout(() => {
       if (lat && lon) {
         const fetchResults = async function () {
+          const apiUrl = getApiUrl(environment);
           const baseUrl = version === GeocoderVersion.V2 && import.meta.env.VITE_GEOCODER_V2_URL
             ? import.meta.env.VITE_GEOCODER_V2_URL
-            : `https://api.dev.entur.io/geocoder/${version}`;
+            : `https://${apiUrl}/geocoder/${version}`;
           const response = await fetch(
             `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=30`
           );
@@ -43,7 +55,7 @@ export const useReverse = (lat: string, lon: string, version: GeocoderVersion) =
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [lat, lon, version]);
+  }, [lat, lon, version, environment]);
 
   return { searchResults, error };
 };

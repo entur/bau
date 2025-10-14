@@ -1,4 +1,4 @@
-import { GeocoderVersion } from "../apiHooks/useAutoComplete";
+import { GeocoderVersion, ApiEnvironment } from "../apiHooks/useAutoComplete";
 import { useReverse } from "../apiHooks/useReverse";
 import { useEffect, useState } from "react";
 import { GridContainer, GridItem } from "@entur/grid";
@@ -9,12 +9,13 @@ import styles from "./results.module.scss";
 interface Props {
   lat: string;
   lon: string;
+  environment: ApiEnvironment;
 }
 
-export const ReverseResults = ({ lat, lon }: Props) => {
+export const ReverseResults = ({ lat, lon, environment }: Props) => {
 
-  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1);
-  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2);
+  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment);
+  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);

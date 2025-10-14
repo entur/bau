@@ -1,4 +1,4 @@
-import { GeocoderVersion, useAutoComplete } from "../apiHooks/useAutoComplete";
+import { GeocoderVersion, useAutoComplete, ApiEnvironment } from "../apiHooks/useAutoComplete";
 import { useEffect, useState } from "react";
 import { GridContainer, GridItem } from "@entur/grid";
 import { Results } from "./results";
@@ -7,12 +7,13 @@ import styles from "./results.module.scss";
 
 interface Props {
   searchTerm: string
+  environment: ApiEnvironment
 }
 
-export const AutoCompleteResults = ({ searchTerm }: Props) => {
+export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
 
-  const resultsV1 = useAutoComplete(searchTerm, GeocoderVersion.V1);
-  const resultsV2 = useAutoComplete(searchTerm, GeocoderVersion.V2);
+  const resultsV1 = useAutoComplete(searchTerm, GeocoderVersion.V1, environment);
+  const resultsV2 = useAutoComplete(searchTerm, GeocoderVersion.V2, environment);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);
