@@ -24,7 +24,7 @@ const getDefaultEnvironment = (): ApiEnvironment => {
 };
 
 function App() {
-    
+
   const urlParams = new URLSearchParams(window.location.search);
   const initialMode = (urlParams.get('mode') as SearchMode) || 'autocomplete';
   const initialSearchTerm = urlParams.get('q') || '';
