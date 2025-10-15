@@ -16,20 +16,20 @@ export interface Result {
 }
 
 export interface Properties {
-  id: string,
-  gid: string,
-  layer: string,
-  source: string,
-  source_id: string,
-  name: string,
-  street: string,
-  accuracy: string,
-  country_a: string,
-  county: string,
-  county_gid: string,
-  locality: string,
-  locality_gid: string,
-  label: string,
-  category: string[],
-  tariff_zones: string[]
+  id: string;
+  gid: string;
+  layer: string;
+  source: string;
+  source_id: string;
+  name: string;
+  street: string;
+  accuracy: string;
+  country_a: string;
+  county: string;
+  county_gid: string;
+  locality: string;
+  locality_gid: string;
+  label: string;
+  category: string[];
+  tariff_zones: string[];
 }
