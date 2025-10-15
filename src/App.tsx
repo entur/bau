@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logo from './logo.png';
 import { Heading3, Heading5 } from '@entur/typography';
 import styles from './App.module.scss';
@@ -24,13 +24,46 @@ const getDefaultEnvironment = (): ApiEnvironment => {
 };
 
 function App() {
+    
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialMode = (urlParams.get('mode') as SearchMode) || 'autocomplete';
+  const initialSearchTerm = urlParams.get('q') || '';
+  const initialLat = urlParams.get('lat') || '';
+  const initialLon = urlParams.get('lon') || '';
+  const initialEnv = (urlParams.get('env') as ApiEnvironment) || getDefaultEnvironment();
 
-  const [searchMode, setSearchMode] = useState<SearchMode>('autocomplete');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [lat, setLat] = useState<string>('');
-  const [lon, setLon] = useState<string>('');
-  const [environment, setEnvironment] = useState<ApiEnvironment>(getDefaultEnvironment());
+  const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
+  const [lat, setLat] = useState<string>(initialLat);
+  const [lon, setLon] = useState<string>(initialLon);
+  const [environment, setEnvironment] = useState<ApiEnvironment>(initialEnv);
   const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
+
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (searchMode !== 'autocomplete') {
+      params.set('mode', searchMode);
+    }
+
+    if (environment !== getDefaultEnvironment()) {
+      params.set('env', environment);
+    }
+
+    if (searchMode === 'autocomplete' && searchTerm) {
+      params.set('q', searchTerm);
+    } else if (searchMode === 'reverse') {
+      if (lat) params.set('lat', lat);
+      if (lon) params.set('lon', lon);
+    }
+
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+
+    window.history.replaceState({}, '', newUrl);
+  }, [searchMode, searchTerm, lat, lon, environment]);
 
   return (
     <GridContainer spacing='none'>
@@ -114,6 +147,7 @@ function App() {
           <>
             <Heading3 margin='none' className={styles.searchHeading}>Hvor vil du reise?</Heading3>
             <TextField size="medium" label="Søk" className={styles.search}
+                       value={searchTerm}
                        onChange={(evt) => setSearchTerm(evt.target.value)} />
           </>
         ) : (
@@ -125,6 +159,7 @@ function App() {
                 label="Latitude"
                 style={{ maxWidth: '200px' }}
                 placeholder="e.g. 59.9139"
+                value={lat}
                 onChange={(evt) => setLat(evt.target.value)}
               />
               <TextField
@@ -132,6 +167,7 @@ function App() {
                 label="Longitude"
                 style={{ maxWidth: '200px' }}
                 placeholder="e.g. 10.7522"
+                value={lon}
                 onChange={(evt) => setLon(evt.target.value)}
               />
             </div>
