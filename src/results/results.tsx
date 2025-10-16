@@ -9,16 +9,32 @@ import { Tooltip } from "@entur/tooltip";
 interface Props {
   searchResults: SearchResults;
   missingResults: string[];
+  highlightedId: string | null; // NEW: ID of result being hovered
+  onResultHover: (id: string | null) => void; // NEW: Hover callback
+  matchColors: Map<string, string>; // NEW: Map of ID to color
 }
 
-export const Results = ({ searchResults, missingResults }: Props) => {
+export const Results = ({
+  searchResults,
+  missingResults,
+  highlightedId,
+  onResultHover,
+  matchColors,
+}: Props) => {
   return (
     <div>
       {" "}
       {searchResults?.results.map((result, index) => (
         <div
-          className={styles.resultContainer}
+          className={`${styles.resultContainer} ${
+            highlightedId === result.properties.id ? styles.highlighted : ""
+          }`}
           key={result.properties.id + index}
+          onMouseEnter={() => onResultHover(result.properties.id)}
+          onMouseLeave={() => onResultHover(null)}
+          style={{
+            borderLeft: `4px solid ${matchColors.get(result.properties.id) || "#9e9e9e"}`,
+          }}
         >
           {missingResults && (
             <div className={styles.warningContainer}>

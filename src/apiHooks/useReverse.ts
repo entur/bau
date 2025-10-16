@@ -54,17 +54,25 @@ export const useReverse = (
 
             if (response.ok) {
               const result = await response.json();
-              const results: Result[] = result.features
-                .map(
-                  (feature: { properties: { name: string } }) =>
-                    feature.properties,
-                )
-                .map((properties: Properties) => ({
-                  name: properties.name,
-                  layer: properties.layer,
-                  categories: properties.category,
-                  properties: properties,
-                }));
+
+              // Define Feature interface for better type safety
+              interface GeoJSONFeature {
+                properties: Properties;
+                geometry?: {
+                  type: "Point";
+                  coordinates: [number, number];
+                };
+              }
+
+              const results: Result[] = result.features.map(
+                (feature: GeoJSONFeature) => ({
+                  name: feature.properties.name,
+                  layer: feature.properties.layer,
+                  categories: feature.properties.category,
+                  properties: feature.properties,
+                  geometry: feature.geometry, // NEW: Capture geometry
+                }),
+              );
 
               setSearchResults({ results: results });
               setError(undefined);

@@ -3,6 +3,11 @@ export type FetchError = {
   statusText: string;
 };
 
+export interface Geometry {
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
+}
+
 export interface SearchResults {
   results: Result[];
 }
@@ -12,6 +17,7 @@ export interface Result {
   layer: string;
   categories: string[];
   properties: Properties;
+  geometry?: Geometry; // Optional to handle missing geometry gracefully
   notExistsInOtherVersion: boolean;
 }
 

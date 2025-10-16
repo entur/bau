@@ -5,6 +5,7 @@ import { GridContainer, GridItem } from "@entur/grid";
 import { Results } from "./results";
 import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
+import { getMatchColor } from "../utils/colorHash";
 
 interface Props {
   lat: string;
@@ -18,6 +19,33 @@ export const ReverseResults = ({ lat, lon, environment }: Props) => {
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+  // Calculate match colors for visual pairing
+  const matchColorsV1 = new Map<string, string>();
+  const matchColorsV2 = new Map<string, string>();
+
+  resultsV1.searchResults.results.forEach((result) => {
+    matchColorsV1.set(
+      result.properties.id,
+      getMatchColor(
+        result.properties.id,
+        resultsV2.searchResults.results,
+        missingResultIdInV1.includes(result.properties.id),
+      ),
+    );
+  });
+
+  resultsV2.searchResults.results.forEach((result) => {
+    matchColorsV2.set(
+      result.properties.id,
+      getMatchColor(
+        result.properties.id,
+        resultsV1.searchResults.results,
+        missingResultIdInV2.includes(result.properties.id),
+      ),
+    );
+  });
 
   useEffect(() => {
     setMissingResultIdsInV1(
@@ -72,6 +100,9 @@ export const ReverseResults = ({ lat, lon, environment }: Props) => {
           <Results
             searchResults={resultsV1.searchResults}
             missingResults={missingResultIdInV1}
+            highlightedId={highlightedId}
+            onResultHover={setHighlightedId}
+            matchColors={matchColorsV1}
           />
         </div>
       </GridItem>
@@ -103,6 +134,9 @@ export const ReverseResults = ({ lat, lon, environment }: Props) => {
           <Results
             searchResults={resultsV2.searchResults}
             missingResults={missingResultIdInV2}
+            highlightedId={highlightedId}
+            onResultHover={setHighlightedId}
+            matchColors={matchColorsV2}
           />
         </div>
       </GridItem>
