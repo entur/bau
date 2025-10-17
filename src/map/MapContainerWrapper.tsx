@@ -12,6 +12,8 @@ interface Props {
   v2Results: Result[];
   focusPoint?: { lat: number; lon: number };
   onFocusPointChange?: (lat: number, lon: number) => void;
+  reversePoint?: { lat: number; lon: number };
+  onReversePointChange?: (lat: number, lon: number) => void;
 }
 
 export const MapContainerWrapper = ({
@@ -19,6 +21,8 @@ export const MapContainerWrapper = ({
   v2Results,
   focusPoint,
   onFocusPointChange,
+  reversePoint,
+  onReversePointChange,
 }: Props) => {
   const [showMatched, setShowMatched] = useState(true);
   const [showV1Only, setShowV1Only] = useState(true);
@@ -92,12 +96,13 @@ export const MapContainerWrapper = ({
     selectedCategories,
   ]);
 
-  // Only show map if there are results with geometry
+  // Show map if there are results with geometry OR if it's interactive (for setting points)
   const hasGeometry =
     v1Results.some((r) => r.geometry) || v2Results.some((r) => r.geometry);
+  const isInteractive = !!(onFocusPointChange || onReversePointChange);
 
-  if (!hasGeometry) {
-    return null; // Don't render map if no results have coordinates
+  if (!hasGeometry && !isInteractive) {
+    return null; // Don't render map if no results and not interactive
   }
 
   return (
@@ -113,7 +118,8 @@ export const MapContainerWrapper = ({
             showV2Only={showV2Only}
             selectedCategories={selectedCategories}
             focusPoint={focusPoint}
-            onMapClick={onFocusPointChange}
+            onMapClick={onFocusPointChange || onReversePointChange}
+            reversePoint={reversePoint}
           />
         </div>
         <div className={styles.mapSidebar}>

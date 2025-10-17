@@ -21,6 +21,7 @@ interface Props {
   zoom?: number;
   focusPoint?: { lat: number; lon: number };
   onMapClick?: (lat: number, lon: number) => void;
+  reversePoint?: { lat: number; lon: number };
 }
 
 export const ComparisonMap = ({
@@ -34,6 +35,7 @@ export const ComparisonMap = ({
   zoom = 12,
   focusPoint,
   onMapClick,
+  reversePoint,
 }: Props) => {
   // Fix Leaflet icon paths on mount
   useEffect(() => {
@@ -157,7 +159,7 @@ export const ComparisonMap = ({
 
         <MapClickHandler />
 
-        {/* Focus point marker */}
+        {/* Focus point marker (autocomplete) */}
         {focusPoint && (
           <Marker
             position={[focusPoint.lat, focusPoint.lon]}
@@ -171,6 +173,26 @@ export const ComparisonMap = ({
                 </div>
                 <div className={styles.popupDetail}>
                   Lon: {focusPoint.lon.toFixed(4)}
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {/* Reverse search point marker */}
+        {reversePoint && (
+          <Marker
+            position={[reversePoint.lat, reversePoint.lon]}
+            icon={createCustomIcon("orange")}
+          >
+            <Popup>
+              <div className={styles.popup}>
+                <strong>Reverse Search Point</strong>
+                <div className={styles.popupDetail}>
+                  Lat: {reversePoint.lat.toFixed(4)}
+                </div>
+                <div className={styles.popupDetail}>
+                  Lon: {reversePoint.lon.toFixed(4)}
                 </div>
               </div>
             </Popup>

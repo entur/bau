@@ -12,9 +12,16 @@ interface Props {
   lon: string;
   environment: ApiEnvironment;
   size?: number;
+  onPointChange?: (lat: string, lon: string) => void;
 }
 
-export const ReverseResults = ({ lat, lon, environment, size = 30 }: Props) => {
+export const ReverseResults = ({
+  lat,
+  lon,
+  environment,
+  size = 30,
+  onPointChange,
+}: Props) => {
   const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size);
   const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size);
 
@@ -159,6 +166,17 @@ export const ReverseResults = ({ lat, lon, environment, size = 30 }: Props) => {
           <MapContainerWrapper
             v1Results={resultsV1.searchResults.results}
             v2Results={resultsV2.searchResults.results}
+            reversePoint={
+              lat && lon
+                ? {
+                    lat: parseFloat(lat),
+                    lon: parseFloat(lon),
+                  }
+                : undefined
+            }
+            onReversePointChange={(newLat, newLon) => {
+              onPointChange?.(newLat.toString(), newLon.toString());
+            }}
           />
         </div>
       </div>

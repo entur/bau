@@ -259,30 +259,30 @@ function App() {
             <Heading3 margin="none" className={styles.searchHeading}>
               Reverse Geocoding
             </Heading3>
-            <div style={{ display: "flex", gap: "1rem" }}>
+            <div
+              style={{ display: "flex", gap: "1rem", alignItems: "flex-end" }}
+            >
               <TextField
                 size="medium"
                 label="Latitude"
-                style={{ maxWidth: "200px" }}
-                placeholder="e.g. 59.9139"
+                style={{ flex: 1 }}
+                placeholder="Click map or enter e.g. 59.9139"
                 value={lat}
                 onChange={(evt) => setLat(evt.target.value)}
               />
               <TextField
                 size="medium"
                 label="Longitude"
-                style={{ maxWidth: "200px" }}
-                placeholder="e.g. 10.7522"
+                style={{ flex: 1 }}
+                placeholder="Click map or enter e.g. 10.7522"
                 value={lon}
                 onChange={(evt) => setLon(evt.target.value)}
               />
-            </div>
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
               <TextField
                 size="medium"
                 label="Result size"
                 type="number"
-                style={{ maxWidth: "150px" }}
+                style={{ width: "120px" }}
                 placeholder="30"
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
@@ -310,6 +310,10 @@ function App() {
             lon={lon}
             environment={environment}
             size={parseInt(size) || 30}
+            onPointChange={(newLat, newLon) => {
+              setLat(newLat);
+              setLon(newLon);
+            }}
           />
         )}
       </GridItem>
