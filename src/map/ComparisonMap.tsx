@@ -5,7 +5,9 @@ import {
   Marker,
   Popup,
   useMapEvents,
+  useMap,
 } from "react-leaflet";
+import L from "leaflet";
 import { Result } from "../apiHooks/response.types";
 import { createCustomIcon, fixLeafletIconPaths } from "./utils/markerIcons";
 import styles from "./ComparisonMap.module.scss";
@@ -149,6 +151,46 @@ export const ComparisonMap = ({
     return null;
   };
 
+  // Auto-fit bounds to show all markers
+  const FitBounds = () => {
+    const map = useMap();
+
+    useEffect(() => {
+      const points: L.LatLngExpression[] = [];
+
+      // Add all visible result markers
+      markersToShow.forEach((marker) => {
+        if (marker.result.geometry) {
+          points.push([
+            marker.result.geometry.coordinates[1], // lat
+            marker.result.geometry.coordinates[0], // lon
+          ]);
+        }
+      });
+
+      // Add focus point if present
+      if (focusPoint) {
+        points.push([focusPoint.lat, focusPoint.lon]);
+      }
+
+      // Add reverse point if present
+      if (reversePoint) {
+        points.push([reversePoint.lat, reversePoint.lon]);
+      }
+
+      // Only fit bounds if we have points
+      if (points.length > 0) {
+        const bounds = L.latLngBounds(points);
+        map.fitBounds(bounds, {
+          padding: [50, 50], // Add padding around the bounds
+          maxZoom: 15, // Don't zoom in too far for single points
+        });
+      }
+    }, [map, markersToShow, focusPoint, reversePoint]);
+
+    return null;
+  };
+
   return (
     <div className={styles.mapWrapper}>
       <MapContainer center={center} zoom={zoom} className={styles.map}>
@@ -158,6 +200,7 @@ export const ComparisonMap = ({
         />
 
         <MapClickHandler />
+        <FitBounds />
 
         {/* Focus point marker (autocomplete) */}
         {focusPoint && (
