@@ -4,7 +4,6 @@ import {
   ApiEnvironment,
 } from "../apiHooks/useAutoComplete";
 import { useEffect, useState } from "react";
-import { GridContainer, GridItem } from "@entur/grid";
 import { Results } from "./results";
 import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
@@ -14,18 +13,35 @@ import { MapContainerWrapper } from "../map/MapContainerWrapper";
 interface Props {
   searchTerm: string;
   environment: ApiEnvironment;
+  size?: number;
+  focusLat?: string;
+  focusLon?: string;
+  onFocusChange?: (lat: string, lon: string) => void;
 }
 
-export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
+export const AutoCompleteResults = ({
+  searchTerm,
+  environment,
+  size = 30,
+  focusLat,
+  focusLon,
+  onFocusChange,
+}: Props) => {
   const resultsV1 = useAutoComplete(
     searchTerm,
     GeocoderVersion.V1,
     environment,
+    size,
+    focusLat,
+    focusLon,
   );
   const resultsV2 = useAutoComplete(
     searchTerm,
     GeocoderVersion.V2,
     environment,
+    size,
+    focusLat,
+    focusLon,
   );
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
@@ -83,13 +99,17 @@ export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
 
   return (
     <>
-      {/* Geographic Distribution Map */}
-      <MapContainerWrapper
-        v1Results={resultsV1.searchResults.results}
-        v2Results={resultsV2.searchResults.results}
-      />
-      <GridContainer spacing="none">
-        <GridItem small={4}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 2fr",
+          gap: "1rem",
+          alignItems: "start",
+        }}
+        className={styles.resultsLayout}
+      >
+        {/* V1 Column */}
+        <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V1}
@@ -122,8 +142,10 @@ export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
               matchColors={matchColorsV1}
             />
           </div>
-        </GridItem>
-        <GridItem small={4}>
+        </div>
+
+        {/* V2 Column */}
+        <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V2}
@@ -156,8 +178,27 @@ export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
               matchColors={matchColorsV2}
             />
           </div>
-        </GridItem>
-      </GridContainer>
+        </div>
+
+        {/* Map Column */}
+        <div>
+          <MapContainerWrapper
+            v1Results={resultsV1.searchResults.results}
+            v2Results={resultsV2.searchResults.results}
+            focusPoint={
+              focusLat && focusLon
+                ? {
+                    lat: parseFloat(focusLat),
+                    lon: parseFloat(focusLon),
+                  }
+                : undefined
+            }
+            onFocusPointChange={(lat, lon) => {
+              onFocusChange?.(lat.toString(), lon.toString());
+            }}
+          />
+        </div>
+      </div>
     </>
   );
 };

@@ -6,6 +6,7 @@ interface Props {
   v2OnlyCount: number;
   totalV1: number;
   totalV2: number;
+  visibleCount: number; // NEW: currently visible on map
 }
 
 export const MapStatistics = ({
@@ -14,6 +15,7 @@ export const MapStatistics = ({
   v2OnlyCount,
   totalV1,
   totalV2,
+  visibleCount,
 }: Props) => {
   return (
     <div className={styles.statsPanel}>
@@ -36,6 +38,10 @@ export const MapStatistics = ({
       </div>
       <div className={styles.statRow}>
         <span>Total V2: {totalV2}</span>
+      </div>
+      <div className={styles.statDivider} />
+      <div className={styles.statRow}>
+        <span>Visible on map: {visibleCount}</span>
       </div>
     </div>
   );

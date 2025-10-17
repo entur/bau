@@ -64,3 +64,19 @@
     height: 16px;
   }
 }
+
+.resultsLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+
+    // Reorder: map first, then tables
+    & > div:nth-child(3) {
+      order: -1;
+    }
+  }
+}

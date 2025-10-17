@@ -10,6 +10,8 @@
 @import "@entur/expand/dist/styles.css";
 @import "@entur/tooltip/dist/styles.css";
 @import "leaflet/dist/leaflet.css";
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 body {
   margin: 0;

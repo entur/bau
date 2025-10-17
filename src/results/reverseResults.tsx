@@ -1,7 +1,6 @@
 import { GeocoderVersion, ApiEnvironment } from "../apiHooks/useAutoComplete";
 import { useReverse } from "../apiHooks/useReverse";
 import { useEffect, useState } from "react";
-import { GridContainer, GridItem } from "@entur/grid";
 import { Results } from "./results";
 import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
@@ -12,11 +11,12 @@ interface Props {
   lat: string;
   lon: string;
   environment: ApiEnvironment;
+  size?: number;
 }
 
-export const ReverseResults = ({ lat, lon, environment }: Props) => {
-  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment);
-  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment);
+export const ReverseResults = ({ lat, lon, environment, size = 30 }: Props) => {
+  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size);
+  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);
@@ -73,13 +73,17 @@ export const ReverseResults = ({ lat, lon, environment }: Props) => {
 
   return (
     <>
-      {/* Geographic Distribution Map */}
-      <MapContainerWrapper
-        v1Results={resultsV1.searchResults.results}
-        v2Results={resultsV2.searchResults.results}
-      />
-      <GridContainer spacing="none">
-        <GridItem small={4}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 2fr",
+          gap: "1rem",
+          alignItems: "start",
+        }}
+        className={styles.resultsLayout}
+      >
+        {/* V1 Column */}
+        <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V1}
@@ -112,8 +116,10 @@ export const ReverseResults = ({ lat, lon, environment }: Props) => {
               matchColors={matchColorsV1}
             />
           </div>
-        </GridItem>
-        <GridItem small={4}>
+        </div>
+
+        {/* V2 Column */}
+        <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V2}
@@ -146,8 +152,16 @@ export const ReverseResults = ({ lat, lon, environment }: Props) => {
               matchColors={matchColorsV2}
             />
           </div>
-        </GridItem>
-      </GridContainer>
+        </div>
+
+        {/* Map Column */}
+        <div>
+          <MapContainerWrapper
+            v1Results={resultsV1.searchResults.results}
+            v2Results={resultsV2.searchResults.results}
+          />
+        </div>
+      </div>
     </>
   );
 };

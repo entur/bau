@@ -32,12 +32,24 @@ function App() {
   const initialEnv =
     (urlParams.get("env") as ApiEnvironment) || getDefaultEnvironment();
 
+  const initialSize = urlParams.get("size") || "30";
+  const initialFocusLat = urlParams.get("focus_lat") || "";
+  const initialFocusLon = urlParams.get("focus_lon") || "";
+
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [lat, setLat] = useState<string>(initialLat);
   const [lon, setLon] = useState<string>(initialLon);
   const [environment, setEnvironment] = useState<ApiEnvironment>(initialEnv);
+  const [size, setSize] = useState<string>(initialSize);
+  const [focusLat, setFocusLat] = useState<string>(initialFocusLat);
+  const [focusLon, setFocusLon] = useState<string>(initialFocusLon);
   const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
+
+  const handleClearFocus = () => {
+    setFocusLat("");
+    setFocusLon("");
+  };
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -57,12 +69,21 @@ function App() {
       if (lon) params.set("lon", lon);
     }
 
+    if (size && size !== "30") {
+      params.set("size", size);
+    }
+
+    if (focusLat && focusLon) {
+      params.set("focus_lat", focusLat);
+      params.set("focus_lon", focusLon);
+    }
+
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, environment]);
+  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon]);
 
   return (
     <GridContainer spacing="none">
@@ -169,13 +190,69 @@ function App() {
             <Heading3 margin="none" className={styles.searchHeading}>
               Hvor vil du reise?
             </Heading3>
-            <TextField
-              size="medium"
-              label="Søk"
-              className={styles.search}
-              value={searchTerm}
-              onChange={(evt) => setSearchTerm(evt.target.value)}
-            />
+            <div
+              style={{ display: "flex", gap: "1rem", alignItems: "flex-end" }}
+            >
+              <TextField
+                size="medium"
+                label="Søk"
+                style={{ flex: 1 }}
+                value={searchTerm}
+                onChange={(evt) => setSearchTerm(evt.target.value)}
+              />
+              <TextField
+                size="medium"
+                label="Result size"
+                type="number"
+                style={{ width: "120px" }}
+                placeholder="30"
+                value={size}
+                onChange={(evt) => setSize(evt.target.value)}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                marginTop: "1rem",
+                alignItems: "flex-end",
+              }}
+            >
+              <TextField
+                size="medium"
+                label="Focus Latitude"
+                style={{ maxWidth: "200px" }}
+                placeholder="Click map to set"
+                value={focusLat}
+                onChange={(evt) => setFocusLat(evt.target.value)}
+              />
+              <TextField
+                size="medium"
+                label="Focus Longitude"
+                style={{ maxWidth: "200px" }}
+                placeholder="Click map to set"
+                value={focusLon}
+                onChange={(evt) => setFocusLon(evt.target.value)}
+              />
+              {focusLat && focusLon && (
+                <button
+                  onClick={handleClearFocus}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    fontSize: "0.9rem",
+                    border: "2px solid #d32f2f",
+                    borderRadius: "4px",
+                    background: "#fff",
+                    color: "#d32f2f",
+                    cursor: "pointer",
+                    fontWeight: "500",
+                    height: "42px",
+                  }}
+                >
+                  Clear focus
+                </button>
+              )}
+            </div>
           </>
         ) : (
           <>
@@ -200,6 +277,17 @@ function App() {
                 onChange={(evt) => setLon(evt.target.value)}
               />
             </div>
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+              <TextField
+                size="medium"
+                label="Result size"
+                type="number"
+                style={{ maxWidth: "150px" }}
+                placeholder="30"
+                value={size}
+                onChange={(evt) => setSize(evt.target.value)}
+              />
+            </div>
           </>
         )}
       </GridItem>
@@ -208,9 +296,21 @@ function App() {
           <AutoCompleteResults
             searchTerm={searchTerm}
             environment={environment}
+            size={parseInt(size) || 30}
+            focusLat={focusLat}
+            focusLon={focusLon}
+            onFocusChange={(lat, lon) => {
+              setFocusLat(lat);
+              setFocusLon(lon);
+            }}
           />
         ) : (
-          <ReverseResults lat={lat} lon={lon} environment={environment} />
+          <ReverseResults
+            lat={lat}
+            lon={lon}
+            environment={environment}
+            size={parseInt(size) || 30}
+          />
         )}
       </GridItem>
     </GridContainer>

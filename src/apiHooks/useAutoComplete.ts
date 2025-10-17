@@ -32,6 +32,9 @@ export const useAutoComplete = (
   searchTerm: string,
   version: GeocoderVersion,
   environment: ApiEnvironment = ApiEnvironment.DEV,
+  size: number = 30,
+  focusLat?: string,
+  focusLon?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -54,8 +57,12 @@ export const useAutoComplete = (
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
+            const focusParams =
+              focusLat && focusLon
+                ? `&focus.point.lat=${focusLat}&focus.point.lon=${focusLon}`
+                : "";
             const response = await fetch(
-              `${baseUrl}/autocomplete?lang=no&size=30&text=${searchTerm}`,
+              `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}`,
               { signal: controller.signal },
             );
 
@@ -113,7 +120,7 @@ export const useAutoComplete = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm, version, environment]);
+  }, [searchTerm, version, environment, size, focusLat, focusLon]);
 
   return { searchResults, error };
 };
