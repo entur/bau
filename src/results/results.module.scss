@@ -10,6 +10,14 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  transition: all 0.2s ease; // Smooth transition for highlight
+
+  &.highlighted {
+    box-shadow: 0 0 0 3px #00c853; // Green glow
+    background-color: rgba(0, 200, 83, 0.05);
+    transform: scale(1.02);
+    z-index: 10; // Bring to front when highlighted
+  }
 }
 
 .result {
@@ -54,5 +62,21 @@
 
   > div {
     height: 16px;
+  }
+}
+
+.resultsLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+
+    // Reorder: map first, then tables
+    & > div:nth-child(3) {
+      order: -1;
+    }
   }
 }

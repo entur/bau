@@ -4,30 +4,75 @@ import {
   ApiEnvironment,
 } from "../apiHooks/useAutoComplete";
 import { useEffect, useState } from "react";
-import { GridContainer, GridItem } from "@entur/grid";
 import { Results } from "./results";
 import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
+import { getMatchColor } from "../utils/colorHash";
+import { MapContainerWrapper } from "../map/MapContainerWrapper";
 
 interface Props {
   searchTerm: string;
   environment: ApiEnvironment;
+  size?: number;
+  focusLat?: string;
+  focusLon?: string;
+  onFocusChange?: (lat: string, lon: string) => void;
 }
 
-export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
+export const AutoCompleteResults = ({
+  searchTerm,
+  environment,
+  size = 30,
+  focusLat,
+  focusLon,
+  onFocusChange,
+}: Props) => {
   const resultsV1 = useAutoComplete(
     searchTerm,
     GeocoderVersion.V1,
     environment,
+    size,
+    focusLat,
+    focusLon,
   );
   const resultsV2 = useAutoComplete(
     searchTerm,
     GeocoderVersion.V2,
     environment,
+    size,
+    focusLat,
+    focusLon,
   );
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+  // Calculate match colors for visual pairing
+  const matchColorsV1 = new Map<string, string>();
+  const matchColorsV2 = new Map<string, string>();
+
+  resultsV1.searchResults.results.forEach((result) => {
+    matchColorsV1.set(
+      result.properties.id,
+      getMatchColor(
+        result.properties.id,
+        resultsV2.searchResults.results,
+        missingResultIdInV1.includes(result.properties.id),
+      ),
+    );
+  });
+
+  resultsV2.searchResults.results.forEach((result) => {
+    matchColorsV2.set(
+      result.properties.id,
+      getMatchColor(
+        result.properties.id,
+        resultsV1.searchResults.results,
+        missingResultIdInV2.includes(result.properties.id),
+      ),
+    );
+  });
 
   useEffect(() => {
     setMissingResultIdsInV1(
@@ -53,69 +98,107 @@ export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
   }, [resultsV1.searchResults.results, resultsV2.searchResults.results]);
 
   return (
-    <GridContainer spacing="none">
-      <GridItem small={4}>
-        <div className={styles.resultsContainer}>
-          <Heading3 className={styles.resultsHeading}>
-            Geocoder - {GeocoderVersion.V1}
-          </Heading3>
-          {resultsV1.error && (
-            <div
-              style={{
-                backgroundColor: "#f8d7da",
-                border: "1px solid #f5c6cb",
-                borderRadius: "4px",
-                padding: "0.75rem",
-                marginBottom: "1rem",
-                color: "#721c24",
-                fontSize: "0.9rem",
-              }}
-            >
-              <strong>⚠️ Endpoint Error:</strong> {resultsV1.error.statusText}
-              {resultsV1.error.status > 0 &&
-                ` (HTTP ${resultsV1.error.status})`}
-              <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
-                Showing empty result
+    <>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 2fr",
+          gap: "1rem",
+          alignItems: "start",
+        }}
+        className={styles.resultsLayout}
+      >
+        {/* V1 Column */}
+        <div>
+          <div className={styles.resultsContainer}>
+            <Heading3 className={styles.resultsHeading}>
+              Geocoder - {GeocoderVersion.V1}
+            </Heading3>
+            {resultsV1.error && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  border: "1px solid #f5c6cb",
+                  borderRadius: "4px",
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  color: "#721c24",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong>⚠️ Endpoint Error:</strong> {resultsV1.error.statusText}
+                {resultsV1.error.status > 0 &&
+                  ` (HTTP ${resultsV1.error.status})`}
+                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
+                  Showing empty result
+                </div>
               </div>
-            </div>
-          )}
-          <Results
-            searchResults={resultsV1.searchResults}
-            missingResults={missingResultIdInV1}
+            )}
+            <Results
+              searchResults={resultsV1.searchResults}
+              missingResults={missingResultIdInV1}
+              highlightedId={highlightedId}
+              onResultHover={setHighlightedId}
+              matchColors={matchColorsV1}
+            />
+          </div>
+        </div>
+
+        {/* V2 Column */}
+        <div>
+          <div className={styles.resultsContainer}>
+            <Heading3 className={styles.resultsHeading}>
+              Geocoder - {GeocoderVersion.V2}
+            </Heading3>
+            {resultsV2.error && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  border: "1px solid #f5c6cb",
+                  borderRadius: "4px",
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  color: "#721c24",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong>⚠️ Endpoint Error:</strong> {resultsV2.error.statusText}
+                {resultsV2.error.status > 0 &&
+                  ` (HTTP ${resultsV2.error.status})`}
+                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
+                  Showing empty result
+                </div>
+              </div>
+            )}
+            <Results
+              searchResults={resultsV2.searchResults}
+              missingResults={missingResultIdInV2}
+              highlightedId={highlightedId}
+              onResultHover={setHighlightedId}
+              matchColors={matchColorsV2}
+            />
+          </div>
+        </div>
+
+        {/* Map Column */}
+        <div>
+          <MapContainerWrapper
+            v1Results={resultsV1.searchResults.results}
+            v2Results={resultsV2.searchResults.results}
+            focusPoint={
+              focusLat && focusLon
+                ? {
+                    lat: parseFloat(focusLat),
+                    lon: parseFloat(focusLon),
+                  }
+                : undefined
+            }
+            onFocusPointChange={(lat, lon) => {
+              onFocusChange?.(lat.toString(), lon.toString());
+            }}
           />
         </div>
-      </GridItem>
-      <GridItem small={4}>
-        <div className={styles.resultsContainer}>
-          <Heading3 className={styles.resultsHeading}>
-            Geocoder - {GeocoderVersion.V2}
-          </Heading3>
-          {resultsV2.error && (
-            <div
-              style={{
-                backgroundColor: "#f8d7da",
-                border: "1px solid #f5c6cb",
-                borderRadius: "4px",
-                padding: "0.75rem",
-                marginBottom: "1rem",
-                color: "#721c24",
-                fontSize: "0.9rem",
-              }}
-            >
-              <strong>⚠️ Endpoint Error:</strong> {resultsV2.error.statusText}
-              {resultsV2.error.status > 0 &&
-                ` (HTTP ${resultsV2.error.status})`}
-              <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
-                Showing empty result
-              </div>
-            </div>
-          )}
-          <Results
-            searchResults={resultsV2.searchResults}
-            missingResults={missingResultIdInV2}
-          />
-        </div>
-      </GridItem>
-    </GridContainer>
+      </div>
+    </>
   );
 };

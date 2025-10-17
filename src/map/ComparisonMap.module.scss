@@ -1,0 +1,29 @@
+.mapWrapper {
+  width: 100%;
+  height: 600px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #e9e9e9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+.popup {
+  font-size: 0.9rem;
+}
+
+.popupDetail {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.popupStatus {
+  margin-top: 0.5rem;
+  font-style: italic;
+  font-size: 0.85rem;
+}

@@ -1,0 +1,69 @@
+.filterPanel {
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e9e9e9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.filterHeader {
+  padding: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.filterHeading {
+  font-size: 1rem;
+  color: #181c56;
+  user-select: none;
+}
+
+.filterContent {
+  padding: 0 1rem 1rem 1rem;
+  border-top: 1px solid #e9e9e9;
+}
+
+.toggleAllButton {
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  background: #e8eaf6;
+  border: 1px solid #181c56;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #181c56;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #d1d4e8;
+  }
+}
+
+.categoryList {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.categoryLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.categoryCheckbox {
+  cursor: pointer;
+}
