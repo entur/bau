@@ -9,6 +9,7 @@
 @import "@entur/alert/dist/styles.css";
 @import "@entur/expand/dist/styles.css";
 @import "@entur/tooltip/dist/styles.css";
+@import "leaflet/dist/leaflet.css";
 
 body {
   margin: 0;

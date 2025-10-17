@@ -9,6 +9,7 @@ import { Results } from "./results";
 import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
 import { getMatchColor } from "../utils/colorHash";
+import { MapContainerWrapper } from "../map/MapContainerWrapper";
 
 interface Props {
   searchTerm: string;
@@ -81,75 +82,82 @@ export const AutoCompleteResults = ({ searchTerm, environment }: Props) => {
   }, [resultsV1.searchResults.results, resultsV2.searchResults.results]);
 
   return (
-    <GridContainer spacing="none">
-      <GridItem small={4}>
-        <div className={styles.resultsContainer}>
-          <Heading3 className={styles.resultsHeading}>
-            Geocoder - {GeocoderVersion.V1}
-          </Heading3>
-          {resultsV1.error && (
-            <div
-              style={{
-                backgroundColor: "#f8d7da",
-                border: "1px solid #f5c6cb",
-                borderRadius: "4px",
-                padding: "0.75rem",
-                marginBottom: "1rem",
-                color: "#721c24",
-                fontSize: "0.9rem",
-              }}
-            >
-              <strong>⚠️ Endpoint Error:</strong> {resultsV1.error.statusText}
-              {resultsV1.error.status > 0 &&
-                ` (HTTP ${resultsV1.error.status})`}
-              <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
-                Showing empty result
+    <>
+      {/* Geographic Distribution Map */}
+      <MapContainerWrapper
+        v1Results={resultsV1.searchResults.results}
+        v2Results={resultsV2.searchResults.results}
+      />
+      <GridContainer spacing="none">
+        <GridItem small={4}>
+          <div className={styles.resultsContainer}>
+            <Heading3 className={styles.resultsHeading}>
+              Geocoder - {GeocoderVersion.V1}
+            </Heading3>
+            {resultsV1.error && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  border: "1px solid #f5c6cb",
+                  borderRadius: "4px",
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  color: "#721c24",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong>⚠️ Endpoint Error:</strong> {resultsV1.error.statusText}
+                {resultsV1.error.status > 0 &&
+                  ` (HTTP ${resultsV1.error.status})`}
+                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
+                  Showing empty result
+                </div>
               </div>
-            </div>
-          )}
-          <Results
-            searchResults={resultsV1.searchResults}
-            missingResults={missingResultIdInV1}
-            highlightedId={highlightedId}
-            onResultHover={setHighlightedId}
-            matchColors={matchColorsV1}
-          />
-        </div>
-      </GridItem>
-      <GridItem small={4}>
-        <div className={styles.resultsContainer}>
-          <Heading3 className={styles.resultsHeading}>
-            Geocoder - {GeocoderVersion.V2}
-          </Heading3>
-          {resultsV2.error && (
-            <div
-              style={{
-                backgroundColor: "#f8d7da",
-                border: "1px solid #f5c6cb",
-                borderRadius: "4px",
-                padding: "0.75rem",
-                marginBottom: "1rem",
-                color: "#721c24",
-                fontSize: "0.9rem",
-              }}
-            >
-              <strong>⚠️ Endpoint Error:</strong> {resultsV2.error.statusText}
-              {resultsV2.error.status > 0 &&
-                ` (HTTP ${resultsV2.error.status})`}
-              <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
-                Showing empty result
+            )}
+            <Results
+              searchResults={resultsV1.searchResults}
+              missingResults={missingResultIdInV1}
+              highlightedId={highlightedId}
+              onResultHover={setHighlightedId}
+              matchColors={matchColorsV1}
+            />
+          </div>
+        </GridItem>
+        <GridItem small={4}>
+          <div className={styles.resultsContainer}>
+            <Heading3 className={styles.resultsHeading}>
+              Geocoder - {GeocoderVersion.V2}
+            </Heading3>
+            {resultsV2.error && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  border: "1px solid #f5c6cb",
+                  borderRadius: "4px",
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  color: "#721c24",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong>⚠️ Endpoint Error:</strong> {resultsV2.error.statusText}
+                {resultsV2.error.status > 0 &&
+                  ` (HTTP ${resultsV2.error.status})`}
+                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
+                  Showing empty result
+                </div>
               </div>
-            </div>
-          )}
-          <Results
-            searchResults={resultsV2.searchResults}
-            missingResults={missingResultIdInV2}
-            highlightedId={highlightedId}
-            onResultHover={setHighlightedId}
-            matchColors={matchColorsV2}
-          />
-        </div>
-      </GridItem>
-    </GridContainer>
+            )}
+            <Results
+              searchResults={resultsV2.searchResults}
+              missingResults={missingResultIdInV2}
+              highlightedId={highlightedId}
+              onResultHover={setHighlightedId}
+              matchColors={matchColorsV2}
+            />
+          </div>
+        </GridItem>
+      </GridContainer>
+    </>
   );
 };
