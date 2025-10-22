@@ -51,6 +51,12 @@ function App() {
     setFocusLon("");
   };
 
+  const sanitizeCoordinate = (value: string): string => {
+    // Allow only numbers, decimal point, and minus sign at the start
+    // Remove any non-numeric characters except . and -
+    return value.replace(/[^\d.-]/g, '').replace(/(?!^)-/g, '').replace(/(\..*)\./g, '$1');
+  };
+
   useEffect(() => {
     const params = new URLSearchParams();
 
@@ -92,32 +98,85 @@ function App() {
           <img src={logo} className={styles.appLogo} alt="Entur logo" />
           <Heading5 margin="none">Geocoder-v2 Test</Heading5>
         </div>
-        <label
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            alignItems: "center",
-            fontWeight: "bold",
-          }}
-        >
-          Environment:
-          <select
-            value={environment}
-            onChange={(e) => setEnvironment(e.target.value as ApiEnvironment)}
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={() => setSearchMode("autocomplete")}
+              style={{
+                padding: "0.25rem 0.75rem",
+                fontSize: "0.9rem",
+                background: searchMode === "autocomplete" ? "#e8eaf6" : "#fff",
+                color: "#181C56",
+                border:
+                  searchMode === "autocomplete"
+                    ? "2px solid #181C56"
+                    : "2px solid #ccc",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: searchMode === "autocomplete" ? "bold" : "normal",
+                boxShadow:
+                  searchMode === "autocomplete"
+                    ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
+                    : "none",
+                transition: "all 0.2s ease",
+                height: "32px",
+              }}
+            >
+              Autocomplete
+            </button>
+            <button
+              onClick={() => setSearchMode("reverse")}
+              style={{
+                padding: "0.25rem 0.75rem",
+                fontSize: "0.9rem",
+                background: searchMode === "reverse" ? "#e8eaf6" : "#fff",
+                color: "#181C56",
+                border:
+                  searchMode === "reverse"
+                    ? "2px solid #181C56"
+                    : "2px solid #ccc",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: searchMode === "reverse" ? "bold" : "normal",
+                boxShadow:
+                  searchMode === "reverse"
+                    ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
+                    : "none",
+                transition: "all 0.2s ease",
+                height: "32px",
+              }}
+            >
+              Reverse
+            </button>
+          </div>
+          <label
             style={{
-              padding: "0.5rem",
-              fontSize: "1rem",
-              border: "2px solid #181C56",
-              borderRadius: "4px",
-              cursor: "pointer",
-              backgroundColor: "#fff",
+              display: "flex",
+              gap: "0.5rem",
+              alignItems: "center",
+              fontWeight: "bold",
             }}
           >
-            <option value={ApiEnvironment.DEV}>Dev</option>
-            <option value={ApiEnvironment.STAGING}>Staging</option>
-            <option value={ApiEnvironment.PROD}>Prod</option>
-          </select>
-        </label>
+            Environment:
+            <select
+              value={environment}
+              onChange={(e) => setEnvironment(e.target.value as ApiEnvironment)}
+              style={{
+                padding: "0.25rem 0.5rem",
+                fontSize: "0.9rem",
+                border: "2px solid #181C56",
+                borderRadius: "4px",
+                cursor: "pointer",
+                backgroundColor: "#fff",
+                height: "32px",
+              }}
+            >
+              <option value={ApiEnvironment.DEV}>Dev</option>
+              <option value={ApiEnvironment.STAGING}>Staging</option>
+              <option value={ApiEnvironment.PROD}>Prod</option>
+            </select>
+          </label>
+        </div>
       </GridItem>
       {isV2Overridden && (
         <GridItem small={12}>
@@ -138,52 +197,6 @@ function App() {
         </GridItem>
       )}
       <GridItem small={12} className={styles.searchContainer}>
-        <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
-          <button
-            onClick={() => setSearchMode("autocomplete")}
-            style={{
-              padding: "0.5rem 1rem",
-              background: searchMode === "autocomplete" ? "#e8eaf6" : "#fff",
-              color: "#181C56",
-              border:
-                searchMode === "autocomplete"
-                  ? "2px solid #181C56"
-                  : "2px solid #ccc",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontWeight: searchMode === "autocomplete" ? "bold" : "normal",
-              boxShadow:
-                searchMode === "autocomplete"
-                  ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
-                  : "none",
-              transition: "all 0.2s ease",
-            }}
-          >
-            Autocomplete
-          </button>
-          <button
-            onClick={() => setSearchMode("reverse")}
-            style={{
-              padding: "0.5rem 1rem",
-              background: searchMode === "reverse" ? "#e8eaf6" : "#fff",
-              color: "#181C56",
-              border:
-                searchMode === "reverse"
-                  ? "2px solid #181C56"
-                  : "2px solid #ccc",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontWeight: searchMode === "reverse" ? "bold" : "normal",
-              boxShadow:
-                searchMode === "reverse"
-                  ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
-                  : "none",
-              transition: "all 0.2s ease",
-            }}
-          >
-            Reverse
-          </button>
-        </div>
 
         {searchMode === "autocomplete" ? (
           <>
@@ -196,7 +209,7 @@ function App() {
               <TextField
                 size="medium"
                 label="Søk"
-                style={{ flex: 1 }}
+                style={{ width: "352px" }}
                 value={searchTerm}
                 onChange={(evt) => setSearchTerm(evt.target.value)}
               />
@@ -209,30 +222,21 @@ function App() {
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
               />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                marginTop: "1rem",
-                alignItems: "flex-end",
-              }}
-            >
               <TextField
                 size="medium"
                 label="Focus Latitude"
-                style={{ maxWidth: "200px" }}
+                style={{ width: "150px" }}
                 placeholder="Click map to set"
                 value={focusLat}
-                onChange={(evt) => setFocusLat(evt.target.value)}
+                onChange={(evt) => setFocusLat(sanitizeCoordinate(evt.target.value))}
               />
               <TextField
                 size="medium"
                 label="Focus Longitude"
-                style={{ maxWidth: "200px" }}
+                style={{ width: "150px" }}
                 placeholder="Click map to set"
                 value={focusLon}
-                onChange={(evt) => setFocusLon(evt.target.value)}
+                onChange={(evt) => setFocusLon(sanitizeCoordinate(evt.target.value))}
               />
               {focusLat && focusLon && (
                 <button
@@ -265,18 +269,18 @@ function App() {
               <TextField
                 size="medium"
                 label="Latitude"
-                style={{ flex: 1 }}
-                placeholder="Click map or enter e.g. 59.9139"
+                style={{ maxWidth: "170px" }}
+                placeholder="e.g. 59.9139 or click map"
                 value={lat}
-                onChange={(evt) => setLat(evt.target.value)}
+                onChange={(evt) => setLat(sanitizeCoordinate(evt.target.value))}
               />
               <TextField
                 size="medium"
                 label="Longitude"
-                style={{ flex: 1 }}
-                placeholder="Click map or enter e.g. 10.7522"
+                style={{ maxWidth: "170px" }}
+                placeholder="e.g. 10.7522 or click map"
                 value={lon}
-                onChange={(evt) => setLon(evt.target.value)}
+                onChange={(evt) => setLon(sanitizeCoordinate(evt.target.value))}
               />
               <TextField
                 size="medium"
@@ -300,8 +304,8 @@ function App() {
             focusLat={focusLat}
             focusLon={focusLon}
             onFocusChange={(lat, lon) => {
-              setFocusLat(lat);
-              setFocusLon(lon);
+              setFocusLat(parseFloat(lat).toFixed(5));
+              setFocusLon(parseFloat(lon).toFixed(5));
             }}
           />
         ) : (
@@ -311,8 +315,8 @@ function App() {
             environment={environment}
             size={parseInt(size) || 30}
             onPointChange={(newLat, newLon) => {
-              setLat(newLat);
-              setLon(newLon);
+              setLat(parseFloat(newLat).toFixed(5));
+              setLon(parseFloat(newLon).toFixed(5));
             }}
           />
         )}
