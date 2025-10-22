@@ -52,9 +52,14 @@ function App() {
   };
 
   const sanitizeCoordinate = (value: string): string => {
+    // Replace comma with period for decimal separator
     // Allow only numbers, decimal point, and minus sign at the start
     // Remove any non-numeric characters except . and -
-    return value.replace(/[^\d.-]/g, '').replace(/(?!^)-/g, '').replace(/(\..*)\./g, '$1');
+    return value
+      .replace(/,/g, ".")
+      .replace(/[^\d.-]/g, "")
+      .replace(/(?!^)-/g, "")
+      .replace(/(\..*)\./g, "$1");
   };
 
   useEffect(() => {
@@ -197,7 +202,6 @@ function App() {
         </GridItem>
       )}
       <GridItem small={12} className={styles.searchContainer}>
-
         {searchMode === "autocomplete" ? (
           <>
             <Heading3 margin="none" className={styles.searchHeading}>
@@ -228,7 +232,9 @@ function App() {
                 style={{ width: "150px" }}
                 placeholder="Click map to set"
                 value={focusLat}
-                onChange={(evt) => setFocusLat(sanitizeCoordinate(evt.target.value))}
+                onChange={(evt) =>
+                  setFocusLat(sanitizeCoordinate(evt.target.value))
+                }
               />
               <TextField
                 size="medium"
@@ -236,7 +242,9 @@ function App() {
                 style={{ width: "150px" }}
                 placeholder="Click map to set"
                 value={focusLon}
-                onChange={(evt) => setFocusLon(sanitizeCoordinate(evt.target.value))}
+                onChange={(evt) =>
+                  setFocusLon(sanitizeCoordinate(evt.target.value))
+                }
               />
               {focusLat && focusLon && (
                 <button
