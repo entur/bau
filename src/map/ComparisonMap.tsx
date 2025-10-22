@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -39,6 +39,19 @@ export const ComparisonMap = ({
   onMapClick,
   reversePoint,
 }: Props) => {
+  // Track previous data to prevent unnecessary fitBounds calls
+  const prevDataRef = useRef<{
+    v1Count: number;
+    v2Count: number;
+    focusLat?: number;
+    focusLon?: number;
+    reverseLat?: number;
+    reverseLon?: number;
+  }>({
+    v1Count: -1,
+    v2Count: -1,
+  });
+
   // Fix Leaflet icon paths on mount
   useEffect(() => {
     fixLeafletIconPaths();
@@ -156,6 +169,29 @@ export const ComparisonMap = ({
     const map = useMap();
 
     useEffect(() => {
+      const currentData = {
+        v1Count: v1Results.length,
+        v2Count: v2Results.length,
+        focusLat: focusPoint?.lat,
+        focusLon: focusPoint?.lon,
+        reverseLat: reversePoint?.lat,
+        reverseLon: reversePoint?.lon,
+      };
+
+      const hasDataChanged =
+        prevDataRef.current.v1Count !== currentData.v1Count ||
+        prevDataRef.current.v2Count !== currentData.v2Count ||
+        prevDataRef.current.focusLat !== currentData.focusLat ||
+        prevDataRef.current.focusLon !== currentData.focusLon ||
+        prevDataRef.current.reverseLat !== currentData.reverseLat ||
+        prevDataRef.current.reverseLon !== currentData.reverseLon;
+
+      if (!hasDataChanged) {
+        return;
+      }
+
+      prevDataRef.current = currentData;
+
       const points: L.LatLngExpression[] = [];
 
       // Add all visible result markers
