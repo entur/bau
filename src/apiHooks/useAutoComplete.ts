@@ -35,6 +35,7 @@ export const useAutoComplete = (
   size: number = 30,
   focusLat?: string,
   focusLon?: string,
+  focusFunction?: "linear" | "exp",
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -57,10 +58,13 @@ export const useAutoComplete = (
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-            const focusParams =
-              focusLat && focusLon
-                ? `&focus.point.lat=${focusLat}&focus.point.lon=${focusLon}`
-                : "";
+            let focusParams = "";
+            if (focusLat && focusLon) {
+              focusParams = `&focus.point.lat=${focusLat}&focus.point.lon=${focusLon}`;
+              if (focusFunction) {
+                focusParams += `&focus.function=${focusFunction}`;
+              }
+            }
             const response = await fetch(
               `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}`,
               { signal: controller.signal },
@@ -120,7 +124,7 @@ export const useAutoComplete = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm, version, environment, size, focusLat, focusLon]);
+  }, [searchTerm, version, environment, size, focusLat, focusLon, focusFunction]);
 
   return { searchResults, error };
 };

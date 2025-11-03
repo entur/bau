@@ -16,6 +16,7 @@ interface Props {
   size?: number;
   focusLat?: string;
   focusLon?: string;
+  focusFunction?: "linear" | "exp";
   onFocusChange?: (lat: string, lon: string) => void;
 }
 
@@ -25,6 +26,7 @@ export const AutoCompleteResults = ({
   size = 30,
   focusLat,
   focusLon,
+  focusFunction,
   onFocusChange,
 }: Props) => {
   const resultsV1 = useAutoComplete(
@@ -34,6 +36,7 @@ export const AutoCompleteResults = ({
     size,
     focusLat,
     focusLon,
+    focusFunction,
   );
   const resultsV2 = useAutoComplete(
     searchTerm,
@@ -42,6 +45,7 @@ export const AutoCompleteResults = ({
     size,
     focusLat,
     focusLon,
+    focusFunction,
   );
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
