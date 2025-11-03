@@ -48,7 +48,12 @@ export const useReverse = (
 
             const response = await fetch(
               `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}`,
-              { signal: controller.signal },
+              {
+                signal: controller.signal,
+                headers: {
+                  "ET-Client-Name": "entur-ror-bau",
+                },
+              },
             );
 
             clearTimeout(timeoutId);

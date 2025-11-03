@@ -67,7 +67,12 @@ export const useAutoComplete = (
             }
             const response = await fetch(
               `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}`,
-              { signal: controller.signal },
+              {
+                signal: controller.signal,
+                headers: {
+                  "ET-Client-Name": "entur-ror-bau",
+                },
+              },
             );
 
             clearTimeout(timeoutId);
