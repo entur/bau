@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import logo from "./logo.png";
-import { Heading3, Heading5, Label } from "@entur/typography";
+import { Heading3, Heading5 } from "@entur/typography";
 import styles from "./App.module.scss";
 import { GridContainer, GridItem } from "@entur/grid";
-import { TextField, Switch } from "@entur/form";
+import { TextField } from "@entur/form";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { ApiEnvironment } from "./apiHooks/useAutoComplete";
@@ -35,7 +35,6 @@ function App() {
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus_lat") || "";
   const initialFocusLon = urlParams.get("focus_lon") || "";
-  const initialFocusFunction = urlParams.get("focus_function") === "exp";
 
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
@@ -45,8 +44,6 @@ function App() {
   const [size, setSize] = useState<string>(initialSize);
   const [focusLat, setFocusLat] = useState<string>(initialFocusLat);
   const [focusLon, setFocusLon] = useState<string>(initialFocusLon);
-  const [useExpFocusFunction, setUseExpFocusFunction] =
-    useState<boolean>(initialFocusFunction);
   const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
 
   const handleClearFocus = () => {
@@ -92,26 +89,12 @@ function App() {
       params.set("focus_lon", focusLon);
     }
 
-    if (useExpFocusFunction) {
-      params.set("focus_function", "exp");
-    }
-
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [
-    searchMode,
-    searchTerm,
-    lat,
-    lon,
-    environment,
-    size,
-    focusLat,
-    focusLon,
-    useExpFocusFunction,
-  ]);
+  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon]);
 
   return (
     <GridContainer spacing="none">
@@ -281,22 +264,6 @@ function App() {
                   Clear focus
                 </button>
               )}
-              <div style={{ marginBottom: "6px" }}>
-                <Label
-                  style={{
-                    color: "white",
-                    fontWeight: "600",
-                  }}
-                >
-                  Focus function: Linear / Exponential
-                </Label>
-                <Switch
-                  checked={useExpFocusFunction}
-                  onChange={(e) => setUseExpFocusFunction(e.target.checked)}
-                >
-                  Use exponential
-                </Switch>
-              </div>
             </div>
           </>
         ) : (
@@ -344,7 +311,6 @@ function App() {
             size={parseInt(size) || 30}
             focusLat={focusLat}
             focusLon={focusLon}
-            focusFunction={useExpFocusFunction ? "exp" : "linear"}
             onFocusChange={(lat, lon) => {
               setFocusLat(parseFloat(lat).toFixed(5));
               setFocusLon(parseFloat(lon).toFixed(5));
