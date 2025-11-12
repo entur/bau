@@ -87,7 +87,7 @@ export const useAutoComplete = (
 
               const results: Result[] = result.features.map(
                 (feature: GeoJSONFeature) => ({
-                  name: feature.properties.name,
+                  name: feature.properties.label ?? feature.properties.name,
                   layer: feature.properties.layer,
                   categories: feature.properties.category,
                   properties: feature.properties,
