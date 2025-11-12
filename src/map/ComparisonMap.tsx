@@ -39,19 +39,6 @@ export const ComparisonMap = ({
   onMapClick,
   reversePoint,
 }: Props) => {
-  // Track previous data to prevent unnecessary fitBounds calls
-  const prevDataRef = useRef<{
-    v1Count: number;
-    v2Count: number;
-    focusLat?: number;
-    focusLon?: number;
-    reverseLat?: number;
-    reverseLon?: number;
-  }>({
-    v1Count: -1,
-    v2Count: -1,
-  });
-
   // Fix Leaflet icon paths on mount
   useEffect(() => {
     fixLeafletIconPaths();
@@ -164,66 +151,53 @@ export const ComparisonMap = ({
     return null;
   };
 
-  // Auto-fit bounds to show all markers
+  // Auto-fit bounds to show all markers (only when marker data changes and no focusPoint)
   const FitBounds = () => {
     const map = useMap();
+    const prevMarkersCountRef = useRef<number>(-1);
 
     useEffect(() => {
-      const currentData = {
-        v1Count: v1Results.length,
-        v2Count: v2Results.length,
-        focusLat: focusPoint?.lat,
-        focusLon: focusPoint?.lon,
-        reverseLat: reversePoint?.lat,
-        reverseLon: reversePoint?.lon,
-      };
-
-      const hasDataChanged =
-        prevDataRef.current.v1Count !== currentData.v1Count ||
-        prevDataRef.current.v2Count !== currentData.v2Count ||
-        prevDataRef.current.focusLat !== currentData.focusLat ||
-        prevDataRef.current.focusLon !== currentData.focusLon ||
-        prevDataRef.current.reverseLat !== currentData.reverseLat ||
-        prevDataRef.current.reverseLon !== currentData.reverseLon;
-
-      if (!hasDataChanged) {
-        return;
-      }
-
-      prevDataRef.current = currentData;
-
-      const points: L.LatLngExpression[] = [];
-
-      // Add all visible result markers
-      markersToShow.forEach((marker) => {
-        if (marker.result.geometry) {
-          points.push([
-            marker.result.geometry.coordinates[1], // lat
-            marker.result.geometry.coordinates[0], // lon
-          ]);
-        }
-      });
-
-      // Add focus point if present
-      if (focusPoint) {
-        points.push([focusPoint.lat, focusPoint.lon]);
-      }
-
-      // Add reverse point if present
-      if (reversePoint) {
-        points.push([reversePoint.lat, reversePoint.lon]);
-      }
-
-      // Only fit bounds if we have points
-      if (points.length > 0) {
-        const bounds = L.latLngBounds(points);
-        map.fitBounds(bounds, {
-          padding: [50, 50], // Add padding around the bounds
-          maxZoom: 15, // Don't zoom in too far for single points
+      // Suppress FitBounds if focusPoint is set
+      if (focusPoint) return;
+      const markersCount = markersToShow.length;
+      if (prevMarkersCountRef.current !== markersCount) {
+        prevMarkersCountRef.current = markersCount;
+        const points: L.LatLngExpression[] = [];
+        markersToShow.forEach((marker) => {
+          if (marker.result.geometry) {
+            points.push([
+              marker.result.geometry.coordinates[1], // lat
+              marker.result.geometry.coordinates[0], // lon
+            ]);
+          }
         });
+        if (points.length > 0) {
+          const bounds = L.latLngBounds(points);
+          map.fitBounds(bounds, {
+            padding: [50, 50],
+            maxZoom: 15,
+          });
+        }
       }
-    }, [map, markersToShow, focusPoint, reversePoint]);
+    }, [map, markersToShow, focusPoint]);
+    return null;
+  };
 
+  // Pan to focusPoint when it changes, but do not reset zoom
+  const PanToFocusPoint = () => {
+    const map = useMap();
+    const prevFocusRef = useRef<{ lat: number; lon: number } | undefined>(undefined);
+    useEffect(() => {
+      if (
+        focusPoint &&
+        (!prevFocusRef.current ||
+          prevFocusRef.current.lat !== focusPoint.lat ||
+          prevFocusRef.current.lon !== focusPoint.lon)
+      ) {
+        map.panTo([focusPoint.lat, focusPoint.lon]);
+        prevFocusRef.current = focusPoint;
+      }
+    }, [map, focusPoint]);
     return null;
   };
 
@@ -237,6 +211,7 @@ export const ComparisonMap = ({
 
         <MapClickHandler />
         <FitBounds />
+        <PanToFocusPoint />
 
         {/* Focus point marker (autocomplete) */}
         {focusPoint && (
