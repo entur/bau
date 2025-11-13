@@ -23,6 +23,7 @@ body {
 
 .eds-dropdown__list {
     background: #fff;
+    z-index: 500;
 }
 .eds-dropdown__selected-item {
     margin-left: 1rem;
