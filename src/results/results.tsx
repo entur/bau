@@ -14,6 +14,16 @@ interface Props {
   matchColors: Map<string, string>; // NEW: Map of ID to color
 }
 
+const formatDistance = (distanceInKm?: number): string => {
+    if (distanceInKm === undefined || distanceInKm === null) {
+        return "";
+    } else if (distanceInKm < 1) {
+        return ` (${Math.round(distanceInKm * 1000)}m)`;
+    } else {
+        return ` (${Math.round(distanceInKm)}km)`;
+    }
+}
+
 export const Results = ({
   searchResults,
   missingResults,
@@ -52,7 +62,7 @@ export const Results = ({
           )}
           <ResultIcons categories={result.categories} />
           <div className={styles.result}>
-            <ExpandableText title={result.name}>
+            <ExpandableText title={result.name + formatDistance(result.properties.distance)}>
               <div className={styles.resultDetail}>
                 <SubParagraph margin="none">Layer: {result.layer}</SubParagraph>
                 {result.categories && (

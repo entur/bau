@@ -28,6 +28,7 @@ export interface Properties {
   source: string;
   source_id: string;
   name: string;
+  distance: number;
   street: string;
   accuracy: string;
   country_a: string;
