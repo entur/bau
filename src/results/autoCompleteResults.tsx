@@ -16,6 +16,9 @@ interface Props {
   size?: number;
   focusLat?: string;
   focusLon?: string;
+  layers?: string;
+  sources?: string;
+  multiModal?: string;
   onFocusChange?: (lat: string, lon: string) => void;
 }
 
@@ -25,6 +28,9 @@ export const AutoCompleteResults = ({
   size = 30,
   focusLat,
   focusLon,
+  layers,
+  sources,
+  multiModal,
   onFocusChange,
 }: Props) => {
   const resultsV1 = useAutoComplete(
@@ -34,6 +40,9 @@ export const AutoCompleteResults = ({
     size,
     focusLat,
     focusLon,
+    layers,
+    sources,
+    multiModal,
   );
   const resultsV2 = useAutoComplete(
     searchTerm,
@@ -42,6 +51,9 @@ export const AutoCompleteResults = ({
     size,
     focusLat,
     focusLon,
+    layers,
+    sources,
+    multiModal,
   );
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);

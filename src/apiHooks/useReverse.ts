@@ -24,6 +24,9 @@ export const useReverse = (
   version: GeocoderVersion,
   environment: ApiEnvironment = ApiEnvironment.DEV,
   size: number = 30,
+  layers?: string,
+  sources?: string,
+  multiModal?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -46,8 +49,11 @@ export const useReverse = (
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
+            const layersParam = layers ? `&layers=${encodeURIComponent(layers)}` : "";
+            const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
+            const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
             const response = await fetch(
-              `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}`,
+              `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}${layersParam}${sourcesParam}${multiModalParam}`,
               {
                 signal: controller.signal,
                 headers: {
@@ -110,7 +116,7 @@ export const useReverse = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [lat, lon, version, environment, size]);
+  }, [lat, lon, version, environment, size, layers, sources, multiModal]);
 
   return { searchResults, error };
 };

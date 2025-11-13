@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@entur/alert": "^0.11.14",
+    "@entur/dropdown": "^8.0.0",
     "@entur/expand": "^3.3.27",
     "@entur/form": "^5.4.11",
     "@entur/grid": "^0.3.16",

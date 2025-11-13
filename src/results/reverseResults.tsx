@@ -12,6 +12,9 @@ interface Props {
   lon: string;
   environment: ApiEnvironment;
   size?: number;
+  layers?: string;
+  sources?: string;
+  multiModal?: string;
   onPointChange?: (lat: string, lon: string) => void;
 }
 
@@ -20,10 +23,13 @@ export const ReverseResults = ({
   lon,
   environment,
   size = 30,
+  layers,
+  sources,
+  multiModal,
   onPointChange,
 }: Props) => {
-  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size);
-  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size);
+  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size, layers, sources, multiModal);
+  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size, layers, sources, multiModal);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);

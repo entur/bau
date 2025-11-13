@@ -1,18 +1,32 @@
-@import "@entur/typography/dist/styles.css";
-@import "@entur/grid/dist/styles.css";
-@import "@entur/form/dist/styles.css";
+@import '@entur/a11y/dist/styles.css';
+@import "@entur/alert/dist/styles.css";
 @import "@entur/button/dist/styles.css";
+@import '@entur/chip/dist/styles.css';
+@import '@entur/dropdown/dist/styles.css';
+@import "@entur/expand/dist/styles.css";
+@import "@entur/form/dist/styles.css";
+@import "@entur/grid/dist/styles.css";
 @import "@entur/icons/dist/styles.css";
 @import "@entur/layout/dist/styles.css";
 @import "@entur/loader/dist/styles.css";
 @import "@entur/tooltip/dist/styles.css";
-@import "@entur/alert/dist/styles.css";
-@import "@entur/expand/dist/styles.css";
 @import "@entur/tooltip/dist/styles.css";
+@import "@entur/typography/dist/styles.css";
 @import "leaflet/dist/leaflet.css";
 @import "leaflet.markercluster/dist/MarkerCluster.css";
 @import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 body {
   margin: 0;
+}
+
+
+.eds-dropdown__list {
+    background: #fff;
+}
+.eds-dropdown__selected-item {
+    margin-left: 1rem;
+}
+.eds-dropdown__appendix {
+    margin-right: 1rem;
 }

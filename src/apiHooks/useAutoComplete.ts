@@ -35,6 +35,9 @@ export const useAutoComplete = (
   size: number = 30,
   focusLat?: string,
   focusLon?: string,
+  layers?: string,
+  sources?: string,
+  multiModal?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -61,8 +64,11 @@ export const useAutoComplete = (
               focusLat && focusLon
                 ? `&focus.point.lat=${focusLat}&focus.point.lon=${focusLon}`
                 : "";
+            const layersParam = layers ? `&layers=${encodeURIComponent(layers)}` : "";
+            const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
+            const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
             const response = await fetch(
-              `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}`,
+              `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}${layersParam}${sourcesParam}${multiModalParam}`,
               {
                 signal: controller.signal,
                 headers: {
@@ -125,7 +131,7 @@ export const useAutoComplete = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm, version, environment, size, focusLat, focusLon]);
+  }, [searchTerm, version, environment, size, focusLat, focusLon, layers, sources, multiModal]);
 
   return { searchResults, error };
 };

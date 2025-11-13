@@ -4,6 +4,7 @@ import { Heading3, Heading5 } from "@entur/typography";
 import styles from "./App.module.scss";
 import { GridContainer, GridItem } from "@entur/grid";
 import { TextField } from "@entur/form";
+import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { ApiEnvironment } from "./apiHooks/useAutoComplete";
@@ -35,6 +36,9 @@ function App() {
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus_lat") || "";
   const initialFocusLon = urlParams.get("focus_lon") || "";
+  const initialLayers = urlParams.get("layers") || "";
+  const initialSources = urlParams.get("sources") || "";
+  const initialMultiModal = urlParams.get("multiModal") || "";
 
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
@@ -44,6 +48,9 @@ function App() {
   const [size, setSize] = useState<string>(initialSize);
   const [focusLat, setFocusLat] = useState<string>(initialFocusLat);
   const [focusLon, setFocusLon] = useState<string>(initialFocusLon);
+  const [layers, setLayers] = useState<string>(initialLayers);
+  const [sources, setSources] = useState<string>(initialSources);
+  const [multiModal, setMultiModal] = useState<string>(initialMultiModal);
   const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
 
   const handleClearFocus = () => {
@@ -89,12 +96,16 @@ function App() {
       params.set("focus_lon", focusLon);
     }
 
+    if (layers) params.set("layers", layers);
+    if (sources) params.set("sources", sources);
+    if (multiModal) params.set("multiModal", multiModal);
+
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon]);
+  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, layers, sources, multiModal]);
 
   return (
     <GridContainer spacing="none">
@@ -246,6 +257,40 @@ function App() {
                   setFocusLon(sanitizeCoordinate(evt.target.value))
                 }
               />
+              <Dropdown
+                label="Layers"
+                items={[
+                  { value: "", label: "" },
+                  { value: "venue", label: "venue" },
+                  { value: "address", label: "address" },
+                ]}
+                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
+                onChange={item => setLayers(item?.value || "")}
+                style={{ width: "150px" }}
+              />
+              <Dropdown
+                label="Sources"
+                items={[
+                  { value: "", label: "" },
+                  { value: "whosonfirst", label: "whosonfirst" },
+                  { value: "openstreetmap", label: "openstreetmap" },
+                ]}
+                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
+                onChange={item => setSources(item?.value || "")}
+                style={{ width: "150px" }}
+              />
+              <Dropdown
+                label="MultiModal"
+                items={[
+                  { value: "", label: "" },
+                  { value: "all", label: "all" },
+                  { value: "child", label: "child" },
+                  { value: "parent", label: "parent" },
+                ]}
+                selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
+                onChange={item => setMultiModal(item?.value || "")}
+                style={{ width: "150px" }}
+              />
               {focusLat && focusLon && (
                 <button
                   onClick={handleClearFocus}
@@ -299,6 +344,40 @@ function App() {
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
               />
+              <Dropdown
+                label="Layers"
+                items={[
+                  { value: "", label: "" },
+                  { value: "venue", label: "venue" },
+                  { value: "address", label: "address" },
+                ]}
+                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
+                onChange={item => setLayers(item?.value || "")}
+                style={{ width: "150px" }}
+              />
+              <Dropdown
+                label="Sources"
+                items={[
+                  { value: "", label: "" },
+                  { value: "whosonfirst", label: "whosonfirst" },
+                  { value: "openstreetmap", label: "openstreetmap" },
+                ]}
+                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
+                onChange={item => setSources(item?.value || "")}
+                style={{ width: "150px" }}
+              />
+              <Dropdown
+                label="MultiModal"
+                items={[
+                  { value: "", label: "" },
+                  { value: "all", label: "all" },
+                  { value: "child", label: "child" },
+                  { value: "parent", label: "parent" },
+                ]}
+                selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
+                onChange={item => setMultiModal(item?.value || "")}
+                style={{ width: "150px" }}
+              />
             </div>
           </>
         )}
@@ -311,6 +390,9 @@ function App() {
             size={parseInt(size) || 30}
             focusLat={focusLat}
             focusLon={focusLon}
+            layers={layers}
+            sources={sources}
+            multiModal={multiModal}
             onFocusChange={(lat, lon) => {
               setFocusLat(parseFloat(lat).toFixed(5));
               setFocusLon(parseFloat(lon).toFixed(5));
@@ -322,6 +404,9 @@ function App() {
             lon={lon}
             environment={environment}
             size={parseInt(size) || 30}
+            layers={layers}
+            sources={sources}
+            multiModal={multiModal}
             onPointChange={(newLat, newLon) => {
               setLat(parseFloat(newLat).toFixed(5));
               setLon(parseFloat(newLon).toFixed(5));
