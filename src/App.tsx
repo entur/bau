@@ -39,6 +39,7 @@ function App() {
   const initialLayers = urlParams.get("layers") || "";
   const initialSources = urlParams.get("sources") || "";
   const initialMultiModal = urlParams.get("multiModal") || "";
+  const initialBoundaryCircleRadius = urlParams.get("boundary.circle.radius") || "";
 
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
@@ -51,6 +52,7 @@ function App() {
   const [layers, setLayers] = useState<string>(initialLayers);
   const [sources, setSources] = useState<string>(initialSources);
   const [multiModal, setMultiModal] = useState<string>(initialMultiModal);
+  const [boundaryCircleRadius, setBoundaryCircleRadius] = useState<string>(initialBoundaryCircleRadius);
   const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
 
   const handleClearFocus = () => {
@@ -99,13 +101,14 @@ function App() {
     if (layers) params.set("layers", layers);
     if (sources) params.set("sources", sources);
     if (multiModal) params.set("multiModal", multiModal);
+    if (boundaryCircleRadius) params.set("boundary.circle.radius", boundaryCircleRadius);
 
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, layers, sources, multiModal]);
+  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, layers, sources, multiModal, boundaryCircleRadius]);
 
   return (
     <GridContainer spacing="none">
@@ -337,6 +340,14 @@ function App() {
               />
               <TextField
                 size="medium"
+                label="Boundary radius (km)"
+                type="number"
+                style={{ width: "150px" }}
+                value={boundaryCircleRadius}
+                onChange={evt => setBoundaryCircleRadius(evt.target.value)}
+              />
+              <TextField
+                size="medium"
                 label="Result size"
                 type="number"
                 style={{ width: "120px" }}
@@ -407,6 +418,7 @@ function App() {
             layers={layers}
             sources={sources}
             multiModal={multiModal}
+            boundaryCircleRadius={boundaryCircleRadius}
             onPointChange={(newLat, newLon) => {
               setLat(parseFloat(newLat).toFixed(5));
               setLon(parseFloat(newLon).toFixed(5));

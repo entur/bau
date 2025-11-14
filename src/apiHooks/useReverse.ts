@@ -27,6 +27,7 @@ export const useReverse = (
   layers?: string,
   sources?: string,
   multiModal?: string,
+  boundaryCircleRadius?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -52,8 +53,9 @@ export const useReverse = (
             const layersParam = layers ? `&layers=${encodeURIComponent(layers)}` : "";
             const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
             const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
+            const boundaryCircleRadiusParam = boundaryCircleRadius ? `&boundary.circle.radius=${encodeURIComponent(boundaryCircleRadius)}` : "";
             const response = await fetch(
-              `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}${layersParam}${sourcesParam}${multiModalParam}`,
+              `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}${layersParam}${sourcesParam}${multiModalParam}${boundaryCircleRadiusParam}`,
               {
                 signal: controller.signal,
                 headers: {
@@ -116,7 +118,7 @@ export const useReverse = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [lat, lon, version, environment, size, layers, sources, multiModal]);
+  }, [lat, lon, version, environment, size, layers, sources, multiModal, boundaryCircleRadius]);
 
   return { searchResults, error };
 };

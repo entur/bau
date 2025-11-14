@@ -15,6 +15,7 @@ interface Props {
   layers?: string;
   sources?: string;
   multiModal?: string;
+  boundaryCircleRadius?: string;
   onPointChange?: (lat: string, lon: string) => void;
 }
 
@@ -26,10 +27,11 @@ export const ReverseResults = ({
   layers,
   sources,
   multiModal,
+  boundaryCircleRadius,
   onPointChange,
 }: Props) => {
-  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size, layers, sources, multiModal);
-  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size, layers, sources, multiModal);
+  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size, layers, sources, multiModal, boundaryCircleRadius);
+  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size, layers, sources, multiModal, boundaryCircleRadius);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);
