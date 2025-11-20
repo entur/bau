@@ -36,6 +36,8 @@ function App() {
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus_lat") || "";
   const initialFocusLon = urlParams.get("focus_lon") || "";
+  const initialFocusScale = urlParams.get("focus_scale") || "";
+  const initialFocusWeight = urlParams.get("focus_weight") || "";
   const initialLayers = urlParams.get("layers") || "";
   const initialSources = urlParams.get("sources") || "";
   const initialMultiModal = urlParams.get("multiModal") || "";
@@ -49,6 +51,8 @@ function App() {
   const [size, setSize] = useState<string>(initialSize);
   const [focusLat, setFocusLat] = useState<string>(initialFocusLat);
   const [focusLon, setFocusLon] = useState<string>(initialFocusLon);
+  const [focusScale, setFocusScale] = useState<string>(initialFocusScale);
+  const [focusWeight, setFocusWeight] = useState<string>(initialFocusWeight);
   const [layers, setLayers] = useState<string>(initialLayers);
   const [sources, setSources] = useState<string>(initialSources);
   const [multiModal, setMultiModal] = useState<string>(initialMultiModal);
@@ -98,6 +102,9 @@ function App() {
       params.set("focus_lon", focusLon);
     }
 
+    if (focusScale) params.set("focus_scale", focusScale);
+    if (focusWeight) params.set("focus_weight", focusWeight);
+
     if (layers) params.set("layers", layers);
     if (sources) params.set("sources", sources);
     if (multiModal) params.set("multiModal", multiModal);
@@ -108,7 +115,7 @@ function App() {
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, layers, sources, multiModal, boundaryCircleRadius]);
+  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius]);
 
   return (
     <GridContainer spacing="none">
@@ -227,7 +234,7 @@ function App() {
               <TextField
                 size="medium"
                 label="Søk"
-                style={{ width: "352px" }}
+                style={{ width: "150px" }}
                 value={searchTerm}
                 onChange={(evt) => setSearchTerm(evt.target.value)}
               />
@@ -235,7 +242,7 @@ function App() {
                 size="medium"
                 label="Result size"
                 type="number"
-                style={{ width: "120px" }}
+                style={{ width: "80px" }}
                 placeholder="30"
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
@@ -243,7 +250,7 @@ function App() {
               <TextField
                 size="medium"
                 label="Focus Latitude"
-                style={{ width: "150px" }}
+                style={{ width: "90px" }}
                 placeholder="Click map to set"
                 value={focusLat}
                 onChange={(evt) =>
@@ -253,12 +260,30 @@ function App() {
               <TextField
                 size="medium"
                 label="Focus Longitude"
-                style={{ width: "150px" }}
+                style={{ width: "90px" }}
                 placeholder="Click map to set"
                 value={focusLon}
                 onChange={(evt) =>
                   setFocusLon(sanitizeCoordinate(evt.target.value))
                 }
+              />
+              <TextField
+                size="medium"
+                label="Focus Scale"
+                type="number"
+                style={{ width: "90px" }}
+                placeholder="e.g. 1"
+                value={focusScale}
+                onChange={(evt) => setFocusScale(evt.target.value)}
+              />
+              <TextField
+                size="medium"
+                label="Focus Weight"
+                type="number"
+                style={{ width: "90px" }}
+                placeholder="e.g. 1"
+                value={focusWeight}
+                onChange={(evt) => setFocusWeight(evt.target.value)}
               />
               <Dropdown
                 label="Layers"
@@ -269,7 +294,7 @@ function App() {
                 ]}
                 selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
                 onChange={item => setLayers(item?.value || "")}
-                style={{ width: "150px" }}
+                style={{ width: "100px" }}
               />
               <Dropdown
                 label="Sources"
@@ -280,7 +305,7 @@ function App() {
                 ]}
                 selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
                 onChange={item => setSources(item?.value || "")}
-                style={{ width: "150px" }}
+                style={{ width: "120px" }}
               />
               <Dropdown
                 label="MultiModal"
@@ -292,7 +317,7 @@ function App() {
                 ]}
                 selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
                 onChange={item => setMultiModal(item?.value || "")}
-                style={{ width: "150px" }}
+                style={{ width: "80px" }}
               />
               {focusLat && focusLon && (
                 <button
@@ -401,6 +426,8 @@ function App() {
             size={parseInt(size) || 30}
             focusLat={focusLat}
             focusLon={focusLon}
+            focusScale={focusScale}
+            focusWeight={focusWeight}
             layers={layers}
             sources={sources}
             multiModal={multiModal}

@@ -35,6 +35,8 @@ export const useAutoComplete = (
   size: number = 30,
   focusLat?: string,
   focusLon?: string,
+  focusScale?: string,
+  focusWeight?: string,
   layers?: string,
   sources?: string,
   multiModal?: string,
@@ -65,10 +67,12 @@ export const useAutoComplete = (
               focusLat && focusLon
                 ? `&focus.point.lat=${focusLat}&focus.point.lon=${focusLon}`
                 : "";
+            const focusScaleParam = focusScale ? `&focus.scale=${encodeURIComponent(focusScale)}` : "";
+            const focusWeightParam = focusWeight ? `&focus.weight=${encodeURIComponent(focusWeight)}` : "";
             const layersParam = layers ? `&layers=${encodeURIComponent(layers)}` : "";
             const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
             const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
-            const url = `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}${layersParam}${sourcesParam}${multiModalParam}`;
+            const url = `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}${focusScaleParam}${focusWeightParam}${layersParam}${sourcesParam}${multiModalParam}`;
             setQueryUrl(url);
             const response = await fetch(
               url,
@@ -134,7 +138,7 @@ export const useAutoComplete = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm, version, environment, size, focusLat, focusLon, layers, sources, multiModal]);
+  }, [searchTerm, version, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal]);
 
   return { searchResults, error, queryUrl };
 };

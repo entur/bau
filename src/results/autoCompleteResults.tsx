@@ -16,6 +16,8 @@ interface Props {
   size?: number;
   focusLat?: string;
   focusLon?: string;
+  focusScale?: string;
+  focusWeight?: string;
   layers?: string;
   sources?: string;
   multiModal?: string;
@@ -28,6 +30,8 @@ export const AutoCompleteResults = ({
   size = 30,
   focusLat,
   focusLon,
+  focusScale,
+  focusWeight,
   layers,
   sources,
   multiModal,
@@ -40,6 +44,8 @@ export const AutoCompleteResults = ({
     size,
     focusLat,
     focusLon,
+    focusScale,
+    focusWeight,
     layers,
     sources,
     multiModal,
@@ -51,6 +57,8 @@ export const AutoCompleteResults = ({
     size,
     focusLat,
     focusLon,
+    focusScale,
+    focusWeight,
     layers,
     sources,
     multiModal,
