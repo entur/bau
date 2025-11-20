@@ -125,6 +125,22 @@ export const AutoCompleteResults = ({
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V1}
+              {resultsV1.queryUrl && (
+                <a
+                  href={`${resultsV1.queryUrl}&debug=true`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    marginLeft: "0.5rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "normal",
+                    textDecoration: "none",
+                    color: "#0b91ef",
+                  }}
+                >
+                  [debug]
+                </a>
+              )}
             </Heading3>
             {resultsV1.error && (
               <div
@@ -161,6 +177,22 @@ export const AutoCompleteResults = ({
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V2}
+              {resultsV2.queryUrl && (
+                <a
+                  href={`${resultsV2.queryUrl}&debug=true`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    marginLeft: "0.5rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "normal",
+                    textDecoration: "none",
+                    color: "#0b91ef",
+                  }}
+                >
+                  [debug]
+                </a>
+              )}
             </Heading3>
             {resultsV2.error && (
               <div

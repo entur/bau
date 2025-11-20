@@ -33,6 +33,7 @@ export const useReverse = (
     results: [],
   });
   const [error, setError] = useState<FetchError | undefined>();
+  const [queryUrl, setQueryUrl] = useState<string>("");
 
   useEffect(() => {
     console.log("useReverse");
@@ -54,8 +55,10 @@ export const useReverse = (
             const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
             const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
             const boundaryCircleRadiusParam = boundaryCircleRadius ? `&boundary.circle.radius=${encodeURIComponent(boundaryCircleRadius)}` : "";
+            const url = `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}${layersParam}${sourcesParam}${multiModalParam}${boundaryCircleRadiusParam}`;
+            setQueryUrl(url);
             const response = await fetch(
-              `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}${layersParam}${sourcesParam}${multiModalParam}${boundaryCircleRadiusParam}`,
+              url,
               {
                 signal: controller.signal,
                 headers: {
@@ -120,5 +123,5 @@ export const useReverse = (
     return () => clearTimeout(timer);
   }, [lat, lon, version, environment, size, layers, sources, multiModal, boundaryCircleRadius]);
 
-  return { searchResults, error };
+  return { searchResults, error, queryUrl };
 };

@@ -43,6 +43,7 @@ export const useAutoComplete = (
     results: [],
   });
   const [error, setError] = useState<FetchError | undefined>();
+  const [queryUrl, setQueryUrl] = useState<string>("");
 
   useEffect(() => {
     console.log("useAutoComplete");
@@ -67,8 +68,10 @@ export const useAutoComplete = (
             const layersParam = layers ? `&layers=${encodeURIComponent(layers)}` : "";
             const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
             const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
+            const url = `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}${layersParam}${sourcesParam}${multiModalParam}`;
+            setQueryUrl(url);
             const response = await fetch(
-              `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}${layersParam}${sourcesParam}${multiModalParam}`,
+              url,
               {
                 signal: controller.signal,
                 headers: {
@@ -133,5 +136,5 @@ export const useAutoComplete = (
     return () => clearTimeout(timer);
   }, [searchTerm, version, environment, size, focusLat, focusLon, layers, sources, multiModal]);
 
-  return { searchResults, error };
+  return { searchResults, error, queryUrl };
 };
