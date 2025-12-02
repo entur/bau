@@ -40,6 +40,8 @@ export const useAutoComplete = (
   layers?: string,
   sources?: string,
   multiModal?: string,
+  boundaryCountry?: string,
+  boundaryCountyIds?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -72,7 +74,9 @@ export const useAutoComplete = (
             const layersParam = layers ? `&layers=${encodeURIComponent(layers)}` : "";
             const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
             const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
-            const url = `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}${focusScaleParam}${focusWeightParam}${layersParam}${sourcesParam}${multiModalParam}`;
+            const boundaryCountryParam = boundaryCountry ? `&boundary.country=${encodeURIComponent(boundaryCountry)}` : "";
+            const boundaryCountyIdsParam = boundaryCountyIds ? `&boundary.county_ids=${encodeURIComponent(boundaryCountyIds)}` : "";
+            const url = `${baseUrl}/autocomplete?lang=no&size=${size}&text=${searchTerm}${focusParams}${focusScaleParam}${focusWeightParam}${layersParam}${sourcesParam}${multiModalParam}${boundaryCountryParam}${boundaryCountyIdsParam}`;
             setQueryUrl(url);
             const response = await fetch(
               url,
@@ -138,7 +142,7 @@ export const useAutoComplete = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm, version, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal]);
+  }, [searchTerm, version, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCountry, boundaryCountyIds]);
 
   return { searchResults, error, queryUrl };
 };

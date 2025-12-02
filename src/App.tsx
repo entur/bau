@@ -42,6 +42,8 @@ function App() {
   const initialSources = urlParams.get("sources") || "";
   const initialMultiModal = urlParams.get("multiModal") || "";
   const initialBoundaryCircleRadius = urlParams.get("boundary.circle.radius") || "";
+  const initialBoundaryCountry = urlParams.get("boundary.country") || "";
+  const initialBoundaryCountyIds = urlParams.get("boundary.county_ids") || "";
 
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
@@ -57,6 +59,8 @@ function App() {
   const [sources, setSources] = useState<string>(initialSources);
   const [multiModal, setMultiModal] = useState<string>(initialMultiModal);
   const [boundaryCircleRadius, setBoundaryCircleRadius] = useState<string>(initialBoundaryCircleRadius);
+  const [boundaryCountry, setBoundaryCountry] = useState<string>(initialBoundaryCountry);
+  const [boundaryCountyIds, setBoundaryCountyIds] = useState<string>(initialBoundaryCountyIds);
   const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
 
   const handleClearFocus = () => {
@@ -109,13 +113,15 @@ function App() {
     if (sources) params.set("sources", sources);
     if (multiModal) params.set("multiModal", multiModal);
     if (boundaryCircleRadius) params.set("boundary.circle.radius", boundaryCircleRadius);
+    if (boundaryCountry) params.set("boundary.country", boundaryCountry);
+    if (boundaryCountyIds) params.set("boundary.county_ids", boundaryCountyIds);
 
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius]);
+  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds]);
 
   return (
     <GridContainer spacing="none">
@@ -319,6 +325,22 @@ function App() {
                 onChange={item => setMultiModal(item?.value || "")}
                 style={{ width: "80px" }}
               />
+              <TextField
+                size="medium"
+                label="Boundary Country"
+                style={{ width: "100px" }}
+                placeholder="e.g. NOR"
+                value={boundaryCountry}
+                onChange={(evt) => setBoundaryCountry(evt.target.value)}
+              />
+              <TextField
+                size="medium"
+                label="Boundary County IDs"
+                style={{ width: "200px" }}
+                placeholder="e.g. KVE:TopographicPlace:18"
+                value={boundaryCountyIds}
+                onChange={(evt) => setBoundaryCountyIds(evt.target.value)}
+              />
               {focusLat && focusLon && (
                 <button
                   onClick={handleClearFocus}
@@ -431,6 +453,8 @@ function App() {
             layers={layers}
             sources={sources}
             multiModal={multiModal}
+            boundaryCountry={boundaryCountry}
+            boundaryCountyIds={boundaryCountyIds}
             onFocusChange={(lat, lon) => {
               setFocusLat(parseFloat(lat).toFixed(5));
               setFocusLon(parseFloat(lon).toFixed(5));
