@@ -4,7 +4,6 @@ import { Heading3, Heading5 } from "@entur/typography";
 import styles from "./App.module.scss";
 import { GridContainer, GridItem } from "@entur/grid";
 import { TextField } from "@entur/form";
-import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { ApiEnvironment } from "./apiHooks/useAutoComplete";
@@ -291,39 +290,29 @@ function App() {
                 value={focusWeight}
                 onChange={(evt) => setFocusWeight(evt.target.value)}
               />
-              <Dropdown
+              <TextField
+                size="medium"
                 label="Layers"
-                items={[
-                  { value: "", label: "" },
-                  { value: "venue", label: "venue" },
-                  { value: "address", label: "address" },
-                ]}
-                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
-                onChange={item => setLayers(item?.value || "")}
                 style={{ width: "100px" }}
+                placeholder="e.g. venue"
+                value={layers}
+                onChange={(evt) => setLayers(evt.target.value)}
               />
-              <Dropdown
+              <TextField
+                size="medium"
                 label="Sources"
-                items={[
-                  { value: "", label: "" },
-                  { value: "whosonfirst", label: "whosonfirst" },
-                  { value: "openstreetmap", label: "openstreetmap" },
-                ]}
-                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
-                onChange={item => setSources(item?.value || "")}
-                style={{ width: "120px" }}
+                style={{ width: "130px" }}
+                placeholder="e.g. whosonfirst"
+                value={sources}
+                onChange={(evt) => setSources(evt.target.value)}
               />
-              <Dropdown
+              <TextField
+                size="medium"
                 label="MultiModal"
-                items={[
-                  { value: "", label: "" },
-                  { value: "all", label: "all" },
-                  { value: "child", label: "child" },
-                  { value: "parent", label: "parent" },
-                ]}
-                selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
-                onChange={item => setMultiModal(item?.value || "")}
-                style={{ width: "80px" }}
+                style={{ width: "90px" }}
+                placeholder="e.g. child"
+                value={multiModal}
+                onChange={(evt) => setMultiModal(evt.target.value)}
               />
               <TextField
                 size="medium"
@@ -402,39 +391,29 @@ function App() {
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
               />
-              <Dropdown
+              <TextField
+                size="medium"
                 label="Layers"
-                items={[
-                  { value: "", label: "" },
-                  { value: "venue", label: "venue" },
-                  { value: "address", label: "address" },
-                ]}
-                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
-                onChange={item => setLayers(item?.value || "")}
-                style={{ width: "150px" }}
+                style={{ width: "100px" }}
+                placeholder="e.g. venue"
+                value={layers}
+                onChange={(evt) => setLayers(evt.target.value)}
               />
-              <Dropdown
+              <TextField
+                size="medium"
                 label="Sources"
-                items={[
-                  { value: "", label: "" },
-                  { value: "whosonfirst", label: "whosonfirst" },
-                  { value: "openstreetmap", label: "openstreetmap" },
-                ]}
-                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
-                onChange={item => setSources(item?.value || "")}
-                style={{ width: "150px" }}
+                style={{ width: "130px" }}
+                placeholder="e.g. whosonfirst"
+                value={sources}
+                onChange={(evt) => setSources(evt.target.value)}
               />
-              <Dropdown
+              <TextField
+                size="medium"
                 label="MultiModal"
-                items={[
-                  { value: "", label: "" },
-                  { value: "all", label: "all" },
-                  { value: "child", label: "child" },
-                  { value: "parent", label: "parent" },
-                ]}
-                selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
-                onChange={item => setMultiModal(item?.value || "")}
-                style={{ width: "150px" }}
+                style={{ width: "90px" }}
+                placeholder="e.g. child"
+                value={multiModal}
+                onChange={(evt) => setMultiModal(evt.target.value)}
               />
             </div>
           </>
