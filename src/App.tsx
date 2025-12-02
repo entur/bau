@@ -27,17 +27,17 @@ const getDefaultEnvironment = (): ApiEnvironment => {
 function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const initialMode = (urlParams.get("mode") as SearchMode) || "autocomplete";
-  const initialSearchTerm = urlParams.get("q") || "";
-  const initialLat = urlParams.get("lat") || "";
-  const initialLon = urlParams.get("lon") || "";
+  const initialSearchTerm = urlParams.get("text") || "";
+  const initialLat = urlParams.get("point.lat") || "";
+  const initialLon = urlParams.get("point.lon") || "";
   const initialEnv =
     (urlParams.get("env") as ApiEnvironment) || getDefaultEnvironment();
 
   const initialSize = urlParams.get("size") || "30";
-  const initialFocusLat = urlParams.get("focus_lat") || "";
-  const initialFocusLon = urlParams.get("focus_lon") || "";
-  const initialFocusScale = urlParams.get("focus_scale") || "";
-  const initialFocusWeight = urlParams.get("focus_weight") || "";
+  const initialFocusLat = urlParams.get("focus.point.lat") || "";
+  const initialFocusLon = urlParams.get("focus.point.lon") || "";
+  const initialFocusScale = urlParams.get("focus.scale") || "";
+  const initialFocusWeight = urlParams.get("focus.weight") || "";
   const initialLayers = urlParams.get("layers") || "";
   const initialSources = urlParams.get("sources") || "";
   const initialMultiModal = urlParams.get("multiModal") || "";
@@ -87,10 +87,10 @@ function App() {
     }
 
     if (searchMode === "autocomplete" && searchTerm) {
-      params.set("q", searchTerm);
+      params.set("text", searchTerm);
     } else if (searchMode === "reverse") {
-      if (lat) params.set("lat", lat);
-      if (lon) params.set("lon", lon);
+      if (lat) params.set("point.lat", lat);
+      if (lon) params.set("point.lon", lon);
     }
 
     if (size && size !== "30") {
@@ -98,12 +98,12 @@ function App() {
     }
 
     if (focusLat && focusLon) {
-      params.set("focus_lat", focusLat);
-      params.set("focus_lon", focusLon);
+      params.set("focus.point.lat", focusLat);
+      params.set("focus.point.lon", focusLon);
     }
 
-    if (focusScale) params.set("focus_scale", focusScale);
-    if (focusWeight) params.set("focus_weight", focusWeight);
+    if (focusScale) params.set("focus.scale", focusScale);
+    if (focusWeight) params.set("focus.weight", focusWeight);
 
     if (layers) params.set("layers", layers);
     if (sources) params.set("sources", sources);
