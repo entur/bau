@@ -4,6 +4,7 @@ import { Heading3, Heading5 } from "@entur/typography";
 import styles from "./App.module.scss";
 import { GridContainer, GridItem } from "@entur/grid";
 import { TextField } from "@entur/form";
+import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { ApiEnvironment } from "./apiHooks/useAutoComplete";
@@ -238,14 +239,14 @@ function App() {
             >
               <TextField
                 size="medium"
-                label="Søk"
+                label="søk"
                 style={{ width: "150px" }}
                 value={searchTerm}
                 onChange={(evt) => setSearchTerm(evt.target.value)}
               />
               <TextField
                 size="medium"
-                label="Result size"
+                label="size"
                 type="number"
                 style={{ width: "80px" }}
                 placeholder="30"
@@ -254,7 +255,7 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Focus Latitude"
+                label="lat"
                 style={{ width: "90px" }}
                 placeholder="Click map to set"
                 value={focusLat}
@@ -264,7 +265,7 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Focus Longitude"
+                label="lon"
                 style={{ width: "90px" }}
                 placeholder="Click map to set"
                 value={focusLon}
@@ -274,7 +275,7 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Focus Scale"
+                label="scale"
                 type="number"
                 style={{ width: "90px" }}
                 placeholder="e.g. 1"
@@ -283,40 +284,53 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Focus Weight"
+                label="weight"
                 type="number"
                 style={{ width: "90px" }}
                 placeholder="e.g. 1"
                 value={focusWeight}
                 onChange={(evt) => setFocusWeight(evt.target.value)}
               />
-              <TextField
-                size="medium"
-                label="Layers"
+              <Dropdown
+                label="layers"
+                items={[
+                  { value: "", label: "" },
+                  { value: "venue", label: "venue" },
+                  { value: "address", label: "address" },
+                ]}
+                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
+                onChange={item => setLayers(item?.value || "")}
                 style={{ width: "100px" }}
-                placeholder="e.g. venue"
-                value={layers}
-                onChange={(evt) => setLayers(evt.target.value)}
+                className={styles.dropdownMedium}
+              />
+              <Dropdown
+                label="sources"
+                items={[
+                  { value: "", label: "" },
+                  { value: "whosonfirst", label: "whosonfirst" },
+                  { value: "openstreetmap", label: "openstreetmap" },
+                ]}
+                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
+                onChange={item => setSources(item?.value || "")}
+                style={{ width: "120px" }}
+                className={styles.dropdownMedium}
+              />
+              <Dropdown
+                label="multimodal"
+                items={[
+                  { value: "", label: "" },
+                  { value: "all", label: "all" },
+                  { value: "child", label: "child" },
+                  { value: "parent", label: "parent" },
+                ]}
+                selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
+                onChange={item => setMultiModal(item?.value || "")}
+                style={{ width: "80px" }}
+                className={styles.dropdownMedium}
               />
               <TextField
                 size="medium"
-                label="Sources"
-                style={{ width: "130px" }}
-                placeholder="e.g. whosonfirst"
-                value={sources}
-                onChange={(evt) => setSources(evt.target.value)}
-              />
-              <TextField
-                size="medium"
-                label="MultiModal"
-                style={{ width: "90px" }}
-                placeholder="e.g. child"
-                value={multiModal}
-                onChange={(evt) => setMultiModal(evt.target.value)}
-              />
-              <TextField
-                size="medium"
-                label="Boundary Country"
+                label="country"
                 style={{ width: "100px" }}
                 placeholder="e.g. NOR"
                 value={boundaryCountry}
@@ -324,7 +338,7 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Boundary County IDs"
+                label="boundary county_ids"
                 style={{ width: "200px" }}
                 placeholder="e.g. KVE:TopographicPlace:18"
                 value={boundaryCountyIds}
@@ -360,7 +374,7 @@ function App() {
             >
               <TextField
                 size="medium"
-                label="Latitude"
+                label="lat"
                 style={{ maxWidth: "170px" }}
                 placeholder="e.g. 59.9139 or click map"
                 value={lat}
@@ -368,7 +382,7 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Longitude"
+                label="lon"
                 style={{ maxWidth: "170px" }}
                 placeholder="e.g. 10.7522 or click map"
                 value={lon}
@@ -376,7 +390,7 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Boundary radius (km)"
+                label="radius (km)"
                 type="number"
                 style={{ width: "150px" }}
                 value={boundaryCircleRadius}
@@ -384,36 +398,49 @@ function App() {
               />
               <TextField
                 size="medium"
-                label="Result size"
+                label="size"
                 type="number"
                 style={{ width: "120px" }}
                 placeholder="30"
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
               />
-              <TextField
-                size="medium"
-                label="Layers"
+              <Dropdown
+                label="layers"
+                items={[
+                  { value: "", label: "" },
+                  { value: "venue", label: "venue" },
+                  { value: "address", label: "address" },
+                ]}
+                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
+                onChange={item => setLayers(item?.value || "")}
                 style={{ width: "100px" }}
-                placeholder="e.g. venue"
-                value={layers}
-                onChange={(evt) => setLayers(evt.target.value)}
+                className={styles.dropdownMedium}
               />
-              <TextField
-                size="medium"
-                label="Sources"
-                style={{ width: "130px" }}
-                placeholder="e.g. whosonfirst"
-                value={sources}
-                onChange={(evt) => setSources(evt.target.value)}
+              <Dropdown
+                label="sources"
+                items={[
+                  { value: "", label: "" },
+                  { value: "whosonfirst", label: "whosonfirst" },
+                  { value: "openstreetmap", label: "openstreetmap" },
+                ]}
+                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
+                onChange={item => setSources(item?.value || "")}
+                style={{ width: "120px" }}
+                className={styles.dropdownMedium}
               />
-              <TextField
-                size="medium"
-                label="MultiModal"
-                style={{ width: "90px" }}
-                placeholder="e.g. child"
-                value={multiModal}
-                onChange={(evt) => setMultiModal(evt.target.value)}
+              <Dropdown
+                label="multimodal"
+                items={[
+                  { value: "", label: "" },
+                  { value: "all", label: "all" },
+                  { value: "child", label: "child" },
+                  { value: "parent", label: "parent" },
+                ]}
+                selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
+                onChange={item => setMultiModal(item?.value || "")}
+                style={{ width: "80px" }}
+                className={styles.dropdownMedium}
               />
             </div>
           </>

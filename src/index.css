@@ -1,5 +1,8 @@
+@import '@entur/a11y/dist/styles.css';
 @import "@entur/alert/dist/styles.css";
 @import "@entur/button/dist/styles.css";
+@import '@entur/chip/dist/styles.css';
+@import '@entur/dropdown/dist/styles.css';
 @import "@entur/expand/dist/styles.css";
 @import "@entur/form/dist/styles.css";
 @import "@entur/grid/dist/styles.css";
@@ -15,4 +18,18 @@
 
 body {
   margin: 0;
+}
+
+.eds-dropdown__list {
+    background: #fff;
+    z-index: 500;
+}
+.eds-dropdown__selected-item {
+    margin-left: 1rem;
+}
+.eds-dropdown__appendix {
+    margin-right: 1rem;
+}
+.eds-form-control-wrapper {
+    height: 3rem;
 }

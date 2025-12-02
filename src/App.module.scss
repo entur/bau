@@ -32,6 +32,12 @@
   color: #61dafb;
 }
 
+.dropdownMedium {
+  :global(.eds-form-control__input-container) {
+    min-height: 48px;
+  }
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
