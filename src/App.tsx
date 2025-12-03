@@ -309,6 +309,7 @@ function App() {
                   { value: "", label: "" },
                   { value: "whosonfirst", label: "whosonfirst" },
                   { value: "openstreetmap", label: "openstreetmap" },
+                  { value: "openaddresses", label: "openaddresses" },
                 ]}
                 selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
                 onChange={item => setSources(item?.value || "")}
