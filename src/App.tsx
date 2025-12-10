@@ -3,7 +3,7 @@ import logo from "./logo.png";
 import { Heading3, Heading5 } from "@entur/typography";
 import styles from "./App.module.scss";
 import { GridContainer, GridItem } from "@entur/grid";
-import { TextField } from "@entur/form";
+import { TextField, Checkbox } from "@entur/form";
 import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
@@ -66,6 +66,24 @@ function App() {
   const handleClearFocus = () => {
     setFocusLat("");
     setFocusLon("");
+  };
+
+  const toggleLayer = (layer: string) => {
+    const currentLayers = layers ? layers.split(",") : [];
+    if (currentLayers.includes(layer)) {
+      setLayers(currentLayers.filter((l) => l !== layer).join(","));
+    } else {
+      setLayers([...currentLayers, layer].join(","));
+    }
+  };
+
+  const toggleSource = (source: string) => {
+    const currentSources = sources ? sources.split(",") : [];
+    if (currentSources.includes(source)) {
+      setSources(currentSources.filter((s) => s !== source).join(","));
+    } else {
+      setSources([...currentSources, source].join(","));
+    }
   };
 
   const sanitizeCoordinate = (value: string): string => {
@@ -292,31 +310,6 @@ function App() {
                 onChange={(evt) => setFocusWeight(evt.target.value)}
               />
               <Dropdown
-                label="layers"
-                items={[
-                  { value: "", label: "" },
-                  { value: "venue", label: "venue" },
-                  { value: "address", label: "address" },
-                ]}
-                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
-                onChange={item => setLayers(item?.value || "")}
-                style={{ width: "100px" }}
-                className={styles.dropdownMedium}
-              />
-              <Dropdown
-                label="sources"
-                items={[
-                  { value: "", label: "" },
-                  { value: "whosonfirst", label: "whosonfirst" },
-                  { value: "openstreetmap", label: "openstreetmap" },
-                  { value: "openaddresses", label: "openaddresses" },
-                ]}
-                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
-                onChange={item => setSources(item?.value || "")}
-                style={{ width: "120px" }}
-                className={styles.dropdownMedium}
-              />
-              <Dropdown
                 label="multimodal"
                 items={[
                   { value: "", label: "" },
@@ -364,6 +357,51 @@ function App() {
                 </button>
               )}
             </div>
+            <div
+              style={{ display: "flex", gap: "2rem", alignItems: "center", marginTop: "1rem" }}
+            >
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Layers:</span>
+                <Checkbox
+                  checked={layers.split(",").includes("venue")}
+                  onChange={() => toggleLayer("venue")}
+                  className={styles.checkboxWhite}
+                >
+                  venue
+                </Checkbox>
+                <Checkbox
+                  checked={layers.split(",").includes("address")}
+                  onChange={() => toggleLayer("address")}
+                  className={styles.checkboxWhite}
+                >
+                  address
+                </Checkbox>
+              </div>
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Sources:</span>
+                <Checkbox
+                  checked={sources.split(",").includes("whosonfirst")}
+                  onChange={() => toggleSource("whosonfirst")}
+                  className={styles.checkboxWhite}
+                >
+                  whosonfirst
+                </Checkbox>
+                <Checkbox
+                  checked={sources.split(",").includes("openstreetmap")}
+                  onChange={() => toggleSource("openstreetmap")}
+                  className={styles.checkboxWhite}
+                >
+                  openstreetmap
+                </Checkbox>
+                <Checkbox
+                  checked={sources.split(",").includes("openaddresses")}
+                  onChange={() => toggleSource("openaddresses")}
+                  className={styles.checkboxWhite}
+                >
+                  openaddresses
+                </Checkbox>
+              </div>
+            </div>
           </>
         ) : (
           <>
@@ -407,30 +445,6 @@ function App() {
                 onChange={(evt) => setSize(evt.target.value)}
               />
               <Dropdown
-                label="layers"
-                items={[
-                  { value: "", label: "" },
-                  { value: "venue", label: "venue" },
-                  { value: "address", label: "address" },
-                ]}
-                selectedItem={layers ? { value: layers, label: layers } : { value: "", label: "" }}
-                onChange={item => setLayers(item?.value || "")}
-                style={{ width: "100px" }}
-                className={styles.dropdownMedium}
-              />
-              <Dropdown
-                label="sources"
-                items={[
-                  { value: "", label: "" },
-                  { value: "whosonfirst", label: "whosonfirst" },
-                  { value: "openstreetmap", label: "openstreetmap" },
-                ]}
-                selectedItem={sources ? { value: sources, label: sources } : { value: "", label: "" }}
-                onChange={item => setSources(item?.value || "")}
-                style={{ width: "120px" }}
-                className={styles.dropdownMedium}
-              />
-              <Dropdown
                 label="multimodal"
                 items={[
                   { value: "", label: "" },
@@ -443,6 +457,44 @@ function App() {
                 style={{ width: "80px" }}
                 className={styles.dropdownMedium}
               />
+            </div>
+            <div
+              style={{ display: "flex", gap: "2rem", alignItems: "center", marginTop: "1rem" }}
+            >
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Layers:</span>
+                <Checkbox
+                  checked={layers.split(",").includes("venue")}
+                  onChange={() => toggleLayer("venue")}
+                  className={styles.checkboxWhite}
+                >
+                  venue
+                </Checkbox>
+                <Checkbox
+                  checked={layers.split(",").includes("address")}
+                  onChange={() => toggleLayer("address")}
+                  className={styles.checkboxWhite}
+                >
+                  address
+                </Checkbox>
+              </div>
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Sources:</span>
+                <Checkbox
+                  checked={sources.split(",").includes("whosonfirst")}
+                  onChange={() => toggleSource("whosonfirst")}
+                  className={styles.checkboxWhite}
+                >
+                  whosonfirst
+                </Checkbox>
+                <Checkbox
+                  checked={sources.split(",").includes("openstreetmap")}
+                  onChange={() => toggleSource("openstreetmap")}
+                  className={styles.checkboxWhite}
+                >
+                  openstreetmap
+                </Checkbox>
+              </div>
             </div>
           </>
         )}
