@@ -400,6 +400,13 @@ function App() {
                 >
                   openaddresses
                 </Checkbox>
+                <Checkbox
+                  checked={sources.split(",").includes("geonames")}
+                  onChange={() => toggleSource("geonames")}
+                  className={styles.checkboxWhite}
+                >
+                  geonames
+                </Checkbox>
               </div>
             </div>
           </>
@@ -493,6 +500,13 @@ function App() {
                   className={styles.checkboxWhite}
                 >
                   openstreetmap
+                </Checkbox>
+                <Checkbox
+                  checked={sources.split(",").includes("geonames")}
+                  onChange={() => toggleSource("geonames")}
+                  className={styles.checkboxWhite}
+                >
+                  geonames
                 </Checkbox>
               </div>
             </div>
