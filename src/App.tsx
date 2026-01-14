@@ -502,6 +502,13 @@ function App() {
                   openstreetmap
                 </Checkbox>
                 <Checkbox
+                  checked={sources.split(",").includes("openaddresses")}
+                  onChange={() => toggleSource("openaddresses")}
+                  className={styles.checkboxWhite}
+                >
+                  openaddresses
+                </Checkbox>
+                <Checkbox
                   checked={sources.split(",").includes("geonames")}
                   onChange={() => toggleSource("geonames")}
                   className={styles.checkboxWhite}
