@@ -1,84 +1,56 @@
-import { GeocoderVersion, ApiEnvironment } from "../apiHooks/useAutoComplete";
-import { useReverse } from "../apiHooks/useReverse";
+import {
+  GeocoderVersion,
+  usePlace,
+  ApiEnvironment,
+} from "../apiHooks/usePlace";
 import { useEffect, useState } from "react";
 import { Results } from "./results";
 import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
 import { getMatchColor } from "../utils/colorHash";
 import { MapContainerWrapper } from "../map/MapContainerWrapper";
-import { Feature } from "../apiHooks/response.types";
 
 interface Props {
-  lat: string;
-  lon: string;
+  ids: string;
   environment: ApiEnvironment;
-  size?: number;
-  layers?: string;
-  sources?: string;
-  multiModal?: string;
-  boundaryCircleRadius?: string;
-  onPointChange?: (lat: string, lon: string) => void;
 }
 
-export const ReverseResults = ({
-  lat,
-  lon,
-  environment,
-  size = 30,
-  layers,
-  sources,
-  multiModal,
-  boundaryCircleRadius,
-  onPointChange,
-}: Props) => {
-  const resultsV1 = useReverse(
-    lat,
-    lon,
-    GeocoderVersion.V1,
+export const PlaceResults = ({ ids, environment }: Props) => {
+  const resultsV1 = usePlace({
+    ids,
     environment,
-    size,
-    layers,
-    sources,
-    multiModal,
-    boundaryCircleRadius,
-  );
-  const resultsV2 = useReverse(
-    lat,
-    lon,
-    GeocoderVersion.V2,
+    version: GeocoderVersion.V1,
+  });
+  const resultsV2 = usePlace({
+    ids,
     environment,
-    size,
-    layers,
-    sources,
-    multiModal,
-    boundaryCircleRadius,
-  );
+    version: GeocoderVersion.V2,
+  });
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
-  // Calculate match colors for visual pairing
   const matchColorsV1 = new Map<string, string>();
   const matchColorsV2 = new Map<string, string>();
 
-  resultsV1.searchResults.results.forEach((result) => {
+  resultsV1.features.forEach((result) => {
     matchColorsV1.set(
       result.properties.id,
       getMatchColor(
         result.properties.id,
-        resultsV2.searchResults.results,
+        resultsV2.features,
         missingResultIdInV1.includes(result.properties.id),
       ),
     );
   });
 
-  resultsV2.searchResults.results.forEach((result) => {
+  resultsV2.features.forEach((result) => {
     matchColorsV2.set(
       result.properties.id,
       getMatchColor(
         result.properties.id,
-        resultsV1.searchResults.results,
+        resultsV1.features,
         missingResultIdInV2.includes(result.properties.id),
       ),
     );
@@ -86,35 +58,26 @@ export const ReverseResults = ({
 
   useEffect(() => {
     setMissingResultIdsInV1(
-      resultsV1.searchResults.results
+      resultsV1.features
         .map((result1) => result1.properties.id)
         .filter(
           (id1) =>
-            !resultsV2.searchResults.results.some((result2) =>
+            !resultsV2.features.some((result2) =>
               result2.properties.id.includes(id1),
             ),
         ),
     );
     setMissingResultIdsInV2(
-      resultsV2.searchResults.results
+      resultsV2.features
         .map((result2) => result2.properties.id)
         .filter(
           (id2) =>
-            !resultsV1.searchResults.results.some((result1) =>
+            !resultsV1.features.some((result1) =>
               result1.properties.id.includes(id2),
             ),
         ),
     );
-  }, [resultsV1.searchResults.results, resultsV2.searchResults.results]);
-
-  const featuresV1: Feature[] = resultsV1.searchResults.results.map((r) => ({
-    ...r,
-    type: "Feature",
-  }));
-  const featuresV2: Feature[] = resultsV2.searchResults.results.map((r) => ({
-    ...r,
-    type: "Feature",
-  }));
+  }, [resultsV1.features, resultsV2.features]);
 
   return (
     <>
@@ -127,7 +90,6 @@ export const ReverseResults = ({
         }}
         className={styles.resultsLayout}
       >
-        {/* V1 Column */}
         <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
@@ -150,7 +112,7 @@ export const ReverseResults = ({
               )}
             </Heading3>
             <Results
-              searchResults={resultsV1.searchResults}
+              features={resultsV1.features}
               loading={resultsV1.loading}
               error={resultsV1.error}
               missingResults={missingResultIdInV1}
@@ -162,7 +124,6 @@ export const ReverseResults = ({
           </div>
         </div>
 
-        {/* V2 Column */}
         <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
@@ -185,7 +146,7 @@ export const ReverseResults = ({
               )}
             </Heading3>
             <Results
-              searchResults={resultsV2.searchResults}
+              features={resultsV2.features}
               loading={resultsV2.loading}
               error={resultsV2.error}
               missingResults={missingResultIdInV2}
@@ -197,22 +158,10 @@ export const ReverseResults = ({
           </div>
         </div>
 
-        {/* Map Column */}
         <div>
           <MapContainerWrapper
-            v1Results={featuresV1}
-            v2Results={featuresV2}
-            reversePoint={
-              lat && lon
-                ? {
-                    lat: parseFloat(lat),
-                    lon: parseFloat(lon),
-                  }
-                : undefined
-            }
-            onReversePointChange={(newLat, newLon) => {
-              onPointChange?.(newLat.toString(), newLon.toString());
-            }}
+            v1Results={resultsV1.features}
+            v2Results={resultsV2.features}
           />
         </div>
       </div>

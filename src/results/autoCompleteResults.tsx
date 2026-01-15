@@ -9,6 +9,7 @@ import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
 import { getMatchColor } from "../utils/colorHash";
 import { MapContainerWrapper } from "../map/MapContainerWrapper";
+import { Feature } from "../apiHooks/response.types";
 
 interface Props {
   searchTerm: string;
@@ -39,7 +40,7 @@ export const AutoCompleteResults = ({
   multiModal,
   boundaryCountry,
   boundaryCountyIds,
-  onFocusChange,
+  onFocusChange = () => {},
 }: Props) => {
   const resultsV1 = useAutoComplete(
     searchTerm,
@@ -125,6 +126,15 @@ export const AutoCompleteResults = ({
     );
   }, [resultsV1.searchResults.results, resultsV2.searchResults.results]);
 
+  const featuresV1: Feature[] = resultsV1.searchResults.results.map((r) => ({
+    ...r,
+    type: "Feature",
+  }));
+  const featuresV2: Feature[] = resultsV2.searchResults.results.map((r) => ({
+    ...r,
+    type: "Feature",
+  }));
+
   return (
     <>
       <div
@@ -158,32 +168,15 @@ export const AutoCompleteResults = ({
                 </a>
               )}
             </Heading3>
-            {resultsV1.error && (
-              <div
-                style={{
-                  backgroundColor: "#f8d7da",
-                  border: "1px solid #f5c6cb",
-                  borderRadius: "4px",
-                  padding: "0.75rem",
-                  marginBottom: "1rem",
-                  color: "#721c24",
-                  fontSize: "0.9rem",
-                }}
-              >
-                <strong>⚠️ Endpoint Error:</strong> {resultsV1.error.statusText}
-                {resultsV1.error.status > 0 &&
-                  ` (HTTP ${resultsV1.error.status})`}
-                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
-                  Showing empty result
-                </div>
-              </div>
-            )}
             <Results
               searchResults={resultsV1.searchResults}
+              loading={resultsV1.loading}
+              error={resultsV1.error}
               missingResults={missingResultIdInV1}
               highlightedId={highlightedId}
               onResultHover={setHighlightedId}
               matchColors={matchColorsV1}
+              onFocusChange={onFocusChange}
             />
           </div>
         </div>
@@ -210,32 +203,15 @@ export const AutoCompleteResults = ({
                 </a>
               )}
             </Heading3>
-            {resultsV2.error && (
-              <div
-                style={{
-                  backgroundColor: "#f8d7da",
-                  border: "1px solid #f5c6cb",
-                  borderRadius: "4px",
-                  padding: "0.75rem",
-                  marginBottom: "1rem",
-                  color: "#721c24",
-                  fontSize: "0.9rem",
-                }}
-              >
-                <strong>⚠️ Endpoint Error:</strong> {resultsV2.error.statusText}
-                {resultsV2.error.status > 0 &&
-                  ` (HTTP ${resultsV2.error.status})`}
-                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
-                  Showing empty result
-                </div>
-              </div>
-            )}
             <Results
               searchResults={resultsV2.searchResults}
+              loading={resultsV2.loading}
+              error={resultsV2.error}
               missingResults={missingResultIdInV2}
               highlightedId={highlightedId}
               onResultHover={setHighlightedId}
               matchColors={matchColorsV2}
+              onFocusChange={onFocusChange}
             />
           </div>
         </div>
@@ -243,8 +219,8 @@ export const AutoCompleteResults = ({
         {/* Map Column */}
         <div>
           <MapContainerWrapper
-            v1Results={resultsV1.searchResults.results}
-            v2Results={resultsV2.searchResults.results}
+            v1Results={featuresV1}
+            v2Results={featuresV2}
             focusPoint={
               focusLat && focusLon
                 ? {
