@@ -149,106 +149,36 @@ function App() {
   return (
     <GridContainer spacing="none">
       <GridItem small={12} className={styles.appHeader}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div className={styles.headerLeft}>
           <img src={logo} className={styles.appLogo} alt="Entur logo" />
           <Heading5 margin="none">Geocoder-v2 Test</Heading5>
         </div>
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div className={styles.headerRight}>
+          <div className={styles.modeButtons}>
             <button
               onClick={() => setSearchMode("autocomplete")}
-              style={{
-                padding: "0.25rem 0.75rem",
-                fontSize: "0.9rem",
-                background: searchMode === "autocomplete" ? "#e8eaf6" : "#fff",
-                color: "#181C56",
-                border:
-                  searchMode === "autocomplete"
-                    ? "2px solid #181C56"
-                    : "2px solid #ccc",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: searchMode === "autocomplete" ? "bold" : "normal",
-                boxShadow:
-                  searchMode === "autocomplete"
-                    ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
-                    : "none",
-                transition: "all 0.2s ease",
-                height: "32px",
-              }}
+              className={`${styles.modeButton} ${searchMode === "autocomplete" ? styles.active : ""}`}
             >
               Autocomplete
             </button>
             <button
               onClick={() => setSearchMode("reverse")}
-              style={{
-                padding: "0.25rem 0.75rem",
-                fontSize: "0.9rem",
-                background: searchMode === "reverse" ? "#e8eaf6" : "#fff",
-                color: "#181C56",
-                border:
-                  searchMode === "reverse"
-                    ? "2px solid #181C56"
-                    : "2px solid #ccc",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: searchMode === "reverse" ? "bold" : "normal",
-                boxShadow:
-                  searchMode === "reverse"
-                    ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
-                    : "none",
-                transition: "all 0.2s ease",
-                height: "32px",
-              }}
+              className={`${styles.modeButton} ${searchMode === "reverse" ? styles.active : ""}`}
             >
               Reverse
             </button>
             <button
               onClick={() => setSearchMode("place")}
-              style={{
-                padding: "0.25rem 0.75rem",
-                fontSize: "0.9rem",
-                background: searchMode === "place" ? "#e8eaf6" : "#fff",
-                color: "#181C56",
-                border:
-                  searchMode === "place"
-                    ? "2px solid #181C56"
-                    : "2px solid #ccc",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: searchMode === "place" ? "bold" : "normal",
-                boxShadow:
-                  searchMode === "place"
-                    ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
-                    : "none",
-                transition: "all 0.2s ease",
-                height: "32px",
-              }}
+              className={`${styles.modeButton} ${searchMode === "place" ? styles.active : ""}`}
             >
               Place
             </button>
           </div>
-          <label
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              alignItems: "center",
-              fontWeight: "bold",
-            }}
-          >
+          <label className={styles.envSelector}>
             Environment:
             <select
               value={environment}
               onChange={(e) => setEnvironment(e.target.value as ApiEnvironment)}
-              style={{
-                padding: "0.25rem 0.5rem",
-                fontSize: "0.9rem",
-                border: "2px solid #181C56",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: "#fff",
-                height: "32px",
-              }}
             >
               <option value={ApiEnvironment.DEV}>Dev</option>
               <option value={ApiEnvironment.STAGING}>Staging</option>
@@ -259,18 +189,8 @@ function App() {
       </GridItem>
       {isV2Overridden && (
         <GridItem small={12}>
-          <div
-            style={{
-              backgroundColor: "#fff3cd",
-              border: "1px solid #ffc107",
-              borderRadius: "4px",
-              padding: "0.75rem 1rem",
-              margin: "0.5rem 1rem",
-              color: "#856404",
-              fontSize: "0.9rem",
-            }}
-          >
-            ⚠️ <strong>Notice:</strong> Geocoder V2 is overridden with
+          <div className={styles.warningBanner}>
+            <strong>Notice:</strong> Geocoder V2 is overridden with
             VITE_GEOCODER_V2_URL: {import.meta.env.VITE_GEOCODER_V2_URL}
           </div>
         </GridItem>
@@ -281,13 +201,11 @@ function App() {
             <Heading3 margin="none" className={styles.searchHeading}>
               Hvor vil du reise?
             </Heading3>
-            <div
-              style={{ display: "flex", gap: "1rem", alignItems: "flex-end" }}
-            >
+            <div className={styles.searchForm}>
               <TextField
                 size="medium"
                 label="søk"
-                style={{ width: "150px" }}
+                className={styles.inputLarge}
                 value={searchTerm}
                 onChange={(evt) => setSearchTerm(evt.target.value)}
               />
@@ -295,7 +213,7 @@ function App() {
                 size="medium"
                 label="size"
                 type="number"
-                style={{ width: "80px" }}
+                className={styles.inputSmall}
                 placeholder="30"
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
@@ -303,8 +221,8 @@ function App() {
               <TextField
                 size="medium"
                 label="lat"
-                style={{ width: "90px" }}
-                placeholder="Click map to set"
+                className={styles.inputMedium}
+                placeholder="Click map"
                 value={focusLat}
                 onChange={(evt) =>
                   setFocusLat(sanitizeCoordinate(evt.target.value))
@@ -313,8 +231,8 @@ function App() {
               <TextField
                 size="medium"
                 label="lon"
-                style={{ width: "90px" }}
-                placeholder="Click map to set"
+                className={styles.inputMedium}
+                placeholder="Click map"
                 value={focusLon}
                 onChange={(evt) =>
                   setFocusLon(sanitizeCoordinate(evt.target.value))
@@ -324,7 +242,7 @@ function App() {
                 size="medium"
                 label="scale"
                 type="number"
-                style={{ width: "90px" }}
+                className={styles.inputSmall}
                 placeholder="e.g. 1"
                 value={focusScale}
                 onChange={(evt) => setFocusScale(evt.target.value)}
@@ -333,7 +251,7 @@ function App() {
                 size="medium"
                 label="weight"
                 type="number"
-                style={{ width: "90px" }}
+                className={styles.inputSmall}
                 placeholder="e.g. 1"
                 value={focusWeight}
                 onChange={(evt) => setFocusWeight(evt.target.value)}
@@ -348,13 +266,12 @@ function App() {
                 ]}
                 selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
                 onChange={item => setMultiModal(item?.value || "")}
-                style={{ width: "80px" }}
-                className={styles.dropdownMedium}
+                className={`${styles.inputSmall} ${styles.dropdownMedium}`}
               />
               <TextField
                 size="medium"
                 label="country"
-                style={{ width: "100px" }}
+                className={styles.inputMedium}
                 placeholder="e.g. NOR"
                 value={boundaryCountry}
                 onChange={(evt) => setBoundaryCountry(evt.target.value)}
@@ -362,7 +279,7 @@ function App() {
               <TextField
                 size="medium"
                 label="boundary county_ids"
-                style={{ width: "200px" }}
+                className={styles.inputXLarge}
                 placeholder="e.g. KVE:TopographicPlace:18"
                 value={boundaryCountyIds}
                 onChange={(evt) => setBoundaryCountyIds(evt.target.value)}
@@ -370,27 +287,15 @@ function App() {
               {focusLat && focusLon && (
                 <button
                   onClick={handleClearFocus}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    fontSize: "0.9rem",
-                    border: "2px solid #d32f2f",
-                    borderRadius: "4px",
-                    background: "#fff",
-                    color: "#d32f2f",
-                    cursor: "pointer",
-                    fontWeight: "500",
-                    height: "42px",
-                  }}
+                  className={styles.clearFocusButton}
                 >
                   Clear focus
                 </button>
               )}
             </div>
-            <div
-              style={{ display: "flex", gap: "2rem", alignItems: "center", marginTop: "1rem" }}
-            >
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Layers:</span>
+            <div className={styles.filterRow}>
+              <div className={styles.filterGroup}>
+                <span className={styles.filterLabel}>Layers:</span>
                 <Checkbox
                   checked={layers.split(",").includes("venue")}
                   onChange={() => toggleLayer("venue")}
@@ -406,8 +311,8 @@ function App() {
                   address
                 </Checkbox>
               </div>
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Sources:</span>
+              <div className={styles.filterGroup}>
+                <span className={styles.filterLabel}>Sources:</span>
                 <Checkbox
                   checked={sources.split(",").includes("whosonfirst")}
                   onChange={() => toggleSource("whosonfirst")}
@@ -444,13 +349,11 @@ function App() {
             <Heading3 margin="none" className={styles.searchHeading}>
               Reverse Geocoding
             </Heading3>
-            <div
-              style={{ display: "flex", gap: "1rem", alignItems: "flex-end" }}
-            >
+            <div className={styles.searchForm}>
               <TextField
                 size="medium"
                 label="lat"
-                style={{ maxWidth: "170px" }}
+                className={styles.inputLarge}
                 placeholder="e.g. 59.9139 or click map"
                 value={lat}
                 onChange={(evt) => setLat(sanitizeCoordinate(evt.target.value))}
@@ -458,7 +361,7 @@ function App() {
               <TextField
                 size="medium"
                 label="lon"
-                style={{ maxWidth: "170px" }}
+                className={styles.inputLarge}
                 placeholder="e.g. 10.7522 or click map"
                 value={lon}
                 onChange={(evt) => setLon(sanitizeCoordinate(evt.target.value))}
@@ -467,7 +370,7 @@ function App() {
                 size="medium"
                 label="radius (km)"
                 type="number"
-                style={{ width: "150px" }}
+                className={styles.inputMedium}
                 value={boundaryCircleRadius}
                 onChange={evt => setBoundaryCircleRadius(evt.target.value)}
               />
@@ -475,7 +378,7 @@ function App() {
                 size="medium"
                 label="size"
                 type="number"
-                style={{ width: "120px" }}
+                className={styles.inputSmall}
                 placeholder="30"
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
@@ -490,15 +393,12 @@ function App() {
                 ]}
                 selectedItem={multiModal ? { value: multiModal, label: multiModal } : { value: "", label: "" }}
                 onChange={item => setMultiModal(item?.value || "")}
-                style={{ width: "80px" }}
-                className={styles.dropdownMedium}
+                className={`${styles.inputSmall} ${styles.dropdownMedium}`}
               />
             </div>
-            <div
-              style={{ display: "flex", gap: "2rem", alignItems: "center", marginTop: "1rem" }}
-            >
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Layers:</span>
+            <div className={styles.filterRow}>
+              <div className={styles.filterGroup}>
+                <span className={styles.filterLabel}>Layers:</span>
                 <Checkbox
                   checked={layers.split(",").includes("venue")}
                   onChange={() => toggleLayer("venue")}
@@ -514,8 +414,8 @@ function App() {
                   address
                 </Checkbox>
               </div>
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                <span style={{ color: "white", fontWeight: "bold", marginRight: "0.5rem" }}>Sources:</span>
+              <div className={styles.filterGroup}>
+                <span className={styles.filterLabel}>Sources:</span>
                 <Checkbox
                   checked={sources.split(",").includes("whosonfirst")}
                   onChange={() => toggleSource("whosonfirst")}
@@ -552,13 +452,11 @@ function App() {
             <Heading3 margin="none" className={styles.searchHeading}>
               Place Lookup
             </Heading3>
-            <div
-              style={{ display: "flex", gap: "1rem", alignItems: "flex-end" }}
-            >
+            <div className={styles.searchForm}>
               <TextField
                 size="medium"
                 label="ids"
-                style={{ width: "500px" }}
+                className={styles.inputXLarge}
                 placeholder="e.g. NSR:StopPlace:337,NSR:StopPlace:123"
                 value={ids}
                 onChange={(evt) => setIds(evt.target.value)}

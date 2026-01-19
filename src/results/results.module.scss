@@ -39,13 +39,6 @@
   width: 16px;
 }
 
-.resultDetail {
-  display: flex;
-  flex-direction: column;
-  max-width: 500px;
-  overflow-wrap: break-word;
-}
-
 .iconsContainer {
   display: flex;
   align-items: center;
@@ -71,12 +64,32 @@
   gap: 1rem;
   align-items: start;
 
-  @media (max-width: 968px) {
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr 1fr;
+
+    // Stack map below on tablets
+    & > div:nth-child(3) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
 
-    // Reorder: map first, then tables
+    // Map first on mobile
     & > div:nth-child(3) {
       order: -1;
     }
+  }
+}
+
+.resultDetail {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  overflow-wrap: break-word;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
   }
 }
