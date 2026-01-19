@@ -1,190 +1,151 @@
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMap,
-  useMapEvents,
-  CircleMarker,
-} from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { Feature, Result } from "../apiHooks/response.types";
-import L, { LatLngExpression } from "leaflet";
-import { useEffect, useMemo, useState } from "react";
-
-// Fix for default icon issue with Webpack
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconAnchor: [12, 41],
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+import { useState, useEffect, useMemo } from "react";
+import { ComparisonMap } from "./ComparisonMap";
+import { MapControls } from "./MapControls";
+import { MapStatistics } from "./MapStatistics";
+import { CategoryFilter } from "./CategoryFilter";
+import { Result } from "../apiHooks/response.types";
+import styles from "./MapContainerWrapper.module.scss";
+import { Heading3 } from "@entur/typography";
 
 interface Props {
-  v1Results?: (Feature | Result)[];
-  v2Results?: (Feature | Result)[];
-  reversePoint?: { lat: number; lon: number };
+  v1Results: Result[];
+  v2Results: Result[];
   focusPoint?: { lat: number; lon: number };
-  onReversePointChange?: (lat: number, lon: number) => void;
   onFocusPointChange?: (lat: number, lon: number) => void;
+  reversePoint?: { lat: number; lon: number };
+  onReversePointChange?: (lat: number, lon: number) => void;
 }
 
 export const MapContainerWrapper = ({
-  v1Results = [],
-  v2Results = [],
-  reversePoint,
+  v1Results,
+  v2Results,
   focusPoint,
-  onReversePointChange,
   onFocusPointChange,
+  reversePoint,
+  onReversePointChange,
 }: Props) => {
-  const [currentReversePoint, setCurrentReversePoint] = useState(reversePoint);
-  const [currentFocusPoint, setCurrentFocusPoint] = useState(focusPoint);
+  const [showMatched, setShowMatched] = useState(true);
+  const [showV1Only, setShowV1Only] = useState(true);
+  const [showV2Only, setShowV2Only] = useState(true);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
+  // Extract all unique categories from results
+  const allCategories = useMemo(() => {
+    const categorySet = new Set<string>();
+    [...v1Results, ...v2Results].forEach((result) => {
+      result.categories.forEach((cat) => categorySet.add(cat));
+    });
+    return Array.from(categorySet).sort();
+  }, [v1Results, v2Results]);
+
+  // Initialize selected categories when categories change
   useEffect(() => {
-    setCurrentReversePoint(reversePoint);
-  }, [reversePoint]);
+    setSelectedCategories(allCategories);
+  }, [allCategories]);
 
-  useEffect(() => {
-    setCurrentFocusPoint(focusPoint);
-  }, [focusPoint]);
+  // Calculate statistics
+  const matchedCount = v1Results.filter((r1) =>
+    v2Results.some((r2) => r2.properties.id === r1.properties.id),
+  ).length;
+  const v1OnlyCount = v1Results.filter(
+    (r1) => !v2Results.some((r2) => r2.properties.id === r1.properties.id),
+  ).length;
+  const v2OnlyCount = v2Results.filter(
+    (r2) => !v1Results.some((r1) => r1.properties.id === r2.properties.id),
+  ).length;
 
-  const allPoints = useMemo(() => {
-    const points: LatLngExpression[] = [];
-    v1Results.forEach((r) => {
-      if (r.geometry?.coordinates) {
-        points.push([r.geometry.coordinates[1], r.geometry.coordinates[0]]);
-      }
-    });
-    v2Results.forEach((r) => {
-      if (r.geometry?.coordinates) {
-        points.push([r.geometry.coordinates[1], r.geometry.coordinates[0]]);
-      }
-    });
-    if (currentReversePoint) {
-      points.push([currentReversePoint.lat, currentReversePoint.lon]);
+  // Calculate visible count based on current filters
+  const visibleCount = useMemo(() => {
+    const categoryFilter = (result: Result) => {
+      if (selectedCategories.length === 0) return true;
+      return result.categories.some((cat) => selectedCategories.includes(cat));
+    };
+
+    let count = 0;
+    if (showMatched) {
+      count += v1Results.filter(
+        (r1) =>
+          r1.geometry &&
+          categoryFilter(r1) &&
+          v2Results.some((r2) => r2.properties.id === r1.properties.id),
+      ).length;
     }
-    if (currentFocusPoint) {
-      points.push([currentFocusPoint.lat, currentFocusPoint.lon]);
+    if (showV1Only) {
+      count += v1Results.filter(
+        (r1) =>
+          r1.geometry &&
+          categoryFilter(r1) &&
+          !v2Results.some((r2) => r2.properties.id === r1.properties.id),
+      ).length;
     }
-    return points;
-  }, [v1Results, v2Results, currentReversePoint, currentFocusPoint]);
+    if (showV2Only) {
+      count += v2Results.filter(
+        (r2) =>
+          r2.geometry &&
+          categoryFilter(r2) &&
+          !v1Results.some((r1) => r1.properties.id === r2.properties.id),
+      ).length;
+    }
+    return count;
+  }, [
+    v1Results,
+    v2Results,
+    showMatched,
+    showV1Only,
+    showV2Only,
+    selectedCategories,
+  ]);
 
-  const MapUpdater = () => {
-    const map = useMap();
-    useEffect(() => {
-      if (allPoints.length > 0) {
-        map.fitBounds(allPoints as L.LatLngBoundsExpression);
-      }
-    }, [map]);
-    return null;
-  };
+  // Show map if there are results with geometry OR if it's interactive (for setting points)
+  const hasGeometry =
+    v1Results.some((r) => r.geometry) || v2Results.some((r) => r.geometry);
+  const isInteractive = !!(onFocusPointChange || onReversePointChange);
 
-  const MapClickHandler = () => {
-    useMapEvents({
-      click(e: L.LeafletMouseEvent) {
-        if (onReversePointChange) {
-          setCurrentReversePoint({ lat: e.latlng.lat, lon: e.latlng.lng });
-          onReversePointChange(e.latlng.lat, e.latlng.lng);
-        }
-        if (onFocusPointChange) {
-          setCurrentFocusPoint({ lat: e.latlng.lat, lon: e.latlng.lng });
-          onFocusPointChange(e.latlng.lat, e.latlng.lng);
-        }
-      },
-    });
-    return null;
-  };
+  if (!hasGeometry && !isInteractive) {
+    return null; // Don't render map if no results and not interactive
+  }
 
   return (
-    <MapContainer
-      center={[59.9139, 10.7522]}
-      zoom={13}
-      style={{ height: "80vh", width: "100%" }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <MapUpdater />
-      <MapClickHandler />
-      {v1Results.map(
-        (result, index) =>
-          result.geometry && (
-            <CircleMarker
-              key={`v1-${index}`}
-              center={[
-                result.geometry.coordinates[1],
-                result.geometry.coordinates[0],
-              ]}
-              radius={5}
-              color="blue"
-            >
-              <Popup>
-                V1: {result.properties.name} <br /> {result.properties.label}
-              </Popup>
-            </CircleMarker>
-          ),
-      )}
-      {v2Results.map(
-        (result, index) =>
-          result.geometry && (
-            <CircleMarker
-              key={`v2-${index}`}
-              center={[
-                result.geometry.coordinates[1],
-                result.geometry.coordinates[0],
-              ]}
-              radius={5}
-              color="red"
-            >
-              <Popup>
-                V2: {result.properties.name} <br /> {result.properties.label}
-              </Popup>
-            </CircleMarker>
-          ),
-      )}
-      {currentReversePoint && (
-        <Marker
-          position={[currentReversePoint.lat, currentReversePoint.lon]}
-          icon={
-            new L.Icon({
-              iconUrl:
-                "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
-              shadowUrl:
-                "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41],
-            })
-          }
-        >
-          <Popup>Reverse Geocoding Point</Popup>
-        </Marker>
-      )}
-      {currentFocusPoint && (
-        <Marker
-          position={[currentFocusPoint.lat, currentFocusPoint.lon]}
-          icon={
-            new L.Icon({
-              iconUrl:
-                "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png",
-              shadowUrl:
-                "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41],
-            })
-          }
-        >
-          <Popup>Focus Point</Popup>
-        </Marker>
-      )}
-    </MapContainer>
+    <div className={styles.mapSection}>
+      <Heading3 className={styles.mapHeading}>Geographic Distribution</Heading3>
+      <div className={styles.mapLayout}>
+        <div className={styles.mapMain}>
+          <ComparisonMap
+            v1Results={v1Results}
+            v2Results={v2Results}
+            showMatched={showMatched}
+            showV1Only={showV1Only}
+            showV2Only={showV2Only}
+            selectedCategories={selectedCategories}
+            focusPoint={focusPoint}
+            onMapClick={onFocusPointChange || onReversePointChange}
+            reversePoint={reversePoint}
+          />
+        </div>
+        <div className={styles.mapSidebar}>
+          <MapControls
+            showMatched={showMatched}
+            showV1Only={showV1Only}
+            showV2Only={showV2Only}
+            onToggleMatched={setShowMatched}
+            onToggleV1Only={setShowV1Only}
+            onToggleV2Only={setShowV2Only}
+          />
+          <MapStatistics
+            matchedCount={matchedCount}
+            v1OnlyCount={v1OnlyCount}
+            v2OnlyCount={v2OnlyCount}
+            totalV1={v1Results.length}
+            totalV2={v2Results.length}
+            visibleCount={visibleCount}
+          />
+          <CategoryFilter
+            categories={allCategories}
+            selectedCategories={selectedCategories}
+            onCategoriesChange={setSelectedCategories}
+          />
+        </div>
+      </div>
+    </div>
   );
 };

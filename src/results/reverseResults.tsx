@@ -6,7 +6,6 @@ import { Heading3 } from "@entur/typography";
 import styles from "./results.module.scss";
 import { getMatchColor } from "../utils/colorHash";
 import { MapContainerWrapper } from "../map/MapContainerWrapper";
-import { Feature } from "../apiHooks/response.types";
 
 interface Props {
   lat: string;
@@ -31,28 +30,8 @@ export const ReverseResults = ({
   boundaryCircleRadius,
   onPointChange,
 }: Props) => {
-  const resultsV1 = useReverse(
-    lat,
-    lon,
-    GeocoderVersion.V1,
-    environment,
-    size,
-    layers,
-    sources,
-    multiModal,
-    boundaryCircleRadius,
-  );
-  const resultsV2 = useReverse(
-    lat,
-    lon,
-    GeocoderVersion.V2,
-    environment,
-    size,
-    layers,
-    sources,
-    multiModal,
-    boundaryCircleRadius,
-  );
+  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size, layers, sources, multiModal, boundaryCircleRadius);
+  const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size, layers, sources, multiModal, boundaryCircleRadius);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);
@@ -107,15 +86,6 @@ export const ReverseResults = ({
     );
   }, [resultsV1.searchResults.results, resultsV2.searchResults.results]);
 
-  const featuresV1: Feature[] = resultsV1.searchResults.results.map((r) => ({
-    ...r,
-    type: "Feature",
-  }));
-  const featuresV2: Feature[] = resultsV2.searchResults.results.map((r) => ({
-    ...r,
-    type: "Feature",
-  }));
-
   return (
     <>
       <div
@@ -149,15 +119,32 @@ export const ReverseResults = ({
                 </a>
               )}
             </Heading3>
+            {resultsV1.error && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  border: "1px solid #f5c6cb",
+                  borderRadius: "4px",
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  color: "#721c24",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong>⚠️ Endpoint Error:</strong> {resultsV1.error.statusText}
+                {resultsV1.error.status > 0 &&
+                  ` (HTTP ${resultsV1.error.status})`}
+                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
+                  Showing empty result
+                </div>
+              </div>
+            )}
             <Results
               searchResults={resultsV1.searchResults}
-              loading={resultsV1.loading}
-              error={resultsV1.error}
               missingResults={missingResultIdInV1}
               highlightedId={highlightedId}
               onResultHover={setHighlightedId}
               matchColors={matchColorsV1}
-              onFocusChange={() => {}}
             />
           </div>
         </div>
@@ -184,15 +171,32 @@ export const ReverseResults = ({
                 </a>
               )}
             </Heading3>
+            {resultsV2.error && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  border: "1px solid #f5c6cb",
+                  borderRadius: "4px",
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  color: "#721c24",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong>⚠️ Endpoint Error:</strong> {resultsV2.error.statusText}
+                {resultsV2.error.status > 0 &&
+                  ` (HTTP ${resultsV2.error.status})`}
+                <div style={{ marginTop: "0.25rem", fontSize: "0.85rem" }}>
+                  Showing empty result
+                </div>
+              </div>
+            )}
             <Results
               searchResults={resultsV2.searchResults}
-              loading={resultsV2.loading}
-              error={resultsV2.error}
               missingResults={missingResultIdInV2}
               highlightedId={highlightedId}
               onResultHover={setHighlightedId}
               matchColors={matchColorsV2}
-              onFocusChange={() => {}}
             />
           </div>
         </div>
@@ -200,8 +204,8 @@ export const ReverseResults = ({
         {/* Map Column */}
         <div>
           <MapContainerWrapper
-            v1Results={featuresV1}
-            v2Results={featuresV2}
+            v1Results={resultsV1.searchResults.results}
+            v2Results={resultsV2.searchResults.results}
             reversePoint={
               lat && lon
                 ? {

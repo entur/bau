@@ -8,24 +8,11 @@ export interface Geometry {
   coordinates: [number, number]; // [longitude, latitude]
 }
 
-export interface FeatureCollection {
-  type: "FeatureCollection";
-  features: Feature[];
-  bbox: [number, number, number, number];
-}
-
-export interface Feature {
-  type: "Feature";
-  geometry?: Geometry;
-  properties: Properties;
-}
-
 export interface SearchResults {
   results: Result[];
 }
 
 export interface Result {
-  type: "Feature";
   name: string;
   layer: string;
   categories: string[];

@@ -46,7 +46,6 @@ export const useAutoComplete = (
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
   });
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<FetchError | undefined>();
   const [queryUrl, setQueryUrl] = useState<string>("");
 
@@ -55,7 +54,6 @@ export const useAutoComplete = (
     const timer = setTimeout(() => {
       if (searchTerm) {
         const fetchResults = async function () {
-          setLoading(true);
           try {
             const apiUrl = getApiUrl(environment);
             const baseUrl =
@@ -135,8 +133,6 @@ export const useAutoComplete = (
               statusText: errorMessage,
             });
             setSearchResults({ results: [] });
-          } finally {
-            setLoading(false);
           }
         };
         fetchResults();
@@ -148,5 +144,5 @@ export const useAutoComplete = (
     return () => clearTimeout(timer);
   }, [searchTerm, version, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCountry, boundaryCountyIds]);
 
-  return { searchResults, loading, error, queryUrl };
+  return { searchResults, error, queryUrl };
 };

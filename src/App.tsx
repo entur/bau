@@ -7,10 +7,9 @@ import { TextField, Checkbox } from "@entur/form";
 import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
-import { PlaceResults } from "./results/placeResults";
 import { ApiEnvironment } from "./apiHooks/useAutoComplete";
 
-type SearchMode = "autocomplete" | "reverse" | "place";
+type SearchMode = "autocomplete" | "reverse";
 
 const getDefaultEnvironment = (): ApiEnvironment => {
   const hostname = window.location.hostname;
@@ -31,7 +30,6 @@ function App() {
   const initialSearchTerm = urlParams.get("text") || "";
   const initialLat = urlParams.get("point.lat") || "";
   const initialLon = urlParams.get("point.lon") || "";
-  const initialIds = urlParams.get("ids") || "";
   const initialEnv =
     (urlParams.get("env") as ApiEnvironment) || getDefaultEnvironment();
 
@@ -51,7 +49,6 @@ function App() {
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [lat, setLat] = useState<string>(initialLat);
   const [lon, setLon] = useState<string>(initialLon);
-  const [ids, setIds] = useState<string>(initialIds);
   const [environment, setEnvironment] = useState<ApiEnvironment>(initialEnv);
   const [size, setSize] = useState<string>(initialSize);
   const [focusLat, setFocusLat] = useState<string>(initialFocusLat);
@@ -116,8 +113,6 @@ function App() {
     } else if (searchMode === "reverse") {
       if (lat) params.set("point.lat", lat);
       if (lon) params.set("point.lon", lon);
-    } else if (searchMode === "place" && ids) {
-      params.set("ids", ids);
     }
 
     if (size && size !== "30") {
@@ -144,7 +139,7 @@ function App() {
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, ids, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds]);
+  }, [searchMode, searchTerm, lat, lon, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds]);
 
   return (
     <GridContainer spacing="none">
@@ -202,30 +197,6 @@ function App() {
               }}
             >
               Reverse
-            </button>
-            <button
-              onClick={() => setSearchMode("place")}
-              style={{
-                padding: "0.25rem 0.75rem",
-                fontSize: "0.9rem",
-                background: searchMode === "place" ? "#e8eaf6" : "#fff",
-                color: "#181C56",
-                border:
-                  searchMode === "place"
-                    ? "2px solid #181C56"
-                    : "2px solid #ccc",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: searchMode === "place" ? "bold" : "normal",
-                boxShadow:
-                  searchMode === "place"
-                    ? "inset 0 2px 4px rgba(24, 28, 86, 0.15)"
-                    : "none",
-                transition: "all 0.2s ease",
-                height: "32px",
-              }}
-            >
-              Place
             </button>
           </div>
           <label
@@ -439,7 +410,7 @@ function App() {
               </div>
             </div>
           </>
-        ) : searchMode === "reverse" ? (
+        ) : (
           <>
             <Heading3 margin="none" className={styles.searchHeading}>
               Reverse Geocoding
@@ -547,24 +518,6 @@ function App() {
               </div>
             </div>
           </>
-        ) : (
-          <>
-            <Heading3 margin="none" className={styles.searchHeading}>
-              Place
-            </Heading3>
-            <div
-              style={{ display: "flex", gap: "1rem", alignItems: "flex-end" }}
-            >
-              <TextField
-                size="medium"
-                label="ids"
-                style={{ width: "300px" }}
-                placeholder="e.g. KVE:TopographicPlace:18"
-                value={ids}
-                onChange={(evt) => setIds(evt.target.value)}
-              />
-            </div>
-          </>
         )}
       </GridItem>
       <GridItem small={12}>
@@ -587,7 +540,7 @@ function App() {
               setFocusLon(parseFloat(lon).toFixed(5));
             }}
           />
-        ) : searchMode === "reverse" ? (
+        ) : (
           <ReverseResults
             lat={lat}
             lon={lon}
@@ -602,8 +555,6 @@ function App() {
               setLon(parseFloat(newLon).toFixed(5));
             }}
           />
-        ) : (
-          <PlaceResults ids={ids} environment={environment} />
         )}
       </GridItem>
     </GridContainer>

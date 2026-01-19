@@ -2,74 +2,39 @@ import styles from "./results.module.scss";
 import { ExpandableText } from "@entur/expand";
 import { SubParagraph, PreformattedText } from "@entur/typography";
 import { ResultIcons } from "./resultIcons";
-import { Feature, SearchResults } from "../apiHooks/response.types";
+import { SearchResults } from "../apiHooks/response.types";
 import { WarningIcon } from "@entur/icons";
 import { Tooltip } from "@entur/tooltip";
 
 interface Props {
-  searchResults?: SearchResults;
-  features?: Feature[];
-  loading?: boolean;
-  error?: any;
-  missingResults?: string[];
-  highlightedId: string | null;
-  onResultHover: (id: string | null) => void;
-  matchColors: Map<string, string>;
-  onFocusChange: (lat: string, lon: string) => void;
+  searchResults: SearchResults;
+  missingResults: string[];
+  highlightedId: string | null; // NEW: ID of result being hovered
+  onResultHover: (id: string | null) => void; // NEW: Hover callback
+  matchColors: Map<string, string>; // NEW: Map of ID to color
 }
 
 const formatDistance = (distanceInKm?: number): string => {
-  if (distanceInKm === undefined || distanceInKm === null) {
-    return "";
-  } else if (distanceInKm < 1) {
-    return ` (${Math.round(distanceInKm * 1000)}m)`;
-  } else {
-    return ` (${Math.round(distanceInKm)}km)`;
-  }
-};
+    if (distanceInKm === undefined || distanceInKm === null) {
+        return "";
+    } else if (distanceInKm < 1) {
+        return ` (${Math.round(distanceInKm * 1000)}m)`;
+    } else {
+        return ` (${Math.round(distanceInKm)}km)`;
+    }
+}
 
 export const Results = ({
   searchResults,
-  features,
-  loading,
-  error,
-  missingResults = [],
+  missingResults,
   highlightedId,
   onResultHover,
   matchColors,
 }: Props) => {
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div
-        style={{
-          backgroundColor: "#f8d7da",
-          border: "1px solid #f5c6cb",
-          borderRadius: "4px",
-          padding: "0.75rem",
-          marginBottom: "1rem",
-          color: "#721c24",
-          fontSize: "0.9rem",
-        }}
-      >
-        <strong>⚠️ Endpoint Error:</strong> {error.statusText}
-        {error.status > 0 && ` (HTTP ${error.status})`}
-      </div>
-    );
-  }
-
-  const results = searchResults ? searchResults.results : features;
-
-  if (!results) {
-    return null;
-  }
-
   return (
     <div>
-      {results.map((result, index) => (
+      {" "}
+      {searchResults?.results.map((result, index) => (
         <div
           className={`${styles.resultContainer} ${
             highlightedId === result.properties.id ? styles.highlighted : ""
@@ -78,9 +43,7 @@ export const Results = ({
           onMouseEnter={() => onResultHover(result.properties.id)}
           onMouseLeave={() => onResultHover(null)}
           style={{
-            borderLeft: `4px solid ${
-              matchColors.get(result.properties.id) || "#9e9e9e"
-            }`,
+            borderLeft: `4px solid ${matchColors.get(result.properties.id) || "#9e9e9e"}`,
           }}
         >
           {missingResults && (
@@ -97,21 +60,20 @@ export const Results = ({
               )}
             </div>
           )}
-          <ResultIcons categories={result.properties.category} />
+          <ResultIcons categories={result.categories} />
           <div className={styles.result}>
-            <ExpandableText
-              title={
-                result.properties.name +
-                formatDistance(result.properties.distance)
-              }
-            >
+            <ExpandableText title={result.name + formatDistance(result.properties.distance)}>
               <div className={styles.resultDetail}>
-                <SubParagraph margin="none">
-                  Layer: {result.properties.layer}
-                </SubParagraph>
-                {result.properties.category && (
+                <SubParagraph margin="none">Layer: {result.layer}</SubParagraph>
+                {result.categories && (
                   <SubParagraph margin="none">
-                    Categories: {result.properties.category.join(", ")}
+                    Categories:{" "}
+                    {result.categories
+                      .filter(
+                        (element, index) =>
+                          result.categories.indexOf(element) === index,
+                      )
+                      .join(", ")}
                   </SubParagraph>
                 )}
               </div>

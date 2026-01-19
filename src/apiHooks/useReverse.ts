@@ -32,7 +32,6 @@ export const useReverse = (
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
   });
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<FetchError | undefined>();
   const [queryUrl, setQueryUrl] = useState<string>("");
 
@@ -41,7 +40,6 @@ export const useReverse = (
     const timer = setTimeout(() => {
       if (lat && lon) {
         const fetchResults = async function () {
-          setLoading(true);
           try {
             const apiUrl = getApiUrl(environment);
             const baseUrl =
@@ -114,8 +112,6 @@ export const useReverse = (
               statusText: errorMessage,
             });
             setSearchResults({ results: [] });
-          } finally {
-            setLoading(false);
           }
         };
         fetchResults();
@@ -127,5 +123,5 @@ export const useReverse = (
     return () => clearTimeout(timer);
   }, [lat, lon, version, environment, size, layers, sources, multiModal, boundaryCircleRadius]);
 
-  return { searchResults, loading, error, queryUrl };
+  return { searchResults, error, queryUrl };
 };
