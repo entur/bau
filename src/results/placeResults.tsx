@@ -10,11 +10,13 @@ import { MapContainerWrapper } from "../map/MapContainerWrapper";
 interface Props {
   ids: string;
   environment: ApiEnvironment;
+  v2only?: boolean;
 }
 
 export const PlaceResults = ({
   ids,
   environment,
+  v2only = false,
 }: Props) => {
   const resultsV1 = usePlace(ids, GeocoderVersion.V1, environment);
   const resultsV2 = usePlace(ids, GeocoderVersion.V2, environment);
@@ -77,14 +79,14 @@ export const PlaceResults = ({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 2fr",
+          gridTemplateColumns: v2only ? "1fr 2fr" : "1fr 1fr 2fr",
           gap: "1rem",
           alignItems: "start",
         }}
         className={styles.resultsLayout}
       >
         {/* V1 Column */}
-        <div>
+        {!v2only && <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V1}
@@ -133,7 +135,7 @@ export const PlaceResults = ({
               matchColors={matchColorsV1}
             />
           </div>
-        </div>
+        </div>}
 
         {/* V2 Column */}
         <div>

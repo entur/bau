@@ -46,6 +46,7 @@ function App() {
   const initialBoundaryCircleRadius = urlParams.get("boundary.circle.radius") || "";
   const initialBoundaryCountry = urlParams.get("boundary.country") || "";
   const initialBoundaryCountyIds = urlParams.get("boundary.county_ids") || "";
+  const initialV2Only = urlParams.get("v2only") === "true";
 
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
@@ -64,6 +65,7 @@ function App() {
   const [boundaryCircleRadius, setBoundaryCircleRadius] = useState<string>(initialBoundaryCircleRadius);
   const [boundaryCountry, setBoundaryCountry] = useState<string>(initialBoundaryCountry);
   const [boundaryCountyIds, setBoundaryCountyIds] = useState<string>(initialBoundaryCountyIds);
+  const [v2only, setV2Only] = useState<boolean>(initialV2Only);
   const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
 
   const handleClearFocus = () => {
@@ -138,13 +140,14 @@ function App() {
     if (boundaryCircleRadius) params.set("boundary.circle.radius", boundaryCircleRadius);
     if (boundaryCountry) params.set("boundary.country", boundaryCountry);
     if (boundaryCountyIds) params.set("boundary.county_ids", boundaryCountyIds);
+    if (v2only) params.set("v2only", "true");
 
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, ids, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds]);
+  }, [searchMode, searchTerm, lat, lon, ids, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds, v2only]);
 
   return (
     <GridContainer spacing="none">
@@ -185,6 +188,13 @@ function App() {
               <option value={ApiEnvironment.PROD}>Prod</option>
             </select>
           </label>
+          <Checkbox
+            checked={v2only}
+            onChange={() => setV2Only(!v2only)}
+            className={styles.v2onlyCheckbox}
+          >
+            V2 only
+          </Checkbox>
         </div>
       </GridItem>
       {isV2Overridden && (
@@ -480,6 +490,7 @@ function App() {
             multiModal={multiModal}
             boundaryCountry={boundaryCountry}
             boundaryCountyIds={boundaryCountyIds}
+            v2only={v2only}
             onFocusChange={(lat, lon) => {
               setFocusLat(parseFloat(lat).toFixed(5));
               setFocusLon(parseFloat(lon).toFixed(5));
@@ -495,6 +506,7 @@ function App() {
             sources={sources}
             multiModal={multiModal}
             boundaryCircleRadius={boundaryCircleRadius}
+            v2only={v2only}
             onPointChange={(newLat, newLon) => {
               setLat(parseFloat(newLat).toFixed(5));
               setLon(parseFloat(newLon).toFixed(5));
@@ -504,6 +516,7 @@ function App() {
           <PlaceResults
             ids={ids}
             environment={environment}
+            v2only={v2only}
           />
         )}
       </GridItem>

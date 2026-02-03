@@ -23,6 +23,7 @@ interface Props {
   multiModal?: string;
   boundaryCountry?: string;
   boundaryCountyIds?: string;
+  v2only?: boolean;
   onFocusChange?: (lat: string, lon: string) => void;
 }
 
@@ -39,6 +40,7 @@ export const AutoCompleteResults = ({
   multiModal,
   boundaryCountry,
   boundaryCountyIds,
+  v2only = false,
   onFocusChange,
 }: Props) => {
   const resultsV1 = useAutoComplete(
@@ -130,14 +132,14 @@ export const AutoCompleteResults = ({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 2fr",
+          gridTemplateColumns: v2only ? "1fr 2fr" : "1fr 1fr 2fr",
           gap: "1rem",
           alignItems: "start",
         }}
         className={styles.resultsLayout}
       >
         {/* V1 Column */}
-        <div>
+        {!v2only && <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V1}
@@ -186,7 +188,7 @@ export const AutoCompleteResults = ({
               matchColors={matchColorsV1}
             />
           </div>
-        </div>
+        </div>}
 
         {/* V2 Column */}
         <div>

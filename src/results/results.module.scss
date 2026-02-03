@@ -59,25 +59,20 @@
 }
 
 .resultsLayout {
-  display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
-  gap: 1rem;
-  align-items: start;
-
   @media (max-width: 1200px) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr !important;
 
     // Stack map below on tablets
-    & > div:nth-child(3) {
+    & > div:last-child {
       grid-column: 1 / -1;
     }
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
 
     // Map first on mobile
-    & > div:nth-child(3) {
+    & > div:last-child {
       order: -1;
     }
   }

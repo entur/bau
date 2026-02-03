@@ -16,6 +16,7 @@ interface Props {
   sources?: string;
   multiModal?: string;
   boundaryCircleRadius?: string;
+  v2only?: boolean;
   onPointChange?: (lat: string, lon: string) => void;
 }
 
@@ -28,6 +29,7 @@ export const ReverseResults = ({
   sources,
   multiModal,
   boundaryCircleRadius,
+  v2only = false,
   onPointChange,
 }: Props) => {
   const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size, layers, sources, multiModal, boundaryCircleRadius);
@@ -91,14 +93,14 @@ export const ReverseResults = ({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 2fr",
+          gridTemplateColumns: v2only ? "1fr 2fr" : "1fr 1fr 2fr",
           gap: "1rem",
           alignItems: "start",
         }}
         className={styles.resultsLayout}
       >
         {/* V1 Column */}
-        <div>
+        {!v2only && <div>
           <div className={styles.resultsContainer}>
             <Heading3 className={styles.resultsHeading}>
               Geocoder - {GeocoderVersion.V1}
@@ -147,7 +149,7 @@ export const ReverseResults = ({
               matchColors={matchColorsV1}
             />
           </div>
-        </div>
+        </div>}
 
         {/* V2 Column */}
         <div>
