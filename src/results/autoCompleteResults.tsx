@@ -44,7 +44,7 @@ export const AutoCompleteResults = ({
   onFocusChange,
 }: Props) => {
   const resultsV1 = useAutoComplete(
-    searchTerm,
+    v2only ? "" : searchTerm,
     GeocoderVersion.V1,
     environment,
     size,

@@ -32,7 +32,7 @@ export const ReverseResults = ({
   v2only = false,
   onPointChange,
 }: Props) => {
-  const resultsV1 = useReverse(lat, lon, GeocoderVersion.V1, environment, size, layers, sources, multiModal, boundaryCircleRadius);
+  const resultsV1 = useReverse(v2only ? "" : lat, v2only ? "" : lon, GeocoderVersion.V1, environment, size, layers, sources, multiModal, boundaryCircleRadius);
   const resultsV2 = useReverse(lat, lon, GeocoderVersion.V2, environment, size, layers, sources, multiModal, boundaryCircleRadius);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);

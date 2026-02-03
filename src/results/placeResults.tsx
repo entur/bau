@@ -18,7 +18,7 @@ export const PlaceResults = ({
   environment,
   v2only = false,
 }: Props) => {
-  const resultsV1 = usePlace(ids, GeocoderVersion.V1, environment);
+  const resultsV1 = usePlace(v2only ? "" : ids, GeocoderVersion.V1, environment);
   const resultsV2 = usePlace(ids, GeocoderVersion.V2, environment);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
