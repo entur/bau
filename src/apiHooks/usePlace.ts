@@ -22,6 +22,7 @@ export const usePlace = (
   ids: string,
   version: GeocoderVersion,
   environment: ApiEnvironment = ApiEnvironment.DEV,
+  v2url?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -37,9 +38,8 @@ export const usePlace = (
           try {
             const apiUrl = getApiUrl(environment);
             const baseUrl =
-              version === GeocoderVersion.V2 &&
-              import.meta.env.VITE_GEOCODER_V2_URL
-                ? import.meta.env.VITE_GEOCODER_V2_URL
+              version === GeocoderVersion.V2 && (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
+                ? (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
                 : `https://${apiUrl}/geocoder/${version}`;
 
             const controller = new AbortController();
@@ -111,7 +111,7 @@ export const usePlace = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [ids, version, environment]);
+  }, [ids, version, environment, v2url]);
 
   return { searchResults, error, queryUrl };
 };

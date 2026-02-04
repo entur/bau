@@ -47,6 +47,7 @@ function App() {
   const initialBoundaryCountry = urlParams.get("boundary.country") || "";
   const initialBoundaryCountyIds = urlParams.get("boundary.county_ids") || "";
   const initialV2Only = urlParams.get("v2only") === "true";
+  const initialV2Url = urlParams.get("v2url") || "";
 
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
@@ -66,7 +67,8 @@ function App() {
   const [boundaryCountry, setBoundaryCountry] = useState<string>(initialBoundaryCountry);
   const [boundaryCountyIds, setBoundaryCountyIds] = useState<string>(initialBoundaryCountyIds);
   const [v2only, setV2Only] = useState<boolean>(initialV2Only);
-  const isV2Overridden = !!import.meta.env.VITE_GEOCODER_V2_URL;
+  const v2url = initialV2Url;
+  const isV2Overridden = !!(import.meta.env.VITE_GEOCODER_V2_URL || v2url);
 
   const handleClearFocus = () => {
     setFocusLat("");
@@ -141,13 +143,14 @@ function App() {
     if (boundaryCountry) params.set("boundary.country", boundaryCountry);
     if (boundaryCountyIds) params.set("boundary.county_ids", boundaryCountyIds);
     if (v2only) params.set("v2only", "true");
+    if (v2url) params.set("v2url", v2url);
 
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, ids, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds, v2only]);
+  }, [searchMode, searchTerm, lat, lon, ids, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds, v2only, v2url]);
 
   return (
     <GridContainer spacing="none">
@@ -200,8 +203,8 @@ function App() {
       {isV2Overridden && (
         <GridItem small={12}>
           <div className={styles.warningBanner}>
-            <strong>Notice:</strong> Geocoder V2 is overridden with
-            VITE_GEOCODER_V2_URL: {import.meta.env.VITE_GEOCODER_V2_URL}
+            <strong>Notice:</strong> Geocoder V2 is overridden with{" "}
+            {v2url ? `v2url: ${v2url}` : `VITE_GEOCODER_V2_URL: ${import.meta.env.VITE_GEOCODER_V2_URL}`}
           </div>
         </GridItem>
       )}
@@ -491,6 +494,7 @@ function App() {
             boundaryCountry={boundaryCountry}
             boundaryCountyIds={boundaryCountyIds}
             v2only={v2only}
+            v2url={v2url}
             onFocusChange={(lat, lon) => {
               setFocusLat(parseFloat(lat).toFixed(5));
               setFocusLon(parseFloat(lon).toFixed(5));
@@ -507,6 +511,7 @@ function App() {
             multiModal={multiModal}
             boundaryCircleRadius={boundaryCircleRadius}
             v2only={v2only}
+            v2url={v2url}
             onPointChange={(newLat, newLon) => {
               setLat(parseFloat(newLat).toFixed(5));
               setLon(parseFloat(newLon).toFixed(5));
@@ -517,6 +522,7 @@ function App() {
             ids={ids}
             environment={environment}
             v2only={v2only}
+            v2url={v2url}
           />
         )}
       </GridItem>

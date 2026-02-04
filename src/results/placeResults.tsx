@@ -11,15 +11,17 @@ interface Props {
   ids: string;
   environment: ApiEnvironment;
   v2only?: boolean;
+  v2url?: string;
 }
 
 export const PlaceResults = ({
   ids,
   environment,
   v2only = false,
+  v2url,
 }: Props) => {
   const resultsV1 = usePlace(v2only ? "" : ids, GeocoderVersion.V1, environment);
-  const resultsV2 = usePlace(ids, GeocoderVersion.V2, environment);
+  const resultsV2 = usePlace(ids, GeocoderVersion.V2, environment, v2url);
 
   const [missingResultIdInV1, setMissingResultIdsInV1] = useState<string[]>([]);
   const [missingResultIdInV2, setMissingResultIdsInV2] = useState<string[]>([]);

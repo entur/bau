@@ -42,6 +42,7 @@ export const useAutoComplete = (
   multiModal?: string,
   boundaryCountry?: string,
   boundaryCountyIds?: string,
+  v2url?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -57,9 +58,8 @@ export const useAutoComplete = (
           try {
             const apiUrl = getApiUrl(environment);
             const baseUrl =
-              version === GeocoderVersion.V2 &&
-              import.meta.env.VITE_GEOCODER_V2_URL
-                ? import.meta.env.VITE_GEOCODER_V2_URL
+              version === GeocoderVersion.V2 && (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
+                ? (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
                 : `https://${apiUrl}/geocoder/${version}`;
 
             const controller = new AbortController();
@@ -142,7 +142,7 @@ export const useAutoComplete = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchTerm, version, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCountry, boundaryCountyIds]);
+  }, [searchTerm, version, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCountry, boundaryCountyIds, v2url]);
 
   return { searchResults, error, queryUrl };
 };

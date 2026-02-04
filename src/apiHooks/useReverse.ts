@@ -28,6 +28,7 @@ export const useReverse = (
   sources?: string,
   multiModal?: string,
   boundaryCircleRadius?: string,
+  v2url?: string,
 ) => {
   const [searchResults, setSearchResults] = useState<SearchResults>({
     results: [],
@@ -43,9 +44,8 @@ export const useReverse = (
           try {
             const apiUrl = getApiUrl(environment);
             const baseUrl =
-              version === GeocoderVersion.V2 &&
-              import.meta.env.VITE_GEOCODER_V2_URL
-                ? import.meta.env.VITE_GEOCODER_V2_URL
+              version === GeocoderVersion.V2 && (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
+                ? (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
                 : `https://${apiUrl}/geocoder/${version}`;
 
             const controller = new AbortController();
@@ -121,7 +121,7 @@ export const useReverse = (
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [lat, lon, version, environment, size, layers, sources, multiModal, boundaryCircleRadius]);
+  }, [lat, lon, version, environment, size, layers, sources, multiModal, boundaryCircleRadius, v2url]);
 
   return { searchResults, error, queryUrl };
 };
