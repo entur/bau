@@ -1,127 +1,51 @@
-import { useEffect, useState } from "react";
-import {
-  FetchError,
-  SearchResults,
-  Properties,
-  Result,
-} from "./response.types";
-import { GeocoderVersion, ApiEnvironment } from "./useAutoComplete";
+import { useMemo } from "react";
+import { useGeocoderFetch } from "./useGeocoderFetch";
+import { GeocoderVersion, ApiEnvironment, getBaseUrl, buildQueryParams } from "./api";
 
-const getApiUrl = (environment: ApiEnvironment): string => {
-  switch (environment) {
-    case ApiEnvironment.DEV:
-      return "api.dev.entur.io";
-    case ApiEnvironment.STAGING:
-      return "api.staging.entur.io";
-    case ApiEnvironment.PROD:
-      return "api.entur.io";
-  }
-};
+export interface ReverseOptions {
+  lat: string;
+  lon: string;
+  version: GeocoderVersion;
+  environment?: ApiEnvironment;
+  size?: number;
+  layers?: string;
+  sources?: string;
+  multiModal?: string;
+  boundaryCircleRadius?: string;
+  v2url?: string;
+}
 
-export const useReverse = (
-  lat: string,
-  lon: string,
-  version: GeocoderVersion,
-  environment: ApiEnvironment = ApiEnvironment.DEV,
-  size: number = 30,
-  layers?: string,
-  sources?: string,
-  multiModal?: string,
-  boundaryCircleRadius?: string,
-  v2url?: string,
-) => {
-  const [searchResults, setSearchResults] = useState<SearchResults>({
-    results: [],
-  });
-  const [error, setError] = useState<FetchError | undefined>();
-  const [queryUrl, setQueryUrl] = useState<string>("");
+export const useReverse = (options: ReverseOptions) => {
+  const {
+    lat,
+    lon,
+    version,
+    environment = ApiEnvironment.DEV,
+    size = 30,
+    layers,
+    sources,
+    multiModal,
+    boundaryCircleRadius,
+    v2url,
+  } = options;
 
-  useEffect(() => {
-    console.log("useReverse");
-    const timer = setTimeout(() => {
-      if (lat && lon) {
-        const fetchResults = async function () {
-          try {
-            const apiUrl = getApiUrl(environment);
-            const baseUrl =
-              version === GeocoderVersion.V2 && (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
-                ? (v2url || import.meta.env.VITE_GEOCODER_V2_URL)
-                : `https://${apiUrl}/geocoder/${version}`;
+  const url = useMemo(() => {
+    if (!lat || !lon) return null;
 
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const baseUrl = getBaseUrl(version, environment, v2url);
+    const params = buildQueryParams({
+      "point.lat": lat,
+      "point.lon": lon,
+      lang: "no",
+      size,
+      layers,
+      sources,
+      multiModal,
+      "boundary.circle.radius": boundaryCircleRadius,
+    });
 
-            const layersParam = layers ? `&layers=${encodeURIComponent(layers)}` : "";
-            const sourcesParam = sources ? `&sources=${encodeURIComponent(sources)}` : "";
-            const multiModalParam = multiModal ? `&multiModal=${encodeURIComponent(multiModal)}` : "";
-            const boundaryCircleRadiusParam = boundaryCircleRadius ? `&boundary.circle.radius=${encodeURIComponent(boundaryCircleRadius)}` : "";
-            const url = `${baseUrl}/reverse?point.lat=${lat}&point.lon=${lon}&lang=no&size=${size}${layersParam}${sourcesParam}${multiModalParam}${boundaryCircleRadiusParam}`;
-            setQueryUrl(url);
-            const response = await fetch(
-              url,
-              {
-                signal: controller.signal,
-                headers: {
-                  "ET-Client-Name": "entur-ror-bau",
-                },
-              },
-            );
-
-            clearTimeout(timeoutId);
-
-            if (response.ok) {
-              const result = await response.json();
-
-              // Define Feature interface for better type safety
-              interface GeoJSONFeature {
-                properties: Properties;
-                geometry?: {
-                  type: "Point";
-                  coordinates: [number, number];
-                };
-              }
-
-              const results: Result[] = result.features.map(
-                (feature: GeoJSONFeature) => ({
-                  name: feature.properties.name,
-                  layer: feature.properties.layer,
-                  categories: feature.properties.category,
-                  properties: feature.properties,
-                  geometry: feature.geometry, // NEW: Capture geometry
-                }),
-              );
-
-              setSearchResults({ results: results });
-              setError(undefined);
-            } else {
-              setError({
-                status: response.status,
-                statusText: response.statusText,
-              });
-              setSearchResults({ results: [] });
-            }
-          } catch (err) {
-            const errorMessage =
-              err instanceof Error && err.name === "AbortError"
-                ? "Request timeout"
-                : err instanceof Error
-                  ? err.message
-                  : "Network error";
-            setError({
-              status: 0,
-              statusText: errorMessage,
-            });
-            setSearchResults({ results: [] });
-          }
-        };
-        fetchResults();
-      } else {
-        setSearchResults({ results: [] });
-        setError(undefined);
-      }
-    }, 200);
-    return () => clearTimeout(timer);
+    return `${baseUrl}/reverse?${params}`;
   }, [lat, lon, version, environment, size, layers, sources, multiModal, boundaryCircleRadius, v2url]);
 
-  return { searchResults, error, queryUrl };
+  return useGeocoderFetch({ url });
 };

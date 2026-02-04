@@ -8,7 +8,7 @@ import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { PlaceResults } from "./results/placeResults";
-import { ApiEnvironment } from "./apiHooks/useAutoComplete";
+import { ApiEnvironment } from "./apiHooks/api";
 
 type SearchMode = "autocomplete" | "reverse" | "place";
 
