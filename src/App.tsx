@@ -38,8 +38,9 @@ function App() {
   const initialLat = urlParams.get("point.lat") || "";
   const initialLon = urlParams.get("point.lon") || "";
   const initialIds = urlParams.get("ids") || "";
-  const initialV1Env = (urlParams.get("v1") as V1Env) || DEFAULT_V1_ENV;
-  const initialV2Env = (urlParams.get("v2") as V2Env) || DEFAULT_V2_ENV;
+  const sharedEnv = urlParams.get("env");
+  const initialV1Env = (urlParams.get("v1") as V1Env) || (sharedEnv as V1Env) || DEFAULT_V1_ENV;
+  const initialV2Env = (urlParams.get("v2") as V2Env) || (sharedEnv as V2Env) || DEFAULT_V2_ENV;
 
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus.point.lat") || "";
