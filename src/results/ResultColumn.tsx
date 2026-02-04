@@ -1,11 +1,12 @@
 import { Heading3 } from "@entur/typography";
 import { Results } from "./results";
 import { SearchResults, FetchError } from "../apiHooks/response.types";
-import { GeocoderVersion } from "../apiHooks/api";
+import { V1Env, V2Env, V1_ENV_LABELS, V2_ENV_LABELS } from "../apiHooks/api";
 import styles from "./results.module.scss";
 
 interface ResultColumnProps {
-  version: GeocoderVersion;
+  version: "v1" | "v2";
+  env: V1Env | V2Env;
   searchResults: SearchResults;
   error?: FetchError;
   queryUrl: string;
@@ -13,11 +14,11 @@ interface ResultColumnProps {
   highlightedId: string | null;
   onResultHover: (id: string | null) => void;
   matchColors: Map<string, string>;
-  hideVersion?: boolean;
 }
 
 export const ResultColumn = ({
   version,
+  env,
   searchResults,
   error,
   queryUrl,
@@ -25,13 +26,17 @@ export const ResultColumn = ({
   highlightedId,
   onResultHover,
   matchColors,
-  hideVersion = false,
 }: ResultColumnProps) => {
+  const envLabel = version === "v1"
+    ? V1_ENV_LABELS[env as V1Env]
+    : V2_ENV_LABELS[env as V2Env];
+  const title = `Geocoder ${version} (${envLabel})`;
+
   return (
     <div>
       <div className={styles.resultsContainer}>
         <Heading3 className={styles.resultsHeading}>
-          {hideVersion ? "Geocoder" : `Geocoder - ${version}`}
+          {title}
           {queryUrl && (
             <a
               href={`${queryUrl}&debug=true`}

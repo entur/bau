@@ -1,13 +1,12 @@
 import { useMemo } from "react";
 import { useGeocoderFetch } from "./useGeocoderFetch";
-import { GeocoderVersion, ApiEnvironment, getBaseUrl, buildQueryParams } from "./api";
+import { V1Env, V2Env, getV1BaseUrl, getV2BaseUrl, buildQueryParams } from "./api";
 
-export { GeocoderVersion, ApiEnvironment } from "./api";
+export { V1Env, V2Env } from "./api";
 
-export interface AutoCompleteOptions {
+export interface AutoCompleteV1Options {
   searchTerm: string;
-  version: GeocoderVersion;
-  environment?: ApiEnvironment;
+  env: V1Env;
   size?: number;
   focusLat?: string;
   focusLon?: string;
@@ -18,48 +17,74 @@ export interface AutoCompleteOptions {
   multiModal?: string;
   boundaryCountry?: string;
   boundaryCountyIds?: string;
-  v2url?: string;
 }
 
-export const useAutoComplete = (options: AutoCompleteOptions) => {
-  const {
-    searchTerm,
-    version,
-    environment = ApiEnvironment.DEV,
-    size = 30,
-    focusLat,
-    focusLon,
-    focusScale,
-    focusWeight,
-    layers,
-    sources,
-    multiModal,
-    boundaryCountry,
-    boundaryCountyIds,
-    v2url,
-  } = options;
+export interface AutoCompleteV2Options {
+  searchTerm: string;
+  env: V2Env;
+  size?: number;
+  focusLat?: string;
+  focusLon?: string;
+  focusScale?: string;
+  focusWeight?: string;
+  layers?: string;
+  sources?: string;
+  multiModal?: string;
+  boundaryCountry?: string;
+  boundaryCountyIds?: string;
+}
+
+const buildAutoCompleteUrl = (baseUrl: string | null, options: {
+  searchTerm: string;
+  size: number;
+  focusLat?: string;
+  focusLon?: string;
+  focusScale?: string;
+  focusWeight?: string;
+  layers?: string;
+  sources?: string;
+  multiModal?: string;
+  boundaryCountry?: string;
+  boundaryCountyIds?: string;
+}): string | null => {
+  if (!options.searchTerm || !baseUrl) return null;
+
+  const params = buildQueryParams({
+    lang: "no",
+    size: options.size,
+    text: options.searchTerm,
+    "focus.point.lat": options.focusLat,
+    "focus.point.lon": options.focusLon,
+    "focus.scale": options.focusScale,
+    "focus.weight": options.focusWeight,
+    layers: options.layers,
+    sources: options.sources,
+    multiModal: options.multiModal,
+    "boundary.country": options.boundaryCountry,
+    "boundary.county_ids": options.boundaryCountyIds,
+  });
+
+  return `${baseUrl}/autocomplete?${params}`;
+};
+
+export const useAutoCompleteV1 = (options: AutoCompleteV1Options) => {
+  const { env, size = 30, ...rest } = options;
 
   const url = useMemo(() => {
-    if (!searchTerm) return null;
+    const baseUrl = getV1BaseUrl(env);
+    return buildAutoCompleteUrl(baseUrl, { ...rest, size });
+  }, [env, size, rest.searchTerm, rest.focusLat, rest.focusLon, rest.focusScale, rest.focusWeight, rest.layers, rest.sources, rest.multiModal, rest.boundaryCountry, rest.boundaryCountyIds]);
 
-    const baseUrl = getBaseUrl(version, environment, v2url);
-    const params = buildQueryParams({
-      lang: "no",
-      size,
-      text: searchTerm,
-      "focus.point.lat": focusLat,
-      "focus.point.lon": focusLon,
-      "focus.scale": focusScale,
-      "focus.weight": focusWeight,
-      layers,
-      sources,
-      multiModal,
-      "boundary.country": boundaryCountry,
-      "boundary.county_ids": boundaryCountyIds,
-    });
+  return useGeocoderFetch({ url, useLabel: true });
+};
 
-    return `${baseUrl}/autocomplete?${params}`;
-  }, [searchTerm, version, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCountry, boundaryCountyIds, v2url]);
+export const useAutoCompleteV2 = (options: AutoCompleteV2Options) => {
+  const { env, size = 30, ...rest } = options;
+
+  const url = useMemo(() => {
+    const baseUrl = getV2BaseUrl(env);
+    return buildAutoCompleteUrl(baseUrl, { ...rest, size });
+  }, [env, size, rest.searchTerm, rest.focusLat, rest.focusLon, rest.focusScale, rest.focusWeight, rest.layers, rest.sources, rest.multiModal, rest.boundaryCountry, rest.boundaryCountyIds]);
 
   return useGeocoderFetch({ url, useLabel: true });
 };

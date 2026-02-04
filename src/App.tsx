@@ -8,22 +8,28 @@ import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { PlaceResults } from "./results/placeResults";
-import { ApiEnvironment } from "./apiHooks/api";
+import { V1Env, V2Env, V1_ENV_LABELS, V2_ENV_LABELS } from "./apiHooks/api";
 
 type SearchMode = "autocomplete" | "reverse" | "place";
 
-const getDefaultEnvironment = (): ApiEnvironment => {
-  const hostname = window.location.hostname;
-  if (hostname === "api.entur.io") {
-    return ApiEnvironment.PROD;
-  } else if (hostname === "api.staging.entur.io") {
-    return ApiEnvironment.STAGING;
-  } else if (hostname === "api.dev.entur.io") {
-    return ApiEnvironment.DEV;
-  }
-  // Default to DEV for localhost and other domains
-  return ApiEnvironment.DEV;
-};
+const DEFAULT_V1_ENV = V1Env.DEV;
+const DEFAULT_V2_ENV = V2Env.DEV;
+
+const V1_ENV_OPTIONS = [
+  V1Env.OFF,
+  V1Env.DEV,
+  V1Env.STAGING,
+  V1Env.PROD,
+];
+
+const V2_ENV_OPTIONS = [
+  V2Env.OFF,
+  V2Env.LOCAL,
+  V2Env.DEV,
+  V2Env.DEV_SE,
+  V2Env.STAGING,
+  V2Env.PROD,
+];
 
 function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -32,8 +38,8 @@ function App() {
   const initialLat = urlParams.get("point.lat") || "";
   const initialLon = urlParams.get("point.lon") || "";
   const initialIds = urlParams.get("ids") || "";
-  const initialEnv =
-    (urlParams.get("env") as ApiEnvironment) || getDefaultEnvironment();
+  const initialV1Env = (urlParams.get("v1") as V1Env) || DEFAULT_V1_ENV;
+  const initialV2Env = (urlParams.get("v2") as V2Env) || DEFAULT_V2_ENV;
 
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus.point.lat") || "";
@@ -46,15 +52,14 @@ function App() {
   const initialBoundaryCircleRadius = urlParams.get("boundary.circle.radius") || "";
   const initialBoundaryCountry = urlParams.get("boundary.country") || "";
   const initialBoundaryCountyIds = urlParams.get("boundary.county_ids") || "";
-  const initialV2Only = urlParams.get("v2only") === "true";
-  const initialV2Url = urlParams.get("v2url") || "";
 
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [lat, setLat] = useState<string>(initialLat);
   const [lon, setLon] = useState<string>(initialLon);
   const [ids, setIds] = useState<string>(initialIds);
-  const [environment, setEnvironment] = useState<ApiEnvironment>(initialEnv);
+  const [v1Env, setV1Env] = useState<V1Env>(initialV1Env);
+  const [v2Env, setV2Env] = useState<V2Env>(initialV2Env);
   const [size, setSize] = useState<string>(initialSize);
   const [focusLat, setFocusLat] = useState<string>(initialFocusLat);
   const [focusLon, setFocusLon] = useState<string>(initialFocusLon);
@@ -66,9 +71,6 @@ function App() {
   const [boundaryCircleRadius, setBoundaryCircleRadius] = useState<string>(initialBoundaryCircleRadius);
   const [boundaryCountry, setBoundaryCountry] = useState<string>(initialBoundaryCountry);
   const [boundaryCountyIds, setBoundaryCountyIds] = useState<string>(initialBoundaryCountyIds);
-  const [v2only, setV2Only] = useState<boolean>(initialV2Only);
-  const v2url = initialV2Url;
-  const isV2Overridden = !!(import.meta.env.VITE_GEOCODER_V2_URL || v2url);
 
   const handleClearFocus = () => {
     setFocusLat("");
@@ -94,9 +96,6 @@ function App() {
   };
 
   const sanitizeCoordinate = (value: string): string => {
-    // Replace comma with period for decimal separator
-    // Allow only numbers, decimal point, and minus sign at the start
-    // Remove any non-numeric characters except . and -
     return value
       .replace(/,/g, ".")
       .replace(/[^\d.-]/g, "")
@@ -111,8 +110,11 @@ function App() {
       params.set("mode", searchMode);
     }
 
-    if (environment !== getDefaultEnvironment()) {
-      params.set("env", environment);
+    if (v1Env !== DEFAULT_V1_ENV) {
+      params.set("v1", v1Env);
+    }
+    if (v2Env !== DEFAULT_V2_ENV) {
+      params.set("v2", v2Env);
     }
 
     if (searchMode === "autocomplete" && searchTerm) {
@@ -142,26 +144,24 @@ function App() {
     if (boundaryCircleRadius) params.set("boundary.circle.radius", boundaryCircleRadius);
     if (boundaryCountry) params.set("boundary.country", boundaryCountry);
     if (boundaryCountyIds) params.set("boundary.county_ids", boundaryCountyIds);
-    if (v2only) params.set("v2only", "true");
-    if (v2url) params.set("v2url", v2url);
 
     const newUrl = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, ids, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds, v2only, v2url]);
+  }, [searchMode, searchTerm, lat, lon, ids, v1Env, v2Env, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds]);
 
   useEffect(() => {
-    document.title = v2only ? "Geocoder" : "Geocoder-v2 Test";
-  }, [v2only]);
+    document.title = "Geocoder Test";
+  }, []);
 
   return (
     <GridContainer spacing="none">
       <GridItem small={12} className={styles.appHeader}>
         <div className={styles.headerLeft}>
           <img src={logo} className={styles.appLogo} alt="Entur logo" />
-          <Heading5 margin="none">{v2only ? "Geocoder" : "Geocoder-v2 Test"}</Heading5>
+          <Heading5 margin="none">Geocoder Test</Heading5>
         </div>
         <div className={styles.headerRight}>
           <div className={styles.modeButtons}>
@@ -185,33 +185,29 @@ function App() {
             </button>
           </div>
           <label className={styles.envSelector}>
-            Environment:
+            V1:
             <select
-              value={environment}
-              onChange={(e) => setEnvironment(e.target.value as ApiEnvironment)}
+              value={v1Env}
+              onChange={(e) => setV1Env(e.target.value as V1Env)}
             >
-              <option value={ApiEnvironment.DEV}>Dev</option>
-              <option value={ApiEnvironment.STAGING}>Staging</option>
-              <option value={ApiEnvironment.PROD}>Prod</option>
+              {V1_ENV_OPTIONS.map((env) => (
+                <option key={env} value={env}>{V1_ENV_LABELS[env]}</option>
+              ))}
             </select>
           </label>
-          <Checkbox
-            checked={v2only}
-            onChange={() => setV2Only(!v2only)}
-            className={styles.v2onlyCheckbox}
-          >
-            V2 only
-          </Checkbox>
+          <label className={styles.envSelector}>
+            V2:
+            <select
+              value={v2Env}
+              onChange={(e) => setV2Env(e.target.value as V2Env)}
+            >
+              {V2_ENV_OPTIONS.map((env) => (
+                <option key={env} value={env}>{V2_ENV_LABELS[env]}</option>
+              ))}
+            </select>
+          </label>
         </div>
       </GridItem>
-      {isV2Overridden && (
-        <GridItem small={12}>
-          <div className={styles.warningBanner}>
-            <strong>Notice:</strong> Geocoder V2 is overridden with{" "}
-            {v2url ? `v2url: ${v2url}` : `VITE_GEOCODER_V2_URL: ${import.meta.env.VITE_GEOCODER_V2_URL}`}
-          </div>
-        </GridItem>
-      )}
       <GridItem small={12} className={styles.searchContainer}>
         {searchMode === "autocomplete" ? (
           <>
@@ -486,7 +482,8 @@ function App() {
         {searchMode === "autocomplete" ? (
           <AutoCompleteResults
             searchTerm={searchTerm}
-            environment={environment}
+            v1Env={v1Env}
+            v2Env={v2Env}
             size={parseInt(size) || 30}
             focusLat={focusLat}
             focusLon={focusLon}
@@ -497,8 +494,6 @@ function App() {
             multiModal={multiModal}
             boundaryCountry={boundaryCountry}
             boundaryCountyIds={boundaryCountyIds}
-            v2only={v2only}
-            v2url={v2url}
             onFocusChange={(lat, lon) => {
               setFocusLat(parseFloat(lat).toFixed(5));
               setFocusLon(parseFloat(lon).toFixed(5));
@@ -508,14 +503,13 @@ function App() {
           <ReverseResults
             lat={lat}
             lon={lon}
-            environment={environment}
+            v1Env={v1Env}
+            v2Env={v2Env}
             size={parseInt(size) || 30}
             layers={layers}
             sources={sources}
             multiModal={multiModal}
             boundaryCircleRadius={boundaryCircleRadius}
-            v2only={v2only}
-            v2url={v2url}
             onPointChange={(newLat, newLon) => {
               setLat(parseFloat(newLat).toFixed(5));
               setLon(parseFloat(newLon).toFixed(5));
@@ -524,9 +518,8 @@ function App() {
         ) : (
           <PlaceResults
             ids={ids}
-            environment={environment}
-            v2only={v2only}
-            v2url={v2url}
+            v1Env={v1Env}
+            v2Env={v2Env}
           />
         )}
       </GridItem>

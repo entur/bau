@@ -1,5 +1,5 @@
-import { GeocoderVersion, ApiEnvironment } from "../apiHooks/api";
-import { useReverse } from "../apiHooks/useReverse";
+import { V1Env, V2Env } from "../apiHooks/api";
+import { useReverseV1, useReverseV2 } from "../apiHooks/useReverse";
 import { useResultComparison } from "./useResultComparison";
 import { ResultColumn } from "./ResultColumn";
 import { MapContainerWrapper } from "../map/MapContainerWrapper";
@@ -8,32 +8,31 @@ import styles from "./results.module.scss";
 interface Props {
   lat: string;
   lon: string;
-  environment: ApiEnvironment;
+  v1Env: V1Env;
+  v2Env: V2Env;
   size?: number;
   layers?: string;
   sources?: string;
   multiModal?: string;
   boundaryCircleRadius?: string;
-  v2only?: boolean;
-  v2url?: string;
   onPointChange?: (lat: string, lon: string) => void;
 }
 
 export const ReverseResults = ({
   lat,
   lon,
-  environment,
+  v1Env,
+  v2Env,
   size = 30,
   layers,
   sources,
   multiModal,
   boundaryCircleRadius,
-  v2only = false,
-  v2url,
   onPointChange,
 }: Props) => {
   const commonOptions = {
-    environment,
+    lat,
+    lon,
     size,
     layers,
     sources,
@@ -41,20 +40,12 @@ export const ReverseResults = ({
     boundaryCircleRadius,
   };
 
-  const resultsV1 = useReverse({
-    lat: v2only ? "" : lat,
-    lon: v2only ? "" : lon,
-    version: GeocoderVersion.V1,
-    ...commonOptions,
-  });
+  const resultsV1 = useReverseV1({ env: v1Env, ...commonOptions });
+  const resultsV2 = useReverseV2({ env: v2Env, ...commonOptions });
 
-  const resultsV2 = useReverse({
-    lat,
-    lon,
-    version: GeocoderVersion.V2,
-    v2url,
-    ...commonOptions,
-  });
+  const showV1 = v1Env !== V1Env.OFF;
+  const showV2 = v2Env !== V2Env.OFF;
+  const showComparison = showV1 && showV2;
 
   const {
     missingInV1,
@@ -66,22 +57,26 @@ export const ReverseResults = ({
   } = useResultComparison(
     resultsV1.searchResults.results,
     resultsV2.searchResults.results,
-    v2only
+    !showComparison
   );
+
+  const columnCount = (showV1 ? 1 : 0) + (showV2 ? 1 : 0) + 1;
+  const gridColumns = columnCount === 3 ? "1fr 1fr 2fr" : columnCount === 2 ? "1fr 2fr" : "1fr";
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: v2only ? "1fr 2fr" : "1fr 1fr 2fr",
+        gridTemplateColumns: gridColumns,
         gap: "1rem",
         alignItems: "start",
       }}
       className={styles.resultsLayout}
     >
-      {!v2only && (
+      {showV1 && (
         <ResultColumn
-          version={GeocoderVersion.V1}
+          version="v1"
+          env={v1Env}
           searchResults={resultsV1.searchResults}
           error={resultsV1.error}
           queryUrl={resultsV1.queryUrl}
@@ -92,17 +87,19 @@ export const ReverseResults = ({
         />
       )}
 
-      <ResultColumn
-        version={GeocoderVersion.V2}
-        searchResults={resultsV2.searchResults}
-        error={resultsV2.error}
-        queryUrl={resultsV2.queryUrl}
-        missingResults={missingInV2}
-        highlightedId={highlightedId}
-        onResultHover={setHighlightedId}
-        matchColors={matchColorsV2}
-        hideVersion={v2only}
-      />
+      {showV2 && (
+        <ResultColumn
+          version="v2"
+          env={v2Env}
+          searchResults={resultsV2.searchResults}
+          error={resultsV2.error}
+          queryUrl={resultsV2.queryUrl}
+          missingResults={missingInV2}
+          highlightedId={highlightedId}
+          onResultHover={setHighlightedId}
+          matchColors={matchColorsV2}
+        />
+      )}
 
       <div>
         <MapContainerWrapper

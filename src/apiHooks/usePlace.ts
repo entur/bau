@@ -1,33 +1,46 @@
 import { useMemo } from "react";
 import { useGeocoderFetch } from "./useGeocoderFetch";
-import { GeocoderVersion, ApiEnvironment, getBaseUrl, buildQueryParams } from "./api";
+import { V1Env, V2Env, getV1BaseUrl, getV2BaseUrl, buildQueryParams } from "./api";
 
-export interface PlaceOptions {
+export interface PlaceV1Options {
   ids: string;
-  version: GeocoderVersion;
-  environment?: ApiEnvironment;
-  v2url?: string;
+  env: V1Env;
 }
 
-export const usePlace = (options: PlaceOptions) => {
-  const {
+export interface PlaceV2Options {
+  ids: string;
+  env: V2Env;
+}
+
+const buildPlaceUrl = (baseUrl: string | null, ids: string): string | null => {
+  if (!ids || !baseUrl) return null;
+
+  const params = buildQueryParams({
     ids,
-    version,
-    environment = ApiEnvironment.DEV,
-    v2url,
-  } = options;
+    lang: "no",
+  });
+
+  return `${baseUrl}/place?${params}`;
+};
+
+export const usePlaceV1 = (options: PlaceV1Options) => {
+  const { ids, env } = options;
 
   const url = useMemo(() => {
-    if (!ids) return null;
+    const baseUrl = getV1BaseUrl(env);
+    return buildPlaceUrl(baseUrl, ids);
+  }, [ids, env]);
 
-    const baseUrl = getBaseUrl(version, environment, v2url);
-    const params = buildQueryParams({
-      ids,
-      lang: "no",
-    });
+  return useGeocoderFetch({ url });
+};
 
-    return `${baseUrl}/place?${params}`;
-  }, [ids, version, environment, v2url]);
+export const usePlaceV2 = (options: PlaceV2Options) => {
+  const { ids, env } = options;
+
+  const url = useMemo(() => {
+    const baseUrl = getV2BaseUrl(env);
+    return buildPlaceUrl(baseUrl, ids);
+  }, [ids, env]);
 
   return useGeocoderFetch({ url });
 };

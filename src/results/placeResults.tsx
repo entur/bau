@@ -1,5 +1,5 @@
-import { GeocoderVersion, ApiEnvironment } from "../apiHooks/api";
-import { usePlace } from "../apiHooks/usePlace";
+import { V1Env, V2Env } from "../apiHooks/api";
+import { usePlaceV1, usePlaceV2 } from "../apiHooks/usePlace";
 import { useResultComparison } from "./useResultComparison";
 import { ResultColumn } from "./ResultColumn";
 import { MapContainerWrapper } from "../map/MapContainerWrapper";
@@ -7,29 +7,21 @@ import styles from "./results.module.scss";
 
 interface Props {
   ids: string;
-  environment: ApiEnvironment;
-  v2only?: boolean;
-  v2url?: string;
+  v1Env: V1Env;
+  v2Env: V2Env;
 }
 
 export const PlaceResults = ({
   ids,
-  environment,
-  v2only = false,
-  v2url,
+  v1Env,
+  v2Env,
 }: Props) => {
-  const resultsV1 = usePlace({
-    ids: v2only ? "" : ids,
-    version: GeocoderVersion.V1,
-    environment,
-  });
+  const resultsV1 = usePlaceV1({ ids, env: v1Env });
+  const resultsV2 = usePlaceV2({ ids, env: v2Env });
 
-  const resultsV2 = usePlace({
-    ids,
-    version: GeocoderVersion.V2,
-    environment,
-    v2url,
-  });
+  const showV1 = v1Env !== V1Env.OFF;
+  const showV2 = v2Env !== V2Env.OFF;
+  const showComparison = showV1 && showV2;
 
   const {
     missingInV1,
@@ -41,22 +33,26 @@ export const PlaceResults = ({
   } = useResultComparison(
     resultsV1.searchResults.results,
     resultsV2.searchResults.results,
-    v2only
+    !showComparison
   );
+
+  const columnCount = (showV1 ? 1 : 0) + (showV2 ? 1 : 0) + 1;
+  const gridColumns = columnCount === 3 ? "1fr 1fr 2fr" : columnCount === 2 ? "1fr 2fr" : "1fr";
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: v2only ? "1fr 2fr" : "1fr 1fr 2fr",
+        gridTemplateColumns: gridColumns,
         gap: "1rem",
         alignItems: "start",
       }}
       className={styles.resultsLayout}
     >
-      {!v2only && (
+      {showV1 && (
         <ResultColumn
-          version={GeocoderVersion.V1}
+          version="v1"
+          env={v1Env}
           searchResults={resultsV1.searchResults}
           error={resultsV1.error}
           queryUrl={resultsV1.queryUrl}
@@ -67,17 +63,19 @@ export const PlaceResults = ({
         />
       )}
 
-      <ResultColumn
-        version={GeocoderVersion.V2}
-        searchResults={resultsV2.searchResults}
-        error={resultsV2.error}
-        queryUrl={resultsV2.queryUrl}
-        missingResults={missingInV2}
-        highlightedId={highlightedId}
-        onResultHover={setHighlightedId}
-        matchColors={matchColorsV2}
-        hideVersion={v2only}
-      />
+      {showV2 && (
+        <ResultColumn
+          version="v2"
+          env={v2Env}
+          searchResults={resultsV2.searchResults}
+          error={resultsV2.error}
+          queryUrl={resultsV2.queryUrl}
+          missingResults={missingInV2}
+          highlightedId={highlightedId}
+          onResultHover={setHighlightedId}
+          matchColors={matchColorsV2}
+        />
+      )}
 
       <div>
         <MapContainerWrapper
