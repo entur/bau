@@ -13,6 +13,7 @@ interface ResultColumnProps {
   highlightedId: string | null;
   onResultHover: (id: string | null) => void;
   matchColors: Map<string, string>;
+  hideVersion?: boolean;
 }
 
 export const ResultColumn = ({
@@ -24,12 +25,13 @@ export const ResultColumn = ({
   highlightedId,
   onResultHover,
   matchColors,
+  hideVersion = false,
 }: ResultColumnProps) => {
   return (
     <div>
       <div className={styles.resultsContainer}>
         <Heading3 className={styles.resultsHeading}>
-          Geocoder - {version}
+          {hideVersion ? "Geocoder" : `Geocoder - ${version}`}
           {queryUrl && (
             <a
               href={`${queryUrl}&debug=true`}

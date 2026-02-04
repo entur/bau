@@ -40,7 +40,8 @@ export const PlaceResults = ({
     setHighlightedId,
   } = useResultComparison(
     resultsV1.searchResults.results,
-    resultsV2.searchResults.results
+    resultsV2.searchResults.results,
+    v2only
   );
 
   return (
@@ -75,6 +76,7 @@ export const PlaceResults = ({
         highlightedId={highlightedId}
         onResultHover={setHighlightedId}
         matchColors={matchColorsV2}
+        hideVersion={v2only}
       />
 
       <div>

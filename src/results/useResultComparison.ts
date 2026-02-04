@@ -4,13 +4,20 @@ import { getMatchColor } from "../utils/colorHash";
 
 export const useResultComparison = (
   v1Results: Result[],
-  v2Results: Result[]
+  v2Results: Result[],
+  v2only = false
 ) => {
   const [missingInV1, setMissingInV1] = useState<string[]>([]);
   const [missingInV2, setMissingInV2] = useState<string[]>([]);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (v2only) {
+      setMissingInV1([]);
+      setMissingInV2([]);
+      return;
+    }
+
     const v1Ids = v1Results.map((r) => r.properties.id);
     const v2Ids = v2Results.map((r) => r.properties.id);
 
@@ -20,9 +27,10 @@ export const useResultComparison = (
     setMissingInV2(
       v2Ids.filter((id) => !v1Results.some((r) => r.properties.id.includes(id)))
     );
-  }, [v1Results, v2Results]);
+  }, [v1Results, v2Results, v2only]);
 
   const matchColorsV1 = useMemo(() => {
+    if (v2only) return new Map<string, string>();
     const colors = new Map<string, string>();
     v1Results.forEach((result) => {
       colors.set(
@@ -31,9 +39,10 @@ export const useResultComparison = (
       );
     });
     return colors;
-  }, [v1Results, v2Results, missingInV1]);
+  }, [v1Results, v2Results, missingInV1, v2only]);
 
   const matchColorsV2 = useMemo(() => {
+    if (v2only) return new Map<string, string>();
     const colors = new Map<string, string>();
     v2Results.forEach((result) => {
       colors.set(
@@ -42,7 +51,7 @@ export const useResultComparison = (
       );
     });
     return colors;
-  }, [v1Results, v2Results, missingInV2]);
+  }, [v1Results, v2Results, missingInV2, v2only]);
 
   return {
     missingInV1,

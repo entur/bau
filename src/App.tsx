@@ -152,12 +152,16 @@ function App() {
     window.history.replaceState({}, "", newUrl);
   }, [searchMode, searchTerm, lat, lon, ids, environment, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds, v2only, v2url]);
 
+  useEffect(() => {
+    document.title = v2only ? "Geocoder" : "Geocoder-v2 Test";
+  }, [v2only]);
+
   return (
     <GridContainer spacing="none">
       <GridItem small={12} className={styles.appHeader}>
         <div className={styles.headerLeft}>
           <img src={logo} className={styles.appLogo} alt="Entur logo" />
-          <Heading5 margin="none">Geocoder-v2 Test</Heading5>
+          <Heading5 margin="none">{v2only ? "Geocoder" : "Geocoder-v2 Test"}</Heading5>
         </div>
         <div className={styles.headerRight}>
           <div className={styles.modeButtons}>
