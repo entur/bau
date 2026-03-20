@@ -12,9 +12,7 @@
 @import "@entur/tooltip/dist/styles.css";
 @import "@entur/tooltip/dist/styles.css";
 @import "@entur/typography/dist/styles.css";
-@import "leaflet/dist/leaflet.css";
-@import "leaflet.markercluster/dist/MarkerCluster.css";
-@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 body {
   margin: 0;

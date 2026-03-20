@@ -1,15 +1,9 @@
-import { useEffect, useMemo, useRef } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMapEvents,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Map, { Marker, Popup, MapRef, NavigationControl } from "react-map-gl/maplibre";
+import { LngLatBounds } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { Result } from "../apiHooks/response.types";
-import { createCustomIcon, fixLeafletIconPaths } from "./utils/markerIcons";
+import { MarkerColor, colorMap } from "./utils/markerIcons";
 import styles from "./ComparisonMap.module.scss";
 
 interface Props {
@@ -26,6 +20,59 @@ interface Props {
   reversePoint?: { lat: number; lon: number };
 }
 
+interface MarkerEntry {
+  result: Result;
+  color: MarkerColor;
+  status: string;
+}
+
+const CircleMarker = ({
+  color,
+  pulsing,
+  symbol,
+}: {
+  color: MarkerColor;
+  pulsing?: boolean;
+  symbol?: string;
+}) => {
+  const hex = colorMap[color];
+  const size = pulsing ? 24 : 12;
+  const border = pulsing ? 4 : 2;
+
+  return (
+    <div
+      className={pulsing ? styles.pulsingMarker : undefined}
+      style={{
+        backgroundColor: hex,
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        border: `${border}px solid white`,
+        boxShadow: pulsing
+          ? `0 0 0 2px ${hex}, 0 4px 8px rgba(0,0,0,0.4)`
+          : "0 2px 4px rgba(0,0,0,0.3)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+      }}
+    >
+      {symbol && (
+        <span
+          style={{
+            color: "white",
+            fontSize: 14,
+            fontWeight: "bold",
+            lineHeight: 1,
+          }}
+        >
+          {symbol}
+        </span>
+      )}
+    </div>
+  );
+};
+
 export const ComparisonMap = ({
   v1Results,
   v2Results,
@@ -33,16 +80,22 @@ export const ComparisonMap = ({
   showV1Only,
   showV2Only,
   selectedCategories,
-  center = [59.9139, 10.7522], // Oslo default
+  center = [59.9139, 10.7522], // Oslo default [lat, lon]
   zoom = 12,
   focusPoint,
   onMapClick,
   reversePoint,
 }: Props) => {
-  // Fix Leaflet icon paths on mount
-  useEffect(() => {
-    fixLeafletIconPaths();
-  }, []);
+  const mapRef = useRef<MapRef>(null);
+  const prevMarkersCountRef = useRef<number>(-1);
+  const prevFocusRef = useRef<{ lat: number; lon: number } | undefined>(
+    undefined,
+  );
+  const [popupInfo, setPopupInfo] = useState<{
+    lng: number;
+    lat: number;
+    content: { name: string; layer: string; categories: string[]; status: string; color: MarkerColor };
+  } | null>(null);
 
   // Calculate matched and unique results
   const { matchedResults, v1OnlyResults, v2OnlyResults } = useMemo(() => {
@@ -50,7 +103,6 @@ export const ComparisonMap = ({
     const v1Only: Result[] = [];
     const v2Only: Result[] = [];
 
-    // Find matched results (using v1 as base)
     v1Results.forEach((r1) => {
       const hasMatch = v2Results.some(
         (r2) => r2.properties.id === r1.properties.id,
@@ -62,7 +114,6 @@ export const ComparisonMap = ({
       }
     });
 
-    // Find v2-only results
     v2Results.forEach((r2) => {
       const hasMatch = v1Results.some(
         (r1) => r1.properties.id === r2.properties.id,
@@ -81,14 +132,10 @@ export const ComparisonMap = ({
 
   // Filter results to show based on layer toggles
   const markersToShow = useMemo(() => {
-    const markers: Array<{
-      result: Result;
-      color: "green" | "red" | "blue";
-      status: string;
-    }> = [];
+    const markers: MarkerEntry[] = [];
 
     const categoryFilter = (result: Result) => {
-      if (selectedCategories.length === 0) return true; // No filter
+      if (selectedCategories.length === 0) return true;
       return result.categories.some((cat) => selectedCategories.includes(cat));
     };
 
@@ -139,158 +186,170 @@ export const ComparisonMap = ({
     selectedCategories,
   ]);
 
-  // Map click handler component
-  const MapClickHandler = () => {
-    useMapEvents({
-      click: (e) => {
-        if (onMapClick) {
-          onMapClick(e.latlng.lat, e.latlng.lng);
-        }
-      },
-    });
-    return null;
-  };
+  // Auto-fit bounds when markers change (but not when focusPoint is set)
+  useEffect(() => {
+    if (focusPoint) return;
+    const map = mapRef.current;
+    if (!map) return;
 
-  // Auto-fit bounds to show all markers (only when marker data changes and no focusPoint)
-  const FitBounds = () => {
-    const map = useMap();
-    const prevMarkersCountRef = useRef<number>(-1);
+    const markersCount = markersToShow.length;
+    if (prevMarkersCountRef.current === markersCount) return;
+    prevMarkersCountRef.current = markersCount;
 
-    useEffect(() => {
-      // Suppress FitBounds if focusPoint is set
-      if (focusPoint) return;
-      const markersCount = markersToShow.length;
-      if (prevMarkersCountRef.current !== markersCount) {
-        prevMarkersCountRef.current = markersCount;
-        const points: L.LatLngExpression[] = [];
-        markersToShow.forEach((marker) => {
-          if (marker.result.geometry) {
-            points.push([
-              marker.result.geometry.coordinates[1], // lat
-              marker.result.geometry.coordinates[0], // lon
-            ]);
-          }
-        });
-        if (points.length > 0) {
-          const bounds = L.latLngBounds(points);
-          map.fitBounds(bounds, {
-            padding: [50, 50],
-            maxZoom: 15,
-          });
-        }
+    const coords = markersToShow
+      .filter((m) => m.result.geometry)
+      .map((m) => m.result.geometry!.coordinates);
+
+    if (coords.length === 0) return;
+
+    const bounds = new LngLatBounds(
+      [coords[0][0], coords[0][1]],
+      [coords[0][0], coords[0][1]],
+    );
+    coords.forEach(([lng, lat]) => bounds.extend([lng, lat]));
+
+    map.fitBounds(bounds, { padding: 50, maxZoom: 15 });
+  }, [markersToShow, focusPoint]);
+
+  // Pan to focusPoint when it changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !focusPoint) return;
+
+    if (
+      prevFocusRef.current &&
+      prevFocusRef.current.lat === focusPoint.lat &&
+      prevFocusRef.current.lon === focusPoint.lon
+    )
+      return;
+
+    map.panTo([focusPoint.lon, focusPoint.lat]);
+    prevFocusRef.current = focusPoint;
+  }, [focusPoint]);
+
+  const handleClick = useCallback(
+    (e: maplibregl.MapMouseEvent) => {
+      if (onMapClick) {
+        onMapClick(e.lngLat.lat, e.lngLat.lng);
       }
-    }, [map, markersToShow, focusPoint]);
-    return null;
-  };
-
-  // Pan to focusPoint when it changes, but do not reset zoom
-  const PanToFocusPoint = () => {
-    const map = useMap();
-    const prevFocusRef = useRef<{ lat: number; lon: number } | undefined>(undefined);
-    useEffect(() => {
-      if (
-        focusPoint &&
-        (!prevFocusRef.current ||
-          prevFocusRef.current.lat !== focusPoint.lat ||
-          prevFocusRef.current.lon !== focusPoint.lon)
-      ) {
-        map.panTo([focusPoint.lat, focusPoint.lon]);
-        prevFocusRef.current = focusPoint;
-      }
-    }, [map, focusPoint]);
-    return null;
-  };
+    },
+    [onMapClick],
+  );
 
   return (
     <div className={styles.mapWrapper}>
-      <MapContainer center={center} zoom={zoom} className={styles.map}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-
-        <MapClickHandler />
-        <FitBounds />
-        <PanToFocusPoint />
-
-        {/* Focus point marker (autocomplete) */}
+      <Map
+        ref={mapRef}
+        onLoad={(e) => {
+          const el = e.target.getContainer().querySelector(
+            ".maplibregl-compact-show",
+          );
+          el?.classList.remove("maplibregl-compact-show");
+        }}
+        initialViewState={{
+          longitude: center[1],
+          latitude: center[0],
+          zoom,
+        }}
+        style={{ width: "100%", height: "100%" }}
+        mapStyle={{
+          version: 8,
+          sources: {
+            osm: {
+              type: "raster",
+              tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+              tileSize: 256,
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            },
+          },
+          layers: [
+            {
+              id: "osm",
+              type: "raster",
+              source: "osm",
+            },
+          ],
+        }}
+        onClick={handleClick}
+      >
+        <NavigationControl position="top-left" showCompass={false} />
+        {/* Focus point marker */}
         {focusPoint && (
           <Marker
-            position={[focusPoint.lat, focusPoint.lon]}
-            icon={createCustomIcon("purple")}
+            longitude={focusPoint.lon}
+            latitude={focusPoint.lat}
+            anchor="center"
           >
-            <Popup>
-              <div className={styles.popup}>
-                <strong>Focus Point</strong>
-                <div className={styles.popupDetail}>
-                  Lat: {focusPoint.lat.toFixed(4)}
-                </div>
-                <div className={styles.popupDetail}>
-                  Lon: {focusPoint.lon.toFixed(4)}
-                </div>
-              </div>
-            </Popup>
+            <CircleMarker color="purple" pulsing symbol="⊕" />
           </Marker>
         )}
 
         {/* Reverse search point marker */}
         {reversePoint && (
           <Marker
-            position={[reversePoint.lat, reversePoint.lon]}
-            icon={createCustomIcon("orange")}
+            longitude={reversePoint.lon}
+            latitude={reversePoint.lat}
+            anchor="center"
           >
-            <Popup>
-              <div className={styles.popup}>
-                <strong>Reverse Search Point</strong>
-                <div className={styles.popupDetail}>
-                  Lat: {reversePoint.lat.toFixed(4)}
-                </div>
-                <div className={styles.popupDetail}>
-                  Lon: {reversePoint.lon.toFixed(4)}
-                </div>
-              </div>
-            </Popup>
+            <CircleMarker color="orange" pulsing symbol="📍" />
           </Marker>
         )}
 
+        {/* Result markers */}
         {markersToShow.map((marker, index) => (
           <Marker
             key={`${marker.result.properties.id}-${index}`}
-            position={[
-              marker.result.geometry!.coordinates[1], // latitude
-              marker.result.geometry!.coordinates[0], // longitude
-            ]}
-            icon={createCustomIcon(marker.color)}
+            longitude={marker.result.geometry!.coordinates[0]}
+            latitude={marker.result.geometry!.coordinates[1]}
+            anchor="center"
+            onClick={(e) => {
+              e.originalEvent.stopPropagation();
+              setPopupInfo({
+                lng: marker.result.geometry!.coordinates[0],
+                lat: marker.result.geometry!.coordinates[1],
+                content: {
+                  name: marker.result.name,
+                  layer: marker.result.layer,
+                  categories: marker.result.categories,
+                  status: marker.status,
+                  color: marker.color,
+                },
+              });
+            }}
           >
-            <Popup>
-              <div className={styles.popup}>
-                <strong>{marker.result.name}</strong>
-                <div className={styles.popupDetail}>
-                  Layer: {marker.result.layer}
-                </div>
-                {marker.result.categories.length > 0 && (
-                  <div className={styles.popupDetail}>
-                    Categories: {marker.result.categories.join(", ")}
-                  </div>
-                )}
-                <div
-                  className={styles.popupStatus}
-                  style={{
-                    color:
-                      marker.color === "green"
-                        ? "#00c853"
-                        : marker.color === "red"
-                          ? "#d32f2f"
-                          : "#1976d2",
-                  }}
-                >
-                  {marker.status}
-                </div>
-              </div>
-            </Popup>
+            <CircleMarker color={marker.color} />
           </Marker>
         ))}
-      </MapContainer>
+
+        {/* Popup */}
+        {popupInfo && (
+          <Popup
+            longitude={popupInfo.lng}
+            latitude={popupInfo.lat}
+            anchor="bottom"
+            onClose={() => setPopupInfo(null)}
+          >
+            <div className={styles.popup}>
+              <strong>{popupInfo.content.name}</strong>
+              <div className={styles.popupDetail}>
+                Layer: {popupInfo.content.layer}
+              </div>
+              {popupInfo.content.categories.length > 0 && (
+                <div className={styles.popupDetail}>
+                  Categories: {popupInfo.content.categories.join(", ")}
+                </div>
+              )}
+              <div
+                className={styles.popupStatus}
+                style={{ color: colorMap[popupInfo.content.color] }}
+              >
+                {popupInfo.content.status}
+              </div>
+            </div>
+          </Popup>
+        )}
+      </Map>
     </div>
   );
 };
