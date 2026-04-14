@@ -7,11 +7,11 @@ import { MarkerColor, colorMap } from "./utils/markerIcons";
 import styles from "./ComparisonMap.module.scss";
 
 interface Props {
-  v1Results: Result[];
-  v2Results: Result[];
+  leftResults: Result[];
+  rightResults: Result[];
   showMatched: boolean;
-  showV1Only: boolean;
-  showV2Only: boolean;
+  showLeftOnly: boolean;
+  showRightOnly: boolean;
   selectedCategories: string[];
   center?: [number, number];
   zoom?: number;
@@ -74,11 +74,11 @@ const CircleMarker = ({
 };
 
 export const ComparisonMap = ({
-  v1Results,
-  v2Results,
+  leftResults,
+  rightResults,
   showMatched,
-  showV1Only,
-  showV2Only,
+  showLeftOnly,
+  showRightOnly,
   selectedCategories,
   center = [59.9139, 10.7522], // Oslo default [lat, lon]
   zoom = 12,
@@ -98,37 +98,37 @@ export const ComparisonMap = ({
   } | null>(null);
 
   // Calculate matched and unique results
-  const { matchedResults, v1OnlyResults, v2OnlyResults } = useMemo(() => {
+  const { matchedResults, leftOnlyResults, rightOnlyResults } = useMemo(() => {
     const matched: Result[] = [];
-    const v1Only: Result[] = [];
-    const v2Only: Result[] = [];
+    const leftOnly: Result[] = [];
+    const rightOnly: Result[] = [];
 
-    v1Results.forEach((r1) => {
-      const hasMatch = v2Results.some(
+    leftResults.forEach((r1) => {
+      const hasMatch = rightResults.some(
         (r2) => r2.properties.id === r1.properties.id,
       );
       if (hasMatch) {
         matched.push(r1);
       } else {
-        v1Only.push(r1);
+        leftOnly.push(r1);
       }
     });
 
-    v2Results.forEach((r2) => {
-      const hasMatch = v1Results.some(
+    rightResults.forEach((r2) => {
+      const hasMatch = leftResults.some(
         (r1) => r1.properties.id === r2.properties.id,
       );
       if (!hasMatch) {
-        v2Only.push(r2);
+        rightOnly.push(r2);
       }
     });
 
     return {
       matchedResults: matched,
-      v1OnlyResults: v1Only,
-      v2OnlyResults: v2Only,
+      leftOnlyResults: leftOnly,
+      rightOnlyResults: rightOnly,
     };
-  }, [v1Results, v2Results]);
+  }, [leftResults, rightResults]);
 
   // Filter results to show based on layer toggles
   const markersToShow = useMemo(() => {
@@ -145,31 +145,31 @@ export const ComparisonMap = ({
           markers.push({
             result,
             color: "green",
-            status: "Exists in both versions",
+            status: "Exists in both",
           });
         }
       });
     }
 
-    if (showV1Only) {
-      v1OnlyResults.forEach((result) => {
+    if (showLeftOnly) {
+      leftOnlyResults.forEach((result) => {
         if (result.geometry && categoryFilter(result)) {
           markers.push({
             result,
             color: "red",
-            status: "Only in v1 (missing from v2)",
+            status: "Only in left",
           });
         }
       });
     }
 
-    if (showV2Only) {
-      v2OnlyResults.forEach((result) => {
+    if (showRightOnly) {
+      rightOnlyResults.forEach((result) => {
         if (result.geometry && categoryFilter(result)) {
           markers.push({
             result,
             color: "blue",
-            status: "Only in v2 (new result)",
+            status: "Only in right",
           });
         }
       });
@@ -178,11 +178,11 @@ export const ComparisonMap = ({
     return markers;
   }, [
     matchedResults,
-    v1OnlyResults,
-    v2OnlyResults,
+    leftOnlyResults,
+    rightOnlyResults,
     showMatched,
-    showV1Only,
-    showV2Only,
+    showLeftOnly,
+    showRightOnly,
     selectedCategories,
   ]);
 

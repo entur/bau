@@ -3,61 +3,61 @@ import { Result } from "../apiHooks/response.types";
 import { getMatchColor } from "../utils/colorHash";
 
 export const useResultComparison = (
-  v1Results: Result[],
-  v2Results: Result[],
-  v2only = false
+  leftResults: Result[],
+  rightResults: Result[],
+  skipComparison = false
 ) => {
-  const [missingInV1, setMissingInV1] = useState<string[]>([]);
-  const [missingInV2, setMissingInV2] = useState<string[]>([]);
+  const [missingInLeft, setMissingInLeft] = useState<string[]>([]);
+  const [missingInRight, setMissingInRight] = useState<string[]>([]);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (v2only) {
-      setMissingInV1([]);
-      setMissingInV2([]);
+    if (skipComparison) {
+      setMissingInLeft([]);
+      setMissingInRight([]);
       return;
     }
 
-    const v1Ids = v1Results.map((r) => r.properties.id);
-    const v2Ids = v2Results.map((r) => r.properties.id);
+    const leftIds = leftResults.map((r) => r.properties.id);
+    const rightIds = rightResults.map((r) => r.properties.id);
 
-    setMissingInV1(
-      v1Ids.filter((id) => !v2Results.some((r) => r.properties.id.includes(id)))
+    setMissingInLeft(
+      leftIds.filter((id) => !rightResults.some((r) => r.properties.id.includes(id)))
     );
-    setMissingInV2(
-      v2Ids.filter((id) => !v1Results.some((r) => r.properties.id.includes(id)))
+    setMissingInRight(
+      rightIds.filter((id) => !leftResults.some((r) => r.properties.id.includes(id)))
     );
-  }, [v1Results, v2Results, v2only]);
+  }, [leftResults, rightResults, skipComparison]);
 
-  const matchColorsV1 = useMemo(() => {
-    if (v2only) return new Map<string, string>();
+  const matchColorsLeft = useMemo(() => {
+    if (skipComparison) return new Map<string, string>();
     const colors = new Map<string, string>();
-    v1Results.forEach((result) => {
+    leftResults.forEach((result) => {
       colors.set(
         result.properties.id,
-        getMatchColor(result.properties.id, v2Results, missingInV1.includes(result.properties.id))
+        getMatchColor(result.properties.id, rightResults, missingInLeft.includes(result.properties.id))
       );
     });
     return colors;
-  }, [v1Results, v2Results, missingInV1, v2only]);
+  }, [leftResults, rightResults, missingInLeft, skipComparison]);
 
-  const matchColorsV2 = useMemo(() => {
-    if (v2only) return new Map<string, string>();
+  const matchColorsRight = useMemo(() => {
+    if (skipComparison) return new Map<string, string>();
     const colors = new Map<string, string>();
-    v2Results.forEach((result) => {
+    rightResults.forEach((result) => {
       colors.set(
         result.properties.id,
-        getMatchColor(result.properties.id, v1Results, missingInV2.includes(result.properties.id))
+        getMatchColor(result.properties.id, leftResults, missingInRight.includes(result.properties.id))
       );
     });
     return colors;
-  }, [v1Results, v2Results, missingInV2, v2only]);
+  }, [leftResults, rightResults, missingInRight, skipComparison]);
 
   return {
-    missingInV1,
-    missingInV2,
-    matchColorsV1,
-    matchColorsV2,
+    missingInLeft,
+    missingInRight,
+    matchColorsLeft,
+    matchColorsRight,
     highlightedId,
     setHighlightedId,
   };

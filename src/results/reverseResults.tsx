@@ -1,5 +1,5 @@
-import { V1Env, V2Env } from "../apiHooks/api";
-import { useReverseV1, useReverseV2 } from "../apiHooks/useReverse";
+import { Env } from "../apiHooks/api";
+import { useReverse } from "../apiHooks/useReverse";
 import { useResultComparison } from "./useResultComparison";
 import { ResultColumn } from "./ResultColumn";
 import { MapContainerWrapper } from "../map/MapContainerWrapper";
@@ -8,8 +8,8 @@ import styles from "./results.module.scss";
 interface Props {
   lat: string;
   lon: string;
-  v1Env: V1Env;
-  v2Env: V2Env;
+  leftEnv: Env;
+  rightEnv: Env;
   size?: number;
   layers?: string;
   sources?: string;
@@ -21,8 +21,8 @@ interface Props {
 export const ReverseResults = ({
   lat,
   lon,
-  v1Env,
-  v2Env,
+  leftEnv,
+  rightEnv,
   size = 30,
   layers,
   sources,
@@ -40,27 +40,27 @@ export const ReverseResults = ({
     boundaryCircleRadius,
   };
 
-  const resultsV1 = useReverseV1({ env: v1Env, ...commonOptions });
-  const resultsV2 = useReverseV2({ env: v2Env, ...commonOptions });
+  const leftResults = useReverse({ env: leftEnv, ...commonOptions });
+  const rightResults = useReverse({ env: rightEnv, ...commonOptions });
 
-  const showV1 = v1Env !== V1Env.OFF;
-  const showV2 = v2Env !== V2Env.OFF;
-  const showComparison = showV1 && showV2;
+  const showLeft = leftEnv !== Env.OFF;
+  const showRight = rightEnv !== Env.OFF;
+  const showComparison = showLeft && showRight;
 
   const {
-    missingInV1,
-    missingInV2,
-    matchColorsV1,
-    matchColorsV2,
+    missingInLeft,
+    missingInRight,
+    matchColorsLeft,
+    matchColorsRight,
     highlightedId,
     setHighlightedId,
   } = useResultComparison(
-    resultsV1.searchResults.results,
-    resultsV2.searchResults.results,
+    leftResults.searchResults.results,
+    rightResults.searchResults.results,
     !showComparison
   );
 
-  const columnCount = (showV1 ? 1 : 0) + (showV2 ? 1 : 0) + 1;
+  const columnCount = (showLeft ? 1 : 0) + (showRight ? 1 : 0) + 1;
   const gridColumns = columnCount === 3 ? "1fr 1fr 2fr" : columnCount === 2 ? "1fr 2fr" : "1fr";
 
   return (
@@ -73,38 +73,38 @@ export const ReverseResults = ({
       }}
       className={styles.resultsLayout}
     >
-      {showV1 && (
+      {showLeft && (
         <ResultColumn
-          version="v1"
-          env={v1Env}
-          searchResults={resultsV1.searchResults}
-          error={resultsV1.error}
-          queryUrl={resultsV1.queryUrl}
-          missingResults={missingInV1}
+          label="Left"
+          env={leftEnv}
+          searchResults={leftResults.searchResults}
+          error={leftResults.error}
+          queryUrl={leftResults.queryUrl}
+          missingResults={missingInLeft}
           highlightedId={highlightedId}
           onResultHover={setHighlightedId}
-          matchColors={matchColorsV1}
+          matchColors={matchColorsLeft}
         />
       )}
 
-      {showV2 && (
+      {showRight && (
         <ResultColumn
-          version="v2"
-          env={v2Env}
-          searchResults={resultsV2.searchResults}
-          error={resultsV2.error}
-          queryUrl={resultsV2.queryUrl}
-          missingResults={missingInV2}
+          label="Right"
+          env={rightEnv}
+          searchResults={rightResults.searchResults}
+          error={rightResults.error}
+          queryUrl={rightResults.queryUrl}
+          missingResults={missingInRight}
           highlightedId={highlightedId}
           onResultHover={setHighlightedId}
-          matchColors={matchColorsV2}
+          matchColors={matchColorsRight}
         />
       )}
 
       <div>
         <MapContainerWrapper
-          v1Results={resultsV1.searchResults.results}
-          v2Results={resultsV2.searchResults.results}
+          leftResults={leftResults.searchResults.results}
+          rightResults={rightResults.searchResults.results}
           reversePoint={
             lat && lon
               ? { lat: parseFloat(lat), lon: parseFloat(lon) }

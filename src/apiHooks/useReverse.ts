@@ -1,22 +1,11 @@
 import { useMemo } from "react";
 import { useGeocoderFetch } from "./useGeocoderFetch";
-import { V1Env, V2Env, getV1BaseUrl, getV2BaseUrl, buildQueryParams } from "./api";
+import { Env, getBaseUrl, buildQueryParams } from "./api";
 
-export interface ReverseV1Options {
+export interface ReverseOptions {
   lat: string;
   lon: string;
-  env: V1Env;
-  size?: number;
-  layers?: string;
-  sources?: string;
-  multiModal?: string;
-  boundaryCircleRadius?: string;
-}
-
-export interface ReverseV2Options {
-  lat: string;
-  lon: string;
-  env: V2Env;
+  env: Env;
   size?: number;
   layers?: string;
   sources?: string;
@@ -49,22 +38,11 @@ const buildReverseUrl = (baseUrl: string | null, options: {
   return `${baseUrl}/reverse?${params}`;
 };
 
-export const useReverseV1 = (options: ReverseV1Options) => {
+export const useReverse = (options: ReverseOptions) => {
   const { env, size = 30, ...rest } = options;
 
   const url = useMemo(() => {
-    const baseUrl = getV1BaseUrl(env);
-    return buildReverseUrl(baseUrl, { ...rest, size });
-  }, [env, size, rest.lat, rest.lon, rest.layers, rest.sources, rest.multiModal, rest.boundaryCircleRadius]);
-
-  return useGeocoderFetch({ url });
-};
-
-export const useReverseV2 = (options: ReverseV2Options) => {
-  const { env, size = 30, ...rest } = options;
-
-  const url = useMemo(() => {
-    const baseUrl = getV2BaseUrl(env);
+    const baseUrl = getBaseUrl(env);
     return buildReverseUrl(baseUrl, { ...rest, size });
   }, [env, size, rest.lat, rest.lon, rest.layers, rest.sources, rest.multiModal, rest.boundaryCircleRadius]);
 

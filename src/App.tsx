@@ -8,27 +8,20 @@ import { Dropdown } from "@entur/dropdown";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { PlaceResults } from "./results/placeResults";
-import { V1Env, V2Env, V1_ENV_LABELS, V2_ENV_LABELS } from "./apiHooks/api";
+import { Env, ENV_LABELS } from "./apiHooks/api";
 
 type SearchMode = "autocomplete" | "reverse" | "place";
 
-const DEFAULT_V1_ENV = V1Env.DEV;
-const DEFAULT_V2_ENV = V2Env.DEV;
+const DEFAULT_LEFT_ENV = Env.DEV;
+const DEFAULT_RIGHT_ENV = Env.DEV;
 
-const V1_ENV_OPTIONS = [
-  V1Env.OFF,
-  V1Env.DEV,
-  V1Env.STAGING,
-  V1Env.PROD,
-];
-
-const V2_ENV_OPTIONS = [
-  V2Env.OFF,
-  V2Env.LOCAL,
-  V2Env.DEV,
-  V2Env.DEV_SE,
-  V2Env.STAGING,
-  V2Env.PROD,
+const ENV_OPTIONS = [
+  Env.OFF,
+  Env.LOCAL,
+  Env.DEV,
+  Env.DEV_SE,
+  Env.STAGING,
+  Env.PROD,
 ];
 
 function App() {
@@ -39,8 +32,8 @@ function App() {
   const initialLon = urlParams.get("point.lon") || "";
   const initialIds = urlParams.get("ids") || "";
   const sharedEnv = urlParams.get("env");
-  const initialV1Env = (urlParams.get("v1") as V1Env) || (sharedEnv as V1Env) || DEFAULT_V1_ENV;
-  const initialV2Env = (urlParams.get("v2") as V2Env) || (sharedEnv as V2Env) || DEFAULT_V2_ENV;
+  const initialLeftEnv = (urlParams.get("left") as Env) || (sharedEnv as Env) || DEFAULT_LEFT_ENV;
+  const initialRightEnv = (urlParams.get("right") as Env) || (sharedEnv as Env) || DEFAULT_RIGHT_ENV;
 
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus.point.lat") || "";
@@ -59,8 +52,8 @@ function App() {
   const [lat, setLat] = useState<string>(initialLat);
   const [lon, setLon] = useState<string>(initialLon);
   const [ids, setIds] = useState<string>(initialIds);
-  const [v1Env, setV1Env] = useState<V1Env>(initialV1Env);
-  const [v2Env, setV2Env] = useState<V2Env>(initialV2Env);
+  const [leftEnv, setLeftEnv] = useState<Env>(initialLeftEnv);
+  const [rightEnv, setRightEnv] = useState<Env>(initialRightEnv);
   const [size, setSize] = useState<string>(initialSize);
   const [focusLat, setFocusLat] = useState<string>(initialFocusLat);
   const [focusLon, setFocusLon] = useState<string>(initialFocusLon);
@@ -111,11 +104,11 @@ function App() {
       params.set("mode", searchMode);
     }
 
-    if (v1Env !== DEFAULT_V1_ENV) {
-      params.set("v1", v1Env);
+    if (leftEnv !== DEFAULT_LEFT_ENV) {
+      params.set("left", leftEnv);
     }
-    if (v2Env !== DEFAULT_V2_ENV) {
-      params.set("v2", v2Env);
+    if (rightEnv !== DEFAULT_RIGHT_ENV) {
+      params.set("right", rightEnv);
     }
 
     if (searchMode === "autocomplete" && searchTerm) {
@@ -151,7 +144,7 @@ function App() {
       : window.location.pathname;
 
     window.history.replaceState({}, "", newUrl);
-  }, [searchMode, searchTerm, lat, lon, ids, v1Env, v2Env, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds]);
+  }, [searchMode, searchTerm, lat, lon, ids, leftEnv, rightEnv, size, focusLat, focusLon, focusScale, focusWeight, layers, sources, multiModal, boundaryCircleRadius, boundaryCountry, boundaryCountyIds]);
 
   useEffect(() => {
     document.title = "Geocoder Test";
@@ -186,24 +179,24 @@ function App() {
             </button>
           </div>
           <label className={styles.envSelector}>
-            V1:
+            Left:
             <select
-              value={v1Env}
-              onChange={(e) => setV1Env(e.target.value as V1Env)}
+              value={leftEnv}
+              onChange={(e) => setLeftEnv(e.target.value as Env)}
             >
-              {V1_ENV_OPTIONS.map((env) => (
-                <option key={env} value={env}>{V1_ENV_LABELS[env]}</option>
+              {ENV_OPTIONS.map((env) => (
+                <option key={env} value={env}>{ENV_LABELS[env]}</option>
               ))}
             </select>
           </label>
           <label className={styles.envSelector}>
-            V2:
+            Right:
             <select
-              value={v2Env}
-              onChange={(e) => setV2Env(e.target.value as V2Env)}
+              value={rightEnv}
+              onChange={(e) => setRightEnv(e.target.value as Env)}
             >
-              {V2_ENV_OPTIONS.map((env) => (
-                <option key={env} value={env}>{V2_ENV_LABELS[env]}</option>
+              {ENV_OPTIONS.map((env) => (
+                <option key={env} value={env}>{ENV_LABELS[env]}</option>
               ))}
             </select>
           </label>
@@ -483,8 +476,8 @@ function App() {
         {searchMode === "autocomplete" ? (
           <AutoCompleteResults
             searchTerm={searchTerm}
-            v1Env={v1Env}
-            v2Env={v2Env}
+            leftEnv={leftEnv}
+            rightEnv={rightEnv}
             size={parseInt(size) || 30}
             focusLat={focusLat}
             focusLon={focusLon}
@@ -504,8 +497,8 @@ function App() {
           <ReverseResults
             lat={lat}
             lon={lon}
-            v1Env={v1Env}
-            v2Env={v2Env}
+            leftEnv={leftEnv}
+            rightEnv={rightEnv}
             size={parseInt(size) || 30}
             layers={layers}
             sources={sources}
@@ -519,8 +512,8 @@ function App() {
         ) : (
           <PlaceResults
             ids={ids}
-            v1Env={v1Env}
-            v2Env={v2Env}
+            leftEnv={leftEnv}
+            rightEnv={rightEnv}
           />
         )}
       </GridItem>

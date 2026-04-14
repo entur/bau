@@ -8,8 +8,8 @@ import styles from "./MapContainerWrapper.module.scss";
 import { Heading3 } from "@entur/typography";
 
 interface Props {
-  v1Results: Result[];
-  v2Results: Result[];
+  leftResults: Result[];
+  rightResults: Result[];
   focusPoint?: { lat: number; lon: number };
   onFocusPointChange?: (lat: number, lon: number) => void;
   reversePoint?: { lat: number; lon: number };
@@ -17,26 +17,26 @@ interface Props {
 }
 
 export const MapContainerWrapper = ({
-  v1Results,
-  v2Results,
+  leftResults,
+  rightResults,
   focusPoint,
   onFocusPointChange,
   reversePoint,
   onReversePointChange,
 }: Props) => {
   const [showMatched, setShowMatched] = useState(true);
-  const [showV1Only, setShowV1Only] = useState(true);
-  const [showV2Only, setShowV2Only] = useState(true);
+  const [showLeftOnly, setShowLeftOnly] = useState(true);
+  const [showRightOnly, setShowRightOnly] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   // Extract all unique categories from results
   const allCategories = useMemo(() => {
     const categorySet = new Set<string>();
-    [...v1Results, ...v2Results].forEach((result) => {
+    [...leftResults, ...rightResults].forEach((result) => {
       result.categories.forEach((cat) => categorySet.add(cat));
     });
     return Array.from(categorySet).sort();
-  }, [v1Results, v2Results]);
+  }, [leftResults, rightResults]);
 
   // Initialize selected categories when categories change
   useEffect(() => {
@@ -44,14 +44,14 @@ export const MapContainerWrapper = ({
   }, [allCategories]);
 
   // Calculate statistics
-  const matchedCount = v1Results.filter((r1) =>
-    v2Results.some((r2) => r2.properties.id === r1.properties.id),
+  const matchedCount = leftResults.filter((r1) =>
+    rightResults.some((r2) => r2.properties.id === r1.properties.id),
   ).length;
-  const v1OnlyCount = v1Results.filter(
-    (r1) => !v2Results.some((r2) => r2.properties.id === r1.properties.id),
+  const leftOnlyCount = leftResults.filter(
+    (r1) => !rightResults.some((r2) => r2.properties.id === r1.properties.id),
   ).length;
-  const v2OnlyCount = v2Results.filter(
-    (r2) => !v1Results.some((r1) => r1.properties.id === r2.properties.id),
+  const rightOnlyCount = rightResults.filter(
+    (r2) => !leftResults.some((r1) => r1.properties.id === r2.properties.id),
   ).length;
 
   // Calculate visible count based on current filters
@@ -63,42 +63,42 @@ export const MapContainerWrapper = ({
 
     let count = 0;
     if (showMatched) {
-      count += v1Results.filter(
+      count += leftResults.filter(
         (r1) =>
           r1.geometry &&
           categoryFilter(r1) &&
-          v2Results.some((r2) => r2.properties.id === r1.properties.id),
+          rightResults.some((r2) => r2.properties.id === r1.properties.id),
       ).length;
     }
-    if (showV1Only) {
-      count += v1Results.filter(
+    if (showLeftOnly) {
+      count += leftResults.filter(
         (r1) =>
           r1.geometry &&
           categoryFilter(r1) &&
-          !v2Results.some((r2) => r2.properties.id === r1.properties.id),
+          !rightResults.some((r2) => r2.properties.id === r1.properties.id),
       ).length;
     }
-    if (showV2Only) {
-      count += v2Results.filter(
+    if (showRightOnly) {
+      count += rightResults.filter(
         (r2) =>
           r2.geometry &&
           categoryFilter(r2) &&
-          !v1Results.some((r1) => r1.properties.id === r2.properties.id),
+          !leftResults.some((r1) => r1.properties.id === r2.properties.id),
       ).length;
     }
     return count;
   }, [
-    v1Results,
-    v2Results,
+    leftResults,
+    rightResults,
     showMatched,
-    showV1Only,
-    showV2Only,
+    showLeftOnly,
+    showRightOnly,
     selectedCategories,
   ]);
 
   // Show map if there are results with geometry OR if it's interactive (for setting points)
   const hasGeometry =
-    v1Results.some((r) => r.geometry) || v2Results.some((r) => r.geometry);
+    leftResults.some((r) => r.geometry) || rightResults.some((r) => r.geometry);
   const isInteractive = !!(onFocusPointChange || onReversePointChange);
 
   if (!hasGeometry && !isInteractive) {
@@ -111,11 +111,11 @@ export const MapContainerWrapper = ({
       <div className={styles.mapLayout}>
         <div className={styles.mapMain}>
           <ComparisonMap
-            v1Results={v1Results}
-            v2Results={v2Results}
+            leftResults={leftResults}
+            rightResults={rightResults}
             showMatched={showMatched}
-            showV1Only={showV1Only}
-            showV2Only={showV2Only}
+            showLeftOnly={showLeftOnly}
+            showRightOnly={showRightOnly}
             selectedCategories={selectedCategories}
             focusPoint={focusPoint}
             onMapClick={onFocusPointChange || onReversePointChange}
@@ -125,18 +125,18 @@ export const MapContainerWrapper = ({
         <div className={styles.mapSidebar}>
           <MapControls
             showMatched={showMatched}
-            showV1Only={showV1Only}
-            showV2Only={showV2Only}
+            showLeftOnly={showLeftOnly}
+            showRightOnly={showRightOnly}
             onToggleMatched={setShowMatched}
-            onToggleV1Only={setShowV1Only}
-            onToggleV2Only={setShowV2Only}
+            onToggleLeftOnly={setShowLeftOnly}
+            onToggleRightOnly={setShowRightOnly}
           />
           <MapStatistics
             matchedCount={matchedCount}
-            v1OnlyCount={v1OnlyCount}
-            v2OnlyCount={v2OnlyCount}
-            totalV1={v1Results.length}
-            totalV2={v2Results.length}
+            leftOnlyCount={leftOnlyCount}
+            rightOnlyCount={rightOnlyCount}
+            totalLeft={leftResults.length}
+            totalRight={rightResults.length}
             visibleCount={visibleCount}
           />
           <CategoryFilter

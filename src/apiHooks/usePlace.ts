@@ -1,15 +1,10 @@
 import { useMemo } from "react";
 import { useGeocoderFetch } from "./useGeocoderFetch";
-import { V1Env, V2Env, getV1BaseUrl, getV2BaseUrl, buildQueryParams } from "./api";
+import { Env, getBaseUrl, buildQueryParams } from "./api";
 
-export interface PlaceV1Options {
+export interface PlaceOptions {
   ids: string;
-  env: V1Env;
-}
-
-export interface PlaceV2Options {
-  ids: string;
-  env: V2Env;
+  env: Env;
 }
 
 const buildPlaceUrl = (baseUrl: string | null, ids: string): string | null => {
@@ -23,22 +18,11 @@ const buildPlaceUrl = (baseUrl: string | null, ids: string): string | null => {
   return `${baseUrl}/place?${params}`;
 };
 
-export const usePlaceV1 = (options: PlaceV1Options) => {
+export const usePlace = (options: PlaceOptions) => {
   const { ids, env } = options;
 
   const url = useMemo(() => {
-    const baseUrl = getV1BaseUrl(env);
-    return buildPlaceUrl(baseUrl, ids);
-  }, [ids, env]);
-
-  return useGeocoderFetch({ url });
-};
-
-export const usePlaceV2 = (options: PlaceV2Options) => {
-  const { ids, env } = options;
-
-  const url = useMemo(() => {
-    const baseUrl = getV2BaseUrl(env);
+    const baseUrl = getBaseUrl(env);
     return buildPlaceUrl(baseUrl, ids);
   }, [ids, env]);
 

@@ -2,19 +2,19 @@ import styles from "./MapStatistics.module.scss";
 
 interface Props {
   matchedCount: number;
-  v1OnlyCount: number;
-  v2OnlyCount: number;
-  totalV1: number;
-  totalV2: number;
-  visibleCount: number; // NEW: currently visible on map
+  leftOnlyCount: number;
+  rightOnlyCount: number;
+  totalLeft: number;
+  totalRight: number;
+  visibleCount: number;
 }
 
 export const MapStatistics = ({
   matchedCount,
-  v1OnlyCount,
-  v2OnlyCount,
-  totalV1,
-  totalV2,
+  leftOnlyCount,
+  rightOnlyCount,
+  totalLeft,
+  totalRight,
   visibleCount,
 }: Props) => {
   return (
@@ -26,18 +26,18 @@ export const MapStatistics = ({
       </div>
       <div className={styles.statRow}>
         <span className={styles.statIcon}>🔴</span>
-        <span>V1 only: {v1OnlyCount}</span>
+        <span>Left only: {leftOnlyCount}</span>
       </div>
       <div className={styles.statRow}>
         <span className={styles.statIcon}>🔵</span>
-        <span>V2 only: {v2OnlyCount}</span>
+        <span>Right only: {rightOnlyCount}</span>
       </div>
       <div className={styles.statDivider} />
       <div className={styles.statRow}>
-        <span>Total V1: {totalV1}</span>
+        <span>Total left: {totalLeft}</span>
       </div>
       <div className={styles.statRow}>
-        <span>Total V2: {totalV2}</span>
+        <span>Total right: {totalRight}</span>
       </div>
       <div className={styles.statDivider} />
       <div className={styles.statRow}>

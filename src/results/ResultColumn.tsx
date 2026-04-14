@@ -1,12 +1,12 @@
 import { Heading3 } from "@entur/typography";
 import { Results } from "./results";
 import { SearchResults, FetchError } from "../apiHooks/response.types";
-import { V1Env, V2Env, V1_ENV_LABELS, V2_ENV_LABELS } from "../apiHooks/api";
+import { Env, ENV_LABELS } from "../apiHooks/api";
 import styles from "./results.module.scss";
 
 interface ResultColumnProps {
-  version: "v1" | "v2";
-  env: V1Env | V2Env;
+  label: string;
+  env: Env;
   searchResults: SearchResults;
   error?: FetchError;
   queryUrl: string;
@@ -17,7 +17,7 @@ interface ResultColumnProps {
 }
 
 export const ResultColumn = ({
-  version,
+  label,
   env,
   searchResults,
   error,
@@ -27,10 +27,7 @@ export const ResultColumn = ({
   onResultHover,
   matchColors,
 }: ResultColumnProps) => {
-  const envLabel = version === "v1"
-    ? V1_ENV_LABELS[env as V1Env]
-    : V2_ENV_LABELS[env as V2Env];
-  const title = `Geocoder ${version} (${envLabel})`;
+  const title = `${label} (${ENV_LABELS[env]})`;
 
   return (
     <div>
