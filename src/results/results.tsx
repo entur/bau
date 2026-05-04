@@ -62,7 +62,17 @@ export const Results = ({
           )}
           <ResultIcons categories={result.categories} />
           <div className={styles.result}>
-            <ExpandableText title={result.name + formatDistance(result.properties.distance)}>
+            <ExpandableText
+              titleElement="Paragraph"
+              title={
+                <span className={styles.resultTitle}>
+                  <span className={styles.resultName}>
+                    {result.name + formatDistance(result.properties.distance)}
+                  </span>
+                  <span className={styles.resultId}>{result.properties.id}</span>
+                </span>
+              }
+            >
               <div className={styles.resultDetail}>
                 <SubParagraph margin="none">Layer: {result.layer}</SubParagraph>
                 {result.categories && (

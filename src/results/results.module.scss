@@ -44,6 +44,11 @@
 }
 
 .result {
+  :global(.eds-expandable-text__trigger) {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
 }
 
 .resultIcon {
@@ -98,6 +103,27 @@
     & > div:last-child {
       order: -1;
     }
+  }
+}
+
+.resultTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.1;
+}
+
+.resultName {
+  font-weight: 500;
+}
+
+.resultId {
+  font-size: 0.7rem;
+  color: #888;
+
+  button[aria-expanded="true"] & {
+    display: none;
   }
 }
 
