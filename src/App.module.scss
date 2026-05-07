@@ -238,7 +238,7 @@
   &:global(.eds-checkbox__container) input:checked + :global(.eds-checkbox__icon) {
     background-color: white;
   }
-  &:global(.eds-checkbox__container) input:checked + :global(.eds-checkbox__icon) :global(.eds-checkbox-icon__path) {
+  &:global(.eds-checkbox__container) input:checked + :global(.eds-checkbox__icon) :global(.eds-checkbox-icon) path {
     stroke: #181c56;
   }
 }
