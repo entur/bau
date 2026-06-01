@@ -14,6 +14,7 @@ interface Props {
   onFocusPointChange?: (lat: number, lon: number) => void;
   reversePoint?: { lat: number; lon: number };
   onReversePointChange?: (lat: number, lon: number) => void;
+  highlightedId?: string | null;
 }
 
 export const MapContainerWrapper = ({
@@ -23,6 +24,7 @@ export const MapContainerWrapper = ({
   onFocusPointChange,
   reversePoint,
   onReversePointChange,
+  highlightedId,
 }: Props) => {
   const [showMatched, setShowMatched] = useState(true);
   const [showLeftOnly, setShowLeftOnly] = useState(true);
@@ -120,6 +122,7 @@ export const MapContainerWrapper = ({
             focusPoint={focusPoint}
             onMapClick={onFocusPointChange || onReversePointChange}
             reversePoint={reversePoint}
+            highlightedId={highlightedId}
           />
         </div>
         <div className={styles.mapSidebar}>

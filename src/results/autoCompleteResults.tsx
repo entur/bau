@@ -117,6 +117,7 @@ export const AutoCompleteResults = ({
         <MapContainerWrapper
           leftResults={leftResults.searchResults.results}
           rightResults={rightResults.searchResults.results}
+          highlightedId={highlightedId}
           focusPoint={
             focusLat && focusLon
               ? { lat: parseFloat(focusLat), lon: parseFloat(focusLon) }

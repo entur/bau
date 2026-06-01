@@ -18,13 +18,37 @@ interface Props {
   focusPoint?: { lat: number; lon: number };
   onMapClick?: (lat: number, lon: number) => void;
   reversePoint?: { lat: number; lon: number };
+  highlightedId?: string | null;
 }
 
 interface MarkerEntry {
   result: Result;
   color: MarkerColor;
   status: string;
+  id: string;
+  symbol?: string;
 }
+
+// Treat positions within this many meters as the same place, so sub-meter
+// rounding drift between the two APIs doesn't split a matched place in two.
+const SAME_POSITION_THRESHOLD_METERS = 5;
+
+const distanceInMeters = (
+  [lon1, lat1]: [number, number],
+  [lon2, lat2]: [number, number],
+): number => {
+  const R = 6371000; // earth radius in meters
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const x =
+    toRad(lon2 - lon1) * Math.cos(toRad((lat1 + lat2) / 2));
+  const y = toRad(lat2 - lat1);
+  return Math.sqrt(x * x + y * y) * R;
+};
+
+const samePosition = (
+  a: [number, number],
+  b: [number, number],
+): boolean => distanceInMeters(a, b) <= SAME_POSITION_THRESHOLD_METERS;
 
 const CircleMarker = ({
   color,
@@ -37,7 +61,8 @@ const CircleMarker = ({
 }) => {
   const hex = colorMap[color];
   const size = pulsing ? 24 : 12;
-  const border = pulsing ? 4 : 2;
+  const border = pulsing ? 4 : 1.5;
+  const fontSize = pulsing ? 14 : 9;
 
   return (
     <div
@@ -61,9 +86,11 @@ const CircleMarker = ({
         <span
           style={{
             color: "white",
-            fontSize: 14,
-            fontWeight: "bold",
+            fontSize,
+            fontWeight: 400,
             lineHeight: 1,
+            // Nudge the glyph up slightly to optically center it in the circle.
+            transform: "translateY(-1.5px)",
           }}
         >
           {symbol}
@@ -85,6 +112,7 @@ export const ComparisonMap = ({
   focusPoint,
   onMapClick,
   reversePoint,
+  highlightedId,
 }: Props) => {
   const mapRef = useRef<MapRef>(null);
   const prevMarkersCountRef = useRef<number>(-1);
@@ -141,11 +169,47 @@ export const ComparisonMap = ({
 
     if (showMatched) {
       matchedResults.forEach((result) => {
-        if (result.geometry && categoryFilter(result)) {
+        // Find the right-side counterpart of this matched place
+        const rightMatch = rightResults.find(
+          (r2) => r2.properties.id === result.properties.id,
+        );
+        const leftGeom = result.geometry;
+        const rightGeom = rightMatch?.geometry;
+
+        const positionsDiffer =
+          !!leftGeom &&
+          !!rightGeom &&
+          !samePosition(leftGeom.coordinates, rightGeom.coordinates);
+
+        if (leftGeom && categoryFilter(result)) {
           markers.push({
             result,
             color: "green",
-            status: "Exists in both",
+            status: positionsDiffer
+              ? "Exists in both (left position)"
+              : "Exists in both",
+            id: result.properties.id,
+            // Label only when both positions are shown, so they're tellable apart.
+            symbol: positionsDiffer ? "L" : undefined,
+          });
+        }
+
+        // Show the right position when it meaningfully differs, or when the
+        // left side has no geometry of its own (so the place still appears).
+        if (
+          rightMatch &&
+          rightGeom &&
+          (positionsDiffer || !leftGeom) &&
+          categoryFilter(rightMatch)
+        ) {
+          markers.push({
+            result: rightMatch,
+            color: "green",
+            status: leftGeom
+              ? "Exists in both (right position)"
+              : "Exists in both",
+            id: rightMatch.properties.id,
+            symbol: positionsDiffer ? "R" : undefined,
           });
         }
       });
@@ -158,6 +222,7 @@ export const ComparisonMap = ({
             result,
             color: "red",
             status: "Only in left",
+            id: result.properties.id,
           });
         }
       });
@@ -170,6 +235,7 @@ export const ComparisonMap = ({
             result,
             color: "blue",
             status: "Only in right",
+            id: result.properties.id,
           });
         }
       });
@@ -180,6 +246,7 @@ export const ComparisonMap = ({
     matchedResults,
     leftOnlyResults,
     rightOnlyResults,
+    rightResults,
     showMatched,
     showLeftOnly,
     showRightOnly,
@@ -297,30 +364,39 @@ export const ComparisonMap = ({
         )}
 
         {/* Result markers */}
-        {markersToShow.map((marker, index) => (
-          <Marker
-            key={`${marker.result.properties.id}-${index}`}
-            longitude={marker.result.geometry!.coordinates[0]}
-            latitude={marker.result.geometry!.coordinates[1]}
-            anchor="center"
-            onClick={(e) => {
-              e.originalEvent.stopPropagation();
-              setPopupInfo({
-                lng: marker.result.geometry!.coordinates[0],
-                lat: marker.result.geometry!.coordinates[1],
-                content: {
-                  name: marker.result.name,
-                  layer: marker.result.layer,
-                  categories: marker.result.categories,
-                  status: marker.status,
-                  color: marker.color,
-                },
-              });
-            }}
-          >
-            <CircleMarker color={marker.color} />
-          </Marker>
-        ))}
+        {markersToShow.map((marker, index) => {
+          const isHighlighted =
+            !!highlightedId && marker.id === highlightedId;
+          return (
+            <Marker
+              key={`${marker.result.properties.id}-${index}`}
+              longitude={marker.result.geometry!.coordinates[0]}
+              latitude={marker.result.geometry!.coordinates[1]}
+              anchor="center"
+              style={isHighlighted ? { zIndex: 10 } : undefined}
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                setPopupInfo({
+                  lng: marker.result.geometry!.coordinates[0],
+                  lat: marker.result.geometry!.coordinates[1],
+                  content: {
+                    name: marker.result.name,
+                    layer: marker.result.layer,
+                    categories: marker.result.categories,
+                    status: marker.status,
+                    color: marker.color,
+                  },
+                });
+              }}
+            >
+              <CircleMarker
+                color={marker.color}
+                pulsing={isHighlighted}
+                symbol={marker.symbol}
+              />
+            </Marker>
+          );
+        })}
 
         {/* Popup */}
         {popupInfo && (

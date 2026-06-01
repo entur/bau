@@ -81,6 +81,7 @@ export const PlaceResults = ({
         <MapContainerWrapper
           leftResults={leftResults.searchResults.results}
           rightResults={rightResults.searchResults.results}
+          highlightedId={highlightedId}
         />
       </div>
     </div>

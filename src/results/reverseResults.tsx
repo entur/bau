@@ -105,6 +105,7 @@ export const ReverseResults = ({
         <MapContainerWrapper
           leftResults={leftResults.searchResults.results}
           rightResults={rightResults.searchResults.results}
+          highlightedId={highlightedId}
           reversePoint={
             lat && lon
               ? { lat: parseFloat(lat), lon: parseFloat(lon) }
