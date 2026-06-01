@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Result } from "../apiHooks/response.types";
 import { getMatchColor } from "../utils/colorHash";
+import { idsMatch } from "../utils/idMatch";
 
 export const useResultComparison = (
   leftResults: Result[],
@@ -22,10 +23,10 @@ export const useResultComparison = (
     const rightIds = rightResults.map((r) => r.properties.id);
 
     setMissingInLeft(
-      leftIds.filter((id) => !rightResults.some((r) => r.properties.id.includes(id)))
+      leftIds.filter((id) => !rightResults.some((r) => idsMatch(r.properties.id, id)))
     );
     setMissingInRight(
-      rightIds.filter((id) => !leftResults.some((r) => r.properties.id.includes(id)))
+      rightIds.filter((id) => !leftResults.some((r) => idsMatch(r.properties.id, id)))
     );
   }, [leftResults, rightResults, skipComparison]);
 

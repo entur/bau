@@ -1,4 +1,4 @@
-import { Env } from "../apiHooks/api";
+import { Env, V3Params } from "../apiHooks/api";
 import { useAutoComplete } from "../apiHooks/useAutoComplete";
 import { useResultComparison } from "./useResultComparison";
 import { ResultColumn } from "./ResultColumn";
@@ -19,6 +19,7 @@ interface Props {
   multiModal?: string;
   boundaryCountry?: string;
   boundaryCountyIds?: string;
+  v3?: V3Params;
   onFocusChange?: (lat: string, lon: string) => void;
 }
 
@@ -36,6 +37,7 @@ export const AutoCompleteResults = ({
   multiModal,
   boundaryCountry,
   boundaryCountyIds,
+  v3,
   onFocusChange,
 }: Props) => {
   const commonOptions = {
@@ -50,6 +52,7 @@ export const AutoCompleteResults = ({
     multiModal,
     boundaryCountry,
     boundaryCountyIds,
+    v3,
   };
 
   const leftResults = useAutoComplete({ env: leftEnv, ...commonOptions });

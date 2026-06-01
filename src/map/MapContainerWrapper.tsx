@@ -4,6 +4,7 @@ import { MapControls } from "./MapControls";
 import { MapStatistics } from "./MapStatistics";
 import { CategoryFilter } from "./CategoryFilter";
 import { Result } from "../apiHooks/response.types";
+import { idsMatch } from "../utils/idMatch";
 import styles from "./MapContainerWrapper.module.scss";
 import { Heading3 } from "@entur/typography";
 
@@ -47,13 +48,13 @@ export const MapContainerWrapper = ({
 
   // Calculate statistics
   const matchedCount = leftResults.filter((r1) =>
-    rightResults.some((r2) => r2.properties.id === r1.properties.id),
+    rightResults.some((r2) => idsMatch(r2.properties.id, r1.properties.id)),
   ).length;
   const leftOnlyCount = leftResults.filter(
-    (r1) => !rightResults.some((r2) => r2.properties.id === r1.properties.id),
+    (r1) => !rightResults.some((r2) => idsMatch(r2.properties.id, r1.properties.id)),
   ).length;
   const rightOnlyCount = rightResults.filter(
-    (r2) => !leftResults.some((r1) => r1.properties.id === r2.properties.id),
+    (r2) => !leftResults.some((r1) => idsMatch(r1.properties.id, r2.properties.id)),
   ).length;
 
   // Calculate visible count based on current filters
@@ -69,7 +70,7 @@ export const MapContainerWrapper = ({
         (r1) =>
           r1.geometry &&
           categoryFilter(r1) &&
-          rightResults.some((r2) => r2.properties.id === r1.properties.id),
+          rightResults.some((r2) => idsMatch(r2.properties.id, r1.properties.id)),
       ).length;
     }
     if (showLeftOnly) {
@@ -77,7 +78,7 @@ export const MapContainerWrapper = ({
         (r1) =>
           r1.geometry &&
           categoryFilter(r1) &&
-          !rightResults.some((r2) => r2.properties.id === r1.properties.id),
+          !rightResults.some((r2) => idsMatch(r2.properties.id, r1.properties.id)),
       ).length;
     }
     if (showRightOnly) {
@@ -85,7 +86,7 @@ export const MapContainerWrapper = ({
         (r2) =>
           r2.geometry &&
           categoryFilter(r2) &&
-          !leftResults.some((r1) => r1.properties.id === r2.properties.id),
+          !leftResults.some((r1) => idsMatch(r1.properties.id, r2.properties.id)),
       ).length;
     }
     return count;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FetchError, SearchResults, Result } from "./response.types";
-import { parseGeocoderResponse } from "./api";
+import { ApiVersion, parseGeocoderResponse, parseV3Response } from "./api";
 
 const DEBOUNCE_MS = 200;
 const TIMEOUT_MS = 10000;
@@ -8,6 +8,7 @@ const TIMEOUT_MS = 10000;
 interface UseGeocoderFetchOptions {
   url: string | null;
   useLabel?: boolean;
+  version?: ApiVersion;
 }
 
 interface UseGeocoderFetchResult {
@@ -19,6 +20,7 @@ interface UseGeocoderFetchResult {
 export const useGeocoderFetch = ({
   url,
   useLabel = false,
+  version = "v2",
 }: UseGeocoderFetchOptions): UseGeocoderFetchResult => {
   const [searchResults, setSearchResults] = useState<SearchResults>({ results: [] });
   const [error, setError] = useState<FetchError | undefined>();
@@ -46,7 +48,10 @@ export const useGeocoderFetch = ({
 
         if (response.ok) {
           const data = await response.json();
-          const results: Result[] = parseGeocoderResponse(data, useLabel);
+          const results: Result[] =
+            version === "v3"
+              ? parseV3Response(data, useLabel)
+              : parseGeocoderResponse(data, useLabel);
           setSearchResults({ results });
           setError(undefined);
         } else {
@@ -66,7 +71,7 @@ export const useGeocoderFetch = ({
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
-  }, [url, useLabel]);
+  }, [url, useLabel, version]);
 
   return { searchResults, error, queryUrl };
 };

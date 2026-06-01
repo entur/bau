@@ -4,6 +4,7 @@ import { LngLatBounds } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Result } from "../apiHooks/response.types";
 import { MarkerColor, colorMap } from "./utils/markerIcons";
+import { idsMatch } from "../utils/idMatch";
 import styles from "./ComparisonMap.module.scss";
 
 interface Props {
@@ -133,7 +134,7 @@ export const ComparisonMap = ({
 
     leftResults.forEach((r1) => {
       const hasMatch = rightResults.some(
-        (r2) => r2.properties.id === r1.properties.id,
+        (r2) => idsMatch(r2.properties.id, r1.properties.id),
       );
       if (hasMatch) {
         matched.push(r1);
@@ -144,7 +145,7 @@ export const ComparisonMap = ({
 
     rightResults.forEach((r2) => {
       const hasMatch = leftResults.some(
-        (r1) => r1.properties.id === r2.properties.id,
+        (r1) => idsMatch(r1.properties.id, r2.properties.id),
       );
       if (!hasMatch) {
         rightOnly.push(r2);
@@ -171,7 +172,7 @@ export const ComparisonMap = ({
       matchedResults.forEach((result) => {
         // Find the right-side counterpart of this matched place
         const rightMatch = rightResults.find(
-          (r2) => r2.properties.id === result.properties.id,
+          (r2) => idsMatch(r2.properties.id, result.properties.id),
         );
         const leftGeom = result.geometry;
         const rightGeom = rightMatch?.geometry;

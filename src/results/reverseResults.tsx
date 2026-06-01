@@ -1,4 +1,4 @@
-import { Env } from "../apiHooks/api";
+import { Env, V3Params } from "../apiHooks/api";
 import { useReverse } from "../apiHooks/useReverse";
 import { useResultComparison } from "./useResultComparison";
 import { ResultColumn } from "./ResultColumn";
@@ -15,6 +15,7 @@ interface Props {
   sources?: string;
   multiModal?: string;
   boundaryCircleRadius?: string;
+  v3?: V3Params;
   onPointChange?: (lat: string, lon: string) => void;
 }
 
@@ -28,6 +29,7 @@ export const ReverseResults = ({
   sources,
   multiModal,
   boundaryCircleRadius,
+  v3,
   onPointChange,
 }: Props) => {
   const commonOptions = {
@@ -38,6 +40,7 @@ export const ReverseResults = ({
     sources,
     multiModal,
     boundaryCircleRadius,
+    v3,
   };
 
   const leftResults = useReverse({ env: leftEnv, ...commonOptions });

@@ -5,7 +5,7 @@ import App from "./App";
 describe("App", () => {
   it("renders geocoder test heading", () => {
     render(<App />);
-    const headingElement = screen.getByText(/Geocoder-v2 Test/i);
+    const headingElement = screen.getByText(/Geocoder Test/i);
     expect(headingElement).toBeInTheDocument();
   });
 });

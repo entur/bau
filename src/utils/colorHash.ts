@@ -1,3 +1,5 @@
+import { idsMatch, normalizePlaceId } from "./idMatch";
+
 /**
  * Generates a consistent color from a string using hash function.
  * Same input always produces same color.
@@ -39,9 +41,10 @@ export const getMatchColor = (
     return "#d32f2f"; // Red for missing results
   }
 
-  const hasMatch = oppositeResults.some(
-    (r) => r.properties.id === resultId || r.properties.id.includes(resultId),
+  const hasMatch = oppositeResults.some((r) =>
+    idsMatch(r.properties.id, resultId),
   );
 
-  return hasMatch ? hashStringToColor(resultId) : "#9e9e9e"; // Gray for unmatched
+  // Hash the normalized id so a matched v2/v3 pair gets the same color on both sides.
+  return hasMatch ? hashStringToColor(normalizePlaceId(resultId)) : "#9e9e9e"; // Gray for unmatched
 };
