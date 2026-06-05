@@ -41,7 +41,8 @@ export interface Properties {
   label?: string;
   category?: string[];
   tariff_zones?: string[];
-  // v3-only structured fields, carried through from parseV3Response's spread of the raw properties.
+  // v3-only structured fields, carried through raw from parseV3Response.
+  names?: { default: string; display: string; label?: string };
   address?: Record<string, unknown>;
   categories?: string[];
   stopPlaceTypes?: string[];

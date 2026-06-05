@@ -64,7 +64,9 @@ export const parseGeocoderResponse = (data: { features: GeoJSONFeature[] }, useL
 interface V3Feature {
   properties: {
     id: string;
-    name: { default: string; display: string; label?: string };
+    // Optional because the parser must survive a payload without it. `label` is the
+    // colloquial name (v2's popular_name) and is intentionally not used for display.
+    names?: { default: string; display: string; label?: string };
     layer: string;
     source: string;
     address?: Record<string, unknown>;
@@ -79,30 +81,21 @@ interface V3Feature {
   };
 }
 
-// v3 returns a GeoJSON FeatureCollection with structured properties (name.default /
-// name.display, layer split out, stopPlaceTypes + categories). Flatten it onto the same
-// Result shape the UI already consumes; the raw v3 properties are kept for the JSON dump.
+// v3 returns a GeoJSON FeatureCollection with structured properties (names.default /
+// names.display, layer split out, stopPlaceTypes + categories). Flatten it onto the same
+// Result shape the UI already consumes; the v3 properties are kept raw for the JSON dump.
 export const parseV3Response = (data: { features?: V3Feature[] }, useLabel = false): Result[] => {
   return (data.features ?? []).map((feature) => {
     const p = feature.properties;
-    // Coerce at the leaves: a payload missing name.default/display must not flow `undefined`
-    // into the string-typed Result.name / Properties.label fields.
-    const defaultName = p.name?.default ?? "";
-    const displayName = p.name?.display ?? defaultName;
-    const categories = [...(p.stopPlaceTypes ?? []), ...(p.categories ?? [])];
+    // Coerce at the leaves: a payload missing names.default/display must not flow
+    // `undefined` into the string-typed Result.name field.
+    const defaultName = p.names?.default ?? "";
+    const displayName = p.names?.display ?? defaultName;
     return {
       name: useLabel ? displayName : defaultName,
       layer: p.layer,
-      categories,
-      properties: {
-        ...p,
-        id: p.id,
-        layer: p.layer,
-        source: p.source,
-        name: defaultName,
-        label: displayName,
-        category: categories,
-      },
+      categories: [...(p.stopPlaceTypes ?? []), ...(p.categories ?? [])],
+      properties: p,
       geometry: feature.geometry,
       notExistsInOtherVersion: false,
     };
