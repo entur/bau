@@ -383,7 +383,9 @@ function App() {
               onChange={(e) => setLeftEnv(e.target.value as Env)}
             >
               {ENV_OPTIONS.map((env) => (
-                <option key={env} value={env}>{ENV_LABELS[env]}</option>
+                <option key={env} value={env}>
+                  {ENV_LABELS[env]}
+                </option>
               ))}
             </select>
           </label>
@@ -394,7 +396,9 @@ function App() {
               onChange={(e) => setRightEnv(e.target.value as Env)}
             >
               {ENV_OPTIONS.map((env) => (
-                <option key={env} value={env}>{ENV_LABELS[env]}</option>
+                <option key={env} value={env}>
+                  {ENV_LABELS[env]}
+                </option>
               ))}
             </select>
           </label>
@@ -403,7 +407,9 @@ function App() {
       <GridItem small={12} className={styles.searchContainer}>
         {searchMode === "autocomplete" ? (
           <>
-            <div className={`${styles.searchForm} ${showBothForms ? styles.indented : ""}`}>
+            <div
+              className={`${styles.searchForm} ${showBothForms ? styles.indented : ""}`}
+            >
               <TextField
                 size="medium"
                 label="søk"
@@ -420,13 +426,16 @@ function App() {
                 value={size}
                 onChange={(evt) => setSize(evt.target.value)}
               />
+              <Multimodal value={multiModal} onChange={setMultiModal} />
               <TextField
                 size="medium"
                 label="focus lat"
                 className={styles.inputMedium}
                 placeholder="Click map"
                 value={focusLat}
-                onChange={(evt) => setFocusLat(sanitizeCoordinate(evt.target.value))}
+                onChange={(evt) =>
+                  setFocusLat(sanitizeCoordinate(evt.target.value))
+                }
               />
               <TextField
                 size="medium"
@@ -434,18 +443,25 @@ function App() {
                 className={styles.inputMedium}
                 placeholder="Click map"
                 value={focusLon}
-                onChange={(evt) => setFocusLon(sanitizeCoordinate(evt.target.value))}
+                onChange={(evt) =>
+                  setFocusLon(sanitizeCoordinate(evt.target.value))
+                }
               />
-              <Multimodal value={multiModal} onChange={setMultiModal} />
               {focusLat && focusLon && (
-                <button onClick={handleClearFocus} className={styles.clearFocusButton}>
+                <button
+                  onClick={handleClearFocus}
+                  className={styles.clearFocusButton}
+                >
                   Clear focus
                 </button>
               )}
             </div>
 
             {showV2Form && (
-              <VersionSection label={showBothForms ? "v2" : undefined} filters={v2Filters}>
+              <VersionSection
+                label={showBothForms ? "v2" : undefined}
+                filters={v2Filters}
+              >
                 <TextField
                   size="medium"
                   label="scale"
@@ -484,7 +500,10 @@ function App() {
             )}
 
             {showV3Form && (
-              <VersionSection label={showBothForms ? "v3" : undefined} filters={v3Filters}>
+              <VersionSection
+                label={showBothForms ? "v3" : undefined}
+                filters={v3Filters}
+              >
                 <TextField
                   size="medium"
                   label="radius (km)"
@@ -508,7 +527,7 @@ function App() {
                   size="medium"
                   label="countries"
                   className={styles.inputMedium}
-                  placeholder="e.g. NOR"
+                  placeholder="e.g. no"
                   value={v3.countries}
                   onChange={(evt) => setV3Field("countries", evt.target.value)}
                 />
@@ -525,7 +544,9 @@ function App() {
           </>
         ) : searchMode === "reverse" ? (
           <>
-            <div className={`${styles.searchForm} ${showBothForms ? styles.indented : ""}`}>
+            <div
+              className={`${styles.searchForm} ${showBothForms ? styles.indented : ""}`}
+            >
               <TextField
                 size="medium"
                 label="lat"
@@ -563,7 +584,10 @@ function App() {
             </div>
 
             {showV2Form && (
-              <VersionSection label={showBothForms ? "v2" : undefined} filters={v2Filters} />
+              <VersionSection
+                label={showBothForms ? "v2" : undefined}
+                filters={v2Filters}
+              />
             )}
 
             {showV3Form && (
@@ -611,8 +635,8 @@ function App() {
             </div>
             {showBothForms && (
               <div className={styles.formHint}>
-                v2 and v3 use different id formats for OSM POIs, addresses and place
-                names (e.g. <code>OSM:TopographicPlace:N</code> vs{" "}
+                v2 and v3 use different id formats for OSM POIs, addresses and
+                place names (e.g. <code>OSM:TopographicPlace:N</code> vs{" "}
                 <code>OSM:PointOfInterest:N</code>).
               </div>
             )}
@@ -659,11 +683,7 @@ function App() {
             }}
           />
         ) : (
-          <PlaceResults
-            ids={ids}
-            leftEnv={leftEnv}
-            rightEnv={rightEnv}
-          />
+          <PlaceResults ids={ids} leftEnv={leftEnv} rightEnv={rightEnv} />
         )}
       </GridItem>
     </GridContainer>
