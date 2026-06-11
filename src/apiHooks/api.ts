@@ -8,6 +8,8 @@ export enum Env {
   STAGING = "staging",
   PROD = "prod",
   V3_DEV = "v3-dev",
+  V3_TST = "v3-tst",
+  V3_PRD = "v3-prd",
   V3_LOCAL = "v3-local",
 }
 
@@ -19,6 +21,8 @@ export const ENV_LABELS: Record<Env, string> = {
   [Env.STAGING]: "staging",
   [Env.PROD]: "prod",
   [Env.V3_DEV]: "v3-dev",
+  [Env.V3_TST]: "v3-tst",
+  [Env.V3_PRD]: "v3-prd",
   [Env.V3_LOCAL]: "v3-local",
 };
 
@@ -31,14 +35,18 @@ export const getBaseUrl = (env: Env): string | null => {
     [Env.STAGING]: "https://api.staging.entur.io/geocoder/v2",
     [Env.PROD]: "https://api.entur.io/geocoder/v2",
     [Env.V3_DEV]: "https://api.dev.entur.io/geocoder/v3",
+    [Env.V3_TST]: "https://api.staging.entur.io/geocoder/v3",
+    [Env.V3_PRD]: "https://api.entur.io/geocoder/v3",
     [Env.V3_LOCAL]: "http://localhost:8080/v3",
   }[env];
 };
 
 export type ApiVersion = "v2" | "v3";
 
+const V3_ENVS = [Env.V3_DEV, Env.V3_TST, Env.V3_PRD, Env.V3_LOCAL];
+
 export const getApiVersion = (env: Env): ApiVersion =>
-  env === Env.V3_DEV || env === Env.V3_LOCAL ? "v3" : "v2";
+  V3_ENVS.includes(env) ? "v3" : "v2";
 
 export const isV3Env = (env: Env): boolean => getApiVersion(env) === "v3";
 

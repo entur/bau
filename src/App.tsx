@@ -23,6 +23,8 @@ const ENV_OPTIONS = [
   Env.STAGING,
   Env.PROD,
   Env.V3_DEV,
+  Env.V3_TST,
+  Env.V3_PRD,
   Env.V3_LOCAL,
 ];
 const ENV_VALUES = Object.values(Env);
