@@ -11,7 +11,7 @@ interface UseGeocoderFetchOptions {
   version?: ApiVersion;
 }
 
-interface UseGeocoderFetchResult {
+export interface UseGeocoderFetchResult {
   searchResults: SearchResults;
   error: FetchError | undefined;
   queryUrl: string;

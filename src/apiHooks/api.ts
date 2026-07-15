@@ -26,6 +26,10 @@ export const ENV_LABELS: Record<Env, string> = {
   [Env.V3_LOCAL]: "v3-local",
 };
 
+// Every env, in enum declaration order (off, then v2 envs, then v3). Doubles as the
+// dropdown ordering and the set of values accepted from the URL.
+export const ENV_OPTIONS: Env[] = Object.values(Env);
+
 export const getBaseUrl = (env: Env): string | null => {
   return {
     [Env.OFF]: null,

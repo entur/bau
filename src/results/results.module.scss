@@ -4,10 +4,24 @@
 
 .resultsHeading {
   border-bottom: 1px solid #e9e9e9;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.columnEnvSelect {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #181c56;
+  padding: 0.1rem 0.4rem;
+  border: 2px solid #181c56;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
 }
 
 .debugLink {
-  margin-left: 0.5rem;
   font-size: 0.75rem;
   font-weight: normal;
   text-decoration: none;
@@ -86,20 +100,28 @@
   }
 }
 
+// --left-col / --right-col are set inline per side ("1fr" when live, "auto" when off), so an
+// off column collapses to its dropdown at every width. Driving the template through the cascade
+// (not an inline grid-template-columns) lets these media queries override it without !important.
 .resultsLayout {
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr 1fr !important;
+  display: grid;
+  grid-template-columns: var(--left-col, 1fr) var(--right-col, 1fr) 2fr;
+  gap: 1rem;
+  align-items: start;
 
-    // Stack map below on tablets
+  @media (max-width: 1200px) {
+    // Drop the map track; it wraps to its own full-width row below.
+    grid-template-columns: var(--left-col, 1fr) var(--right-col, 1fr);
+
     & > div:last-child {
       grid-column: 1 / -1;
     }
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr !important;
+    // Single column; map first.
+    grid-template-columns: 1fr;
 
-    // Map first on mobile
     & > div:last-child {
       order: -1;
     }

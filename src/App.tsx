@@ -7,27 +7,13 @@ import { TextField, Checkbox } from "@entur/form";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { PlaceResults } from "./results/placeResults";
-import { Env, ENV_LABELS, V3Params, isV3Env } from "./apiHooks/api";
+import { Env, ENV_OPTIONS, V3Params, isV3Env } from "./apiHooks/api";
 
 type SearchMode = "autocomplete" | "reverse" | "place";
 const SEARCH_MODES: SearchMode[] = ["autocomplete", "reverse", "place"];
 
 const DEFAULT_LEFT_ENV = Env.DEV;
 const DEFAULT_RIGHT_ENV = Env.DEV;
-
-const ENV_OPTIONS = [
-  Env.OFF,
-  Env.LOCAL,
-  Env.DEV,
-  Env.DEV_SE,
-  Env.STAGING,
-  Env.PROD,
-  Env.V3_DEV,
-  Env.V3_TST,
-  Env.V3_PRD,
-  Env.V3_LOCAL,
-];
-const ENV_VALUES = Object.values(Env);
 
 const V2_LAYERS = ["venue", "address"];
 const V2_SOURCES = ["whosonfirst", "openstreetmap", "openaddresses", "geonames"];
@@ -141,13 +127,38 @@ const LayersAndSources = ({
   </div>
 );
 
-/** Wraps a version-specific block, showing a "v2"/"v3" label to its left only when both versions are visible. */
-const FormSection = ({ label, children }: { label?: string; children: ReactNode }) => (
-  <div className={styles.formSection}>
-    {label && <div className={styles.sectionLabel}>{label}</div>}
-    <div className={styles.formSectionBody}>{children}</div>
-  </div>
-);
+/**
+ * Wraps a version-specific block, showing a "v2"/"v3" label to its left only when both versions
+ * are visible. labelBesideInputs drops the label to sit beside the input boxes; without inputs
+ * (e.g. v2 reverse) it stays up on the Layers row.
+ */
+const FormSection = ({
+  label,
+  labelBesideInputs = false,
+  children,
+}: {
+  label?: string;
+  labelBesideInputs?: boolean;
+  children: ReactNode;
+}) => {
+  // Tint the panel per version, but only when both are shown (i.e. a label is present).
+  const versionClass =
+    label === "v2" ? styles.formSectionV2 : label === "v3" ? styles.formSectionV3 : "";
+  return (
+    <div
+      className={`${styles.formSection} ${versionClass} ${labelBesideInputs ? "" : styles.formSectionCenter}`}
+    >
+      {label && (
+        <div
+          className={`${styles.sectionLabel} ${labelBesideInputs ? styles.sectionLabelOffset : ""}`}
+        >
+          {label}
+        </div>
+      )}
+      <div className={styles.formSectionBody}>{children}</div>
+    </div>
+  );
+};
 
 interface FilterConfig {
   layers: string[];
@@ -170,7 +181,7 @@ const VersionSection = ({
   hint?: ReactNode;
   children?: ReactNode;
 }) => (
-  <FormSection label={label}>
+  <FormSection label={label} labelBesideInputs={Boolean(children)}>
     {children && <div className={styles.searchForm}>{children}</div>}
     <LayersAndSources {...filters} />
     {hint && <div className={styles.formHint}>{hint}</div>}
@@ -185,8 +196,8 @@ function App() {
   const initialLon = urlParams.get("point.lon") || "";
   const initialIds = urlParams.get("ids") || "";
   const sharedEnv = urlParams.get("env");
-  const initialLeftEnv = coerce(urlParams.get("left") ?? sharedEnv, ENV_VALUES, DEFAULT_LEFT_ENV);
-  const initialRightEnv = coerce(urlParams.get("right") ?? sharedEnv, ENV_VALUES, DEFAULT_RIGHT_ENV);
+  const initialLeftEnv = coerce(urlParams.get("left") ?? sharedEnv, ENV_OPTIONS, DEFAULT_LEFT_ENV);
+  const initialRightEnv = coerce(urlParams.get("right") ?? sharedEnv, ENV_OPTIONS, DEFAULT_RIGHT_ENV);
 
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus.point.lat") || "";
@@ -357,53 +368,25 @@ function App() {
           <img src={logo} className={styles.appLogo} alt="Entur logo" />
           <Heading5 margin="none">Geocoder Test</Heading5>
         </div>
-        <div className={styles.headerRight}>
-          <div className={styles.modeButtons}>
-            <button
-              onClick={() => setSearchMode("autocomplete")}
-              className={`${styles.modeButton} ${searchMode === "autocomplete" ? styles.active : ""}`}
-            >
-              Autocomplete
-            </button>
-            <button
-              onClick={() => setSearchMode("reverse")}
-              className={`${styles.modeButton} ${searchMode === "reverse" ? styles.active : ""}`}
-            >
-              Reverse
-            </button>
-            <button
-              onClick={() => setSearchMode("place")}
-              className={`${styles.modeButton} ${searchMode === "place" ? styles.active : ""}`}
-            >
-              Place
-            </button>
-          </div>
-          <label className={styles.envSelector}>
-            Left:
-            <select
-              value={leftEnv}
-              onChange={(e) => setLeftEnv(e.target.value as Env)}
-            >
-              {ENV_OPTIONS.map((env) => (
-                <option key={env} value={env}>
-                  {ENV_LABELS[env]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className={styles.envSelector}>
-            Right:
-            <select
-              value={rightEnv}
-              onChange={(e) => setRightEnv(e.target.value as Env)}
-            >
-              {ENV_OPTIONS.map((env) => (
-                <option key={env} value={env}>
-                  {ENV_LABELS[env]}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className={styles.modeButtons}>
+          <button
+            onClick={() => setSearchMode("autocomplete")}
+            className={`${styles.modeButton} ${searchMode === "autocomplete" ? styles.active : ""}`}
+          >
+            Autocomplete
+          </button>
+          <button
+            onClick={() => setSearchMode("reverse")}
+            className={`${styles.modeButton} ${searchMode === "reverse" ? styles.active : ""}`}
+          >
+            Reverse
+          </button>
+          <button
+            onClick={() => setSearchMode("place")}
+            className={`${styles.modeButton} ${searchMode === "place" ? styles.active : ""}`}
+          >
+            Place
+          </button>
         </div>
       </GridItem>
       <GridItem small={12} className={styles.searchContainer}>
@@ -635,13 +618,7 @@ function App() {
                 onChange={(evt) => setIds(evt.target.value)}
               />
             </div>
-            {showBothForms && (
-              <div className={styles.formHint}>
-                v2 and v3 use different id formats for OSM POIs, addresses and
-                place names (e.g. <code>OSM:TopographicPlace:N</code> vs{" "}
-                <code>OSM:PointOfInterest:N</code>).
-              </div>
-            )}
+            {showBothForms}
           </>
         )}
       </GridItem>
@@ -651,6 +628,8 @@ function App() {
             searchTerm={searchTerm}
             leftEnv={leftEnv}
             rightEnv={rightEnv}
+            onLeftEnvChange={setLeftEnv}
+            onRightEnvChange={setRightEnv}
             size={parseInt(size) || 30}
             focusLat={focusLat}
             focusLon={focusLon}
@@ -673,6 +652,8 @@ function App() {
             lon={lon}
             leftEnv={leftEnv}
             rightEnv={rightEnv}
+            onLeftEnvChange={setLeftEnv}
+            onRightEnvChange={setRightEnv}
             size={parseInt(size) || 30}
             layers={layers}
             sources={sources}
@@ -685,7 +666,13 @@ function App() {
             }}
           />
         ) : (
-          <PlaceResults ids={ids} leftEnv={leftEnv} rightEnv={rightEnv} />
+          <PlaceResults
+            ids={ids}
+            leftEnv={leftEnv}
+            rightEnv={rightEnv}
+            onLeftEnvChange={setLeftEnv}
+            onRightEnvChange={setRightEnv}
+          />
         )}
       </GridItem>
     </GridContainer>
