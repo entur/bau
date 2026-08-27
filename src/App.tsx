@@ -7,13 +7,13 @@ import { TextField, Checkbox } from "@entur/form";
 import { AutoCompleteResults } from "./results/autoCompleteResults";
 import { ReverseResults } from "./results/reverseResults";
 import { PlaceResults } from "./results/placeResults";
-import { Env, ENV_OPTIONS, V3Params, isV3Env } from "./apiHooks/api";
+import { Env, parseEnv, V3Params, isV3Env } from "./apiHooks/api";
 
 type SearchMode = "autocomplete" | "reverse" | "place";
 const SEARCH_MODES: SearchMode[] = ["autocomplete", "reverse", "place"];
 
-const DEFAULT_LEFT_ENV = Env.DEV;
-const DEFAULT_RIGHT_ENV = Env.DEV;
+const DEFAULT_LEFT_ENV = Env.V3_DEV;
+const DEFAULT_RIGHT_ENV = Env.V3_PROD;
 
 const V2_LAYERS = ["venue", "address"];
 const V2_SOURCES = ["whosonfirst", "openstreetmap", "openaddresses", "geonames"];
@@ -196,8 +196,8 @@ function App() {
   const initialLon = urlParams.get("point.lon") || "";
   const initialIds = urlParams.get("ids") || "";
   const sharedEnv = urlParams.get("env");
-  const initialLeftEnv = coerce(urlParams.get("left") ?? sharedEnv, ENV_OPTIONS, DEFAULT_LEFT_ENV);
-  const initialRightEnv = coerce(urlParams.get("right") ?? sharedEnv, ENV_OPTIONS, DEFAULT_RIGHT_ENV);
+  const initialLeftEnv = parseEnv(urlParams.get("left") ?? sharedEnv, DEFAULT_LEFT_ENV);
+  const initialRightEnv = parseEnv(urlParams.get("right") ?? sharedEnv, DEFAULT_RIGHT_ENV);
 
   const initialSize = urlParams.get("size") || "30";
   const initialFocusLat = urlParams.get("focus.point.lat") || "";

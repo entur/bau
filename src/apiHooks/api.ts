@@ -2,58 +2,92 @@ import { Properties, Result } from "./response.types";
 
 export enum Env {
   OFF = "off",
-  LOCAL = "local",
-  DEV = "dev",
-  DEV_SE = "dev-se",
-  DEV_DK = "dev-dk",
-  STAGING = "staging",
-  PROD = "prod",
-  V3_DEV = "v3-dev",
-  V3_TST = "v3-tst",
-  V3_PRD = "v3-prd",
+  V2_LOCAL = "v2-local",
+  V2_DEV = "v2-dev",
+  V2_STAGING = "v2-staging",
+  V2_PROD = "v2-prod",
   V3_LOCAL = "v3-local",
+  V3_DEV = "v3-dev",
+  V3_STAGING = "v3-staging",
+  V3_PROD = "v3-prod",
+  V3_DEV_SE = "v3-dev-se",
+  V3_DEV_DK = "v3-dev-dk",
 }
+
+// Dropdown structure: "off" on its own, then one group per API version. The labels drop the
+// version prefix since the group heading already carries it.
+export const ENV_GROUPS: { label: string; options: Env[] }[] = [
+  {
+    label: "v2",
+    options: [Env.V2_LOCAL, Env.V2_DEV, Env.V2_STAGING, Env.V2_PROD],
+  },
+  {
+    label: "v3",
+    options: [
+      Env.V3_LOCAL,
+      Env.V3_DEV,
+      Env.V3_STAGING,
+      Env.V3_PROD,
+      Env.V3_DEV_SE,
+      Env.V3_DEV_DK,
+    ],
+  },
+];
 
 export const ENV_LABELS: Record<Env, string> = {
   [Env.OFF]: "off",
-  [Env.LOCAL]: "local",
-  [Env.DEV]: "dev",
-  [Env.DEV_SE]: "dev-se",
-  [Env.DEV_DK]: "dev-dk",
-  [Env.STAGING]: "staging",
-  [Env.PROD]: "prod",
-  [Env.V3_DEV]: "v3-dev",
-  [Env.V3_TST]: "v3-tst",
-  [Env.V3_PRD]: "v3-prd",
-  [Env.V3_LOCAL]: "v3-local",
+  [Env.V2_LOCAL]: "local",
+  [Env.V2_DEV]: "dev",
+  [Env.V2_STAGING]: "staging",
+  [Env.V2_PROD]: "prod",
+  [Env.V3_LOCAL]: "local",
+  [Env.V3_DEV]: "dev",
+  [Env.V3_STAGING]: "staging",
+  [Env.V3_PROD]: "prod",
+  [Env.V3_DEV_SE]: "dev-se",
+  [Env.V3_DEV_DK]: "dev-dk",
 };
 
-// Every env, in enum declaration order (off, then v2 envs, then v3). Doubles as the
-// dropdown ordering and the set of values accepted from the URL.
 export const ENV_OPTIONS: Env[] = Object.values(Env);
+
+/** Pre-rename env values, kept so older shared URLs still resolve. */
+const ENV_ALIASES: Record<string, Env> = {
+  local: Env.V2_LOCAL,
+  dev: Env.V2_DEV,
+  staging: Env.V2_STAGING,
+  prod: Env.V2_PROD,
+  "dev-se": Env.V3_DEV_SE,
+  "dev-dk": Env.V3_DEV_DK,
+  "v3-tst": Env.V3_STAGING,
+  "v3-prd": Env.V3_PROD,
+};
+
+export const parseEnv = (value: string | null | undefined, fallback: Env): Env => {
+  if (!value) return fallback;
+  if (ENV_OPTIONS.includes(value as Env)) return value as Env;
+  return ENV_ALIASES[value] ?? fallback;
+};
 
 export const getBaseUrl = (env: Env): string | null => {
   return {
     [Env.OFF]: null,
-    [Env.LOCAL]: "http://localhost:8080/v2",
-    [Env.DEV]: "https://api.dev.entur.io/geocoder/v2",
-    [Env.DEV_SE]: "https://geocoder-proxy-se.dev.entur.io/v2",
-    [Env.DEV_DK]: "https://geocoder-proxy-dk.dev.entur.io/v2",
-    [Env.STAGING]: "https://api.staging.entur.io/geocoder/v2",
-    [Env.PROD]: "https://api.entur.io/geocoder/v2",
-    [Env.V3_DEV]: "https://api.dev.entur.io/geocoder/v3",
-    [Env.V3_TST]: "https://api.staging.entur.io/geocoder/v3",
-    [Env.V3_PRD]: "https://api.entur.io/geocoder/v3",
+    [Env.V2_LOCAL]: "http://localhost:8080/v2",
+    [Env.V2_DEV]: "https://api.dev.entur.io/geocoder/v2",
+    [Env.V2_STAGING]: "https://api.staging.entur.io/geocoder/v2",
+    [Env.V2_PROD]: "https://api.entur.io/geocoder/v2",
     [Env.V3_LOCAL]: "http://localhost:8080/v3",
+    [Env.V3_DEV]: "https://api.dev.entur.io/geocoder/v3",
+    [Env.V3_STAGING]: "https://api.staging.entur.io/geocoder/v3",
+    [Env.V3_PROD]: "https://api.entur.io/geocoder/v3",
+    [Env.V3_DEV_SE]: "https://geocoder-proxy-se.dev.entur.io/v3",
+    [Env.V3_DEV_DK]: "https://geocoder-proxy-dk.dev.entur.io/v3",
   }[env];
 };
 
 export type ApiVersion = "v2" | "v3";
 
-const V3_ENVS = [Env.V3_DEV, Env.V3_TST, Env.V3_PRD, Env.V3_LOCAL];
-
 export const getApiVersion = (env: Env): ApiVersion =>
-  V3_ENVS.includes(env) ? "v3" : "v2";
+  env.startsWith("v3-") ? "v3" : "v2";
 
 export const isV3Env = (env: Env): boolean => getApiVersion(env) === "v3";
 
