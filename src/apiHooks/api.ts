@@ -28,9 +28,22 @@ export const ENV_LABELS: Record<Env, string> = {
   [Env.V3_DEV_DK]: "v3 dev-dk",
 };
 
-// Every env, in enum declaration order (off, then v2, then v3). Doubles as the dropdown
-// ordering and the set of values accepted from the URL.
-export const ENV_OPTIONS: Env[] = Object.values(Env);
+// Dropdown sections, rendered with a divider between them.
+export const ENV_SECTIONS: Env[][] = [
+  [Env.OFF],
+  [Env.V2_LOCAL, Env.V2_DEV, Env.V2_STAGING, Env.V2_PROD],
+  [
+    Env.V3_LOCAL,
+    Env.V3_DEV,
+    Env.V3_STAGING,
+    Env.V3_PROD,
+    Env.V3_DEV_SE,
+    Env.V3_DEV_DK,
+  ],
+];
+
+/** Every env in dropdown order; doubles as the set of values accepted from the URL. */
+export const ENV_OPTIONS: Env[] = ENV_SECTIONS.flat();
 
 /** Pre-rename env values, kept so older shared URLs still resolve. */
 const ENV_ALIASES: Record<string, Env> = {

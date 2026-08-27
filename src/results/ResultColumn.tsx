@@ -1,7 +1,8 @@
+import { Fragment } from "react";
 import { Heading3 } from "@entur/typography";
 import { Results } from "./results";
 import { SearchResults, FetchError } from "../apiHooks/response.types";
-import { Env, ENV_LABELS, ENV_OPTIONS } from "../apiHooks/api";
+import { Env, ENV_LABELS, ENV_SECTIONS } from "../apiHooks/api";
 import styles from "./results.module.scss";
 
 interface ResultColumnProps {
@@ -42,10 +43,16 @@ export const ResultColumn = ({
             value={env}
             onChange={(evt) => onEnvChange(evt.target.value as Env)}
           >
-            {ENV_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {ENV_LABELS[option]}
-              </option>
+            {ENV_SECTIONS.map((section, index) => (
+              <Fragment key={section[0]}>
+                {/* A disabled option, not <hr>, since Firefox drops <hr> inside a select. */}
+                {index > 0 && <option disabled>{"\u2500".repeat(10)}</option>}
+                {section.map((option) => (
+                  <option key={option} value={option}>
+                    {ENV_LABELS[option]}
+                  </option>
+                ))}
+              </Fragment>
             ))}
           </select>
           {/* queryUrl can hold a stale URL after a side is switched to off, so guard on isOff too. */}
