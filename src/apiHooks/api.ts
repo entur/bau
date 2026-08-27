@@ -14,40 +14,22 @@ export enum Env {
   V3_DEV_DK = "v3-dev-dk",
 }
 
-// Dropdown structure: "off" on its own, then one group per API version. The labels drop the
-// version prefix since the group heading already carries it.
-export const ENV_GROUPS: { label: string; options: Env[] }[] = [
-  {
-    label: "v2",
-    options: [Env.V2_LOCAL, Env.V2_DEV, Env.V2_STAGING, Env.V2_PROD],
-  },
-  {
-    label: "v3",
-    options: [
-      Env.V3_LOCAL,
-      Env.V3_DEV,
-      Env.V3_STAGING,
-      Env.V3_PROD,
-      Env.V3_DEV_SE,
-      Env.V3_DEV_DK,
-    ],
-  },
-];
-
 export const ENV_LABELS: Record<Env, string> = {
   [Env.OFF]: "off",
-  [Env.V2_LOCAL]: "local",
-  [Env.V2_DEV]: "dev",
-  [Env.V2_STAGING]: "staging",
-  [Env.V2_PROD]: "prod",
-  [Env.V3_LOCAL]: "local",
-  [Env.V3_DEV]: "dev",
-  [Env.V3_STAGING]: "staging",
-  [Env.V3_PROD]: "prod",
-  [Env.V3_DEV_SE]: "dev-se",
-  [Env.V3_DEV_DK]: "dev-dk",
+  [Env.V2_LOCAL]: "v2 local",
+  [Env.V2_DEV]: "v2 dev",
+  [Env.V2_STAGING]: "v2 staging",
+  [Env.V2_PROD]: "v2 prod",
+  [Env.V3_LOCAL]: "v3 local",
+  [Env.V3_DEV]: "v3 dev",
+  [Env.V3_STAGING]: "v3 staging",
+  [Env.V3_PROD]: "v3 prod",
+  [Env.V3_DEV_SE]: "v3 dev-se",
+  [Env.V3_DEV_DK]: "v3 dev-dk",
 };
 
+// Every env, in enum declaration order (off, then v2, then v3). Doubles as the dropdown
+// ordering and the set of values accepted from the URL.
 export const ENV_OPTIONS: Env[] = Object.values(Env);
 
 /** Pre-rename env values, kept so older shared URLs still resolve. */

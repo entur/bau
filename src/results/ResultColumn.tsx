@@ -1,7 +1,7 @@
 import { Heading3 } from "@entur/typography";
 import { Results } from "./results";
 import { SearchResults, FetchError } from "../apiHooks/response.types";
-import { Env, ENV_GROUPS, ENV_LABELS } from "../apiHooks/api";
+import { Env, ENV_LABELS, ENV_OPTIONS } from "../apiHooks/api";
 import styles from "./results.module.scss";
 
 interface ResultColumnProps {
@@ -42,15 +42,10 @@ export const ResultColumn = ({
             value={env}
             onChange={(evt) => onEnvChange(evt.target.value as Env)}
           >
-            <option value={Env.OFF}>{ENV_LABELS[Env.OFF]}</option>
-            {ENV_GROUPS.map((group) => (
-              <optgroup key={group.label} label={group.label}>
-                {group.options.map((option) => (
-                  <option key={option} value={option}>
-                    {ENV_LABELS[option]}
-                  </option>
-                ))}
-              </optgroup>
+            {ENV_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {ENV_LABELS[option]}
+              </option>
             ))}
           </select>
           {/* queryUrl can hold a stale URL after a side is switched to off, so guard on isOff too. */}
