@@ -1,0 +1,60 @@
+# publiccode.yml metadata, see https://yml.publiccode.tools/
+publiccodeYmlVersion: "0.7.0"
+
+name: bau
+url: https://github.com/entur/bau
+
+platforms:
+  - web
+
+categories:
+  - geographic-information-systems
+  - test-management
+
+developmentStatus: stable
+softwareType: standalone/web
+
+organisation:
+  name: Entur AS
+  uri: https://entur.no
+
+intendedAudience:
+  scope:
+    - transportation
+  countries:
+    - NO
+
+description:
+  en:
+    localisedName: bau
+    shortDescription: Web app for comparing results from two versions of
+      Entur's geocoder API side by side.
+    longDescription: >
+      Runs autocomplete and reverse lookups against two versions of the
+      [Entur Geocoder](https://github.com/entur/geocoder) API at once, shows
+      the hits on a map and in a table, and highlights where they differ. Used
+      when tuning ranking and when checking a new index build.
+    features:
+      - Side-by-side autocomplete and reverse geocoding against two API versions
+      - Map and table views of the results
+      - Highlights differences between versions
+      - Can point at a locally running geocoder
+
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: Entur AS
+
+maintenance:
+  type: internal
+  contacts:
+    - name: Entur ROR (Open Data and Journey Planning)
+      email: kollektivdata@entur.org
+
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - en
+
+dependsOn:
+  open:
+    - name: Entur Geocoder
