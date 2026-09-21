@@ -11,7 +11,7 @@
     "@entur/grid": "^0.3.74",
     "@entur/tooltip": "^5.3.8",
     "@entur/typography": "^2.1.5",
-    "maplibre-gl": "^5.21.0",
+    "maplibre-gl": "^6.8.0",
     "prettier": "^3.8.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Map, { Marker, Popup, MapRef, NavigationControl } from "react-map-gl/maplibre";
+import Map, {
+  Marker,
+  Popup,
+  MapRef,
+  MapLayerMouseEvent,
+  NavigationControl,
+} from "react-map-gl/maplibre";
 import { LngLatBounds } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Result } from "../apiHooks/response.types";
@@ -296,7 +302,7 @@ export const ComparisonMap = ({
   }, [focusPoint]);
 
   const handleClick = useCallback(
-    (e: maplibregl.MapMouseEvent) => {
+    (e: MapLayerMouseEvent) => {
       if (onMapClick) {
         onMapClick(e.lngLat.lat, e.lngLat.lng);
       }
