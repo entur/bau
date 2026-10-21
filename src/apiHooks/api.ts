@@ -12,6 +12,7 @@ export enum Env {
   V3_PROD = "v3-prod",
   V3_DEV_SE = "v3-dev-se",
   V3_DEV_DK = "v3-dev-dk",
+  V3_DEV_NORDIC = "v3-dev-nordic",
 }
 
 export const ENV_LABELS: Record<Env, string> = {
@@ -26,6 +27,7 @@ export const ENV_LABELS: Record<Env, string> = {
   [Env.V3_PROD]: "v3 prod",
   [Env.V3_DEV_SE]: "v3 dev-se",
   [Env.V3_DEV_DK]: "v3 dev-dk",
+  [Env.V3_DEV_NORDIC]: "v3 dev-nordic",
 };
 
 // Dropdown sections, rendered with a divider between them.
@@ -39,6 +41,7 @@ export const ENV_SECTIONS: Env[][] = [
     Env.V3_PROD,
     Env.V3_DEV_SE,
     Env.V3_DEV_DK,
+    Env.V3_DEV_NORDIC,
   ],
 ];
 
@@ -76,6 +79,7 @@ export const getBaseUrl = (env: Env): string | null => {
     [Env.V3_PROD]: "https://api.entur.io/geocoder/v3",
     [Env.V3_DEV_SE]: "https://geocoder-proxy-se.dev.entur.io/v3",
     [Env.V3_DEV_DK]: "https://geocoder-proxy-dk.dev.entur.io/v3",
+    [Env.V3_DEV_NORDIC]: "https://geocoder-proxy-nordic.dev.entur.io/v3",
   }[env];
 };
 
