@@ -43,3 +43,24 @@ npm run build
 ```
 
 Outputs to the `build` folder.
+
+## Deploy
+
+Served at <https://geocoder-tester.entur.io> from GitHub Pages. `pages.yml`
+builds and publishes `build/` on every push to `master`; `ci.yml` runs the
+tests and build on pull requests.
+
+The custom domain is bound by the repo's **Pages setting**, not by any file in
+the repo: Pages ignores `CNAME` files when publishing from Actions. `pages.yml`
+keeps the hostname in `SITE_DOMAIN` and fails if the live setting does not
+match.
+
+One-time setup, before the first deploy: in Settings > Pages, set the source to
+_GitHub Actions_ and the custom domain to `geocoder-tester.entur.io`.
+
+The old Firebase Hosting site (`ent-bau-dev`) only shows a notice pointing to
+the new address, from `firebase-notice/`. Deploy it by hand with the
+_Deploy moved notice to Firebase Hosting_ workflow.
+
+Pages cannot set `X-Content-Type-Options`, CSP or `X-Frame-Options`, and
+serves a Let's Encrypt certificate rather than a Google-managed one.

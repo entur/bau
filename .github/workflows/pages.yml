@@ -1,0 +1,81 @@
+name: Publish site
+
+# Builds the app and publishes build/ to GitHub Pages.
+#
+# Publishing from an Actions workflow, the custom domain comes from the repo's
+# Pages setting, which lives outside git. A CNAME file in the artifact would be
+# ignored, so SITE_DOMAIN below is the repo's only record of the intended
+# hostname and the last step asserts the live setting still matches it.
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "**/README.md"
+      - "firebase-notice/**"
+      - "firebase.json"
+      - ".firebaserc"
+      - ".github/workflows/firebase-*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Pages allows one in-flight deployment at a time. Queue rather than cancel,
+# so a merge train does not drop the last push.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  SITE_DOMAIN: geocoder-tester.entur.io
+
+jobs:
+  # Installs from npm and builds with no write scopes, so dependency scripts
+  # cannot touch the deploy credentials.
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: npm ci
+      - run: npx vitest run
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # Above deploy-pages' own 10 minute timeout, so its error surfaces rather
+    # than the runner killing the job first.
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # Pages must already be enabled with source "GitHub Actions" and the custom
+    # domain set (see README). GITHUB_TOKEN cannot enable Pages itself.
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+      # The app is built with base "/", so it only works on the custom domain.
+      - name: Verify custom domain is bound
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          expected="${SITE_DOMAIN}"
+          actual=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq '.cname // ""')
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::Pages custom domain is '${actual}', expected '${expected}'."
+            exit 1
+          fi
+          echo "ok: serving on ${actual}"
