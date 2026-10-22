@@ -22,3 +22,6 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ENT_BAU_DEV }}"
           channelId: live
           projectId: ent-bau-dev
+          # 15.34.1 needs serviceusage.services.get, which the deploy
+          # service account lacks.
+          firebaseToolsVersion: 15.34.0
