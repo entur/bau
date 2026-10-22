@@ -62,6 +62,11 @@
     display: flex;
     align-items: flex-start;
     gap: 0.25rem;
+
+    // @entur/expand 4 zeroes this margin via :where(), which loses to .eds-paragraph
+    > p {
+      margin: 0;
+    }
   }
 }
 
