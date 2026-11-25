@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@entur/alert": "^0.21.3",
+    "@entur/alert": "^0.22.2",
     "@entur/dropdown": "^9.4.0",
     "@entur/expand": "^4.1.2",
     "@entur/form": "^10.3.2",
